@@ -40,6 +40,8 @@ using ASCOM.DeviceInterface;
 using System.Globalization;
 using System.Collections;
 
+using HidSharp;
+
 namespace ASCOM.SympleAstroFocus
 {
     //
@@ -98,6 +100,10 @@ namespace ASCOM.SympleAstroFocus
         /// </summary>
         internal TraceLogger tl;
 
+        HidDeviceLoader loader;
+        HidDevice device;
+        HidStream stream;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SympleAstroFocus"/> class.
         /// Must be public for COM registration.
@@ -113,6 +119,8 @@ namespace ASCOM.SympleAstroFocus
             utilities = new Util(); //Initialise util object
             astroUtilities = new AstroUtils(); // Initialise astro-utilities object
             //TODO: Implement your additional construction here
+
+            loader = new HidDeviceLoader();
 
             tl.LogMessage("Focuser", "Completed initialisation");
         }
