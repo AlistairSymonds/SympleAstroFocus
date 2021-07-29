@@ -41,6 +41,7 @@ using System.Globalization;
 using System.Collections;
 
 using HidSharp;
+using System.Linq;
 
 namespace ASCOM.SympleAstroFocus
 {
@@ -122,6 +123,13 @@ namespace ASCOM.SympleAstroFocus
 
             loader = new HidDeviceLoader();
 
+            loader = new HidDeviceLoader();
+            device = loader.GetDevices(56, 78).FirstOrDefault();
+            if (device == null)
+            {
+                Console.WriteLine("Failed to open device.");
+                Environment.Exit(1);
+            }
             tl.LogMessage("Focuser", "Completed initialisation");
         }
 

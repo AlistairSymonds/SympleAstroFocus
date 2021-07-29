@@ -8,11 +8,11 @@ using System.Runtime.InteropServices;
 //
 // TODO - Add your authorship information here
 [assembly: AssemblyTitle("ASCOM.SympleAstroFocus.Focuser")]
-[assembly: AssemblyDescription("ASCOM Focuser driver for SympleAstroFocus")]
+[assembly: AssemblyDescription("SympleAstroFocus ASCOM Driver")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("The ASCOM Initiative")]
-[assembly: AssemblyProduct("ASCOM Focuser driver for SympleAstroFocus")]
-[assembly: AssemblyCopyright("Copyright © 2021 The ASCOM Initiative")]
+[assembly: AssemblyProduct("SympleAstroFocus ASCOM Driver")]
+[assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
