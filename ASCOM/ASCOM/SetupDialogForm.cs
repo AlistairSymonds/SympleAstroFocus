@@ -14,14 +14,14 @@ namespace ASCOM.SympleAstroFocus
     public partial class SetupDialogForm : Form
     {
         TraceLogger tl; // Holder for a reference to the driver's trace logger
-
-        public SetupDialogForm(TraceLogger tlDriver)
+        Focuser f;
+        public SetupDialogForm(Focuser f, TraceLogger tlDriver)
         {
             InitializeComponent();
 
             // Save the provided trace logger for use within the setup dialogue
             tl = tlDriver;
-
+            this.f = f;
             // Initialise current values of user settings from the ASCOM Profile
             InitUI();
         }
@@ -30,7 +30,6 @@ namespace ASCOM.SympleAstroFocus
         {
             // Place any validation constraint checks here
             // Update the state variables with results from the dialogue
-            Focuser.comPort = (string)comboBoxComPort.SelectedItem;
             tl.Enabled = chkTrace.Checked;
         }
 
@@ -60,13 +59,45 @@ namespace ASCOM.SympleAstroFocus
         {
             chkTrace.Checked = tl.Enabled;
             // set the list of com ports to those that are currently available
-            comboBoxComPort.Items.Clear();
-            comboBoxComPort.Items.AddRange(System.IO.Ports.SerialPort.GetPortNames());      // use System.IO because it's static
-            // select the current port if possible
-            if (comboBoxComPort.Items.Contains(Focuser.comPort))
-            {
-                comboBoxComPort.SelectedItem = Focuser.comPort;
+            if (f.Connected == true) {
+
+                connectedState.Text = "CONNECTED";
             }
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox3_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox4_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void SetupDialogForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click_1(object sender, EventArgs e)
+        {
+
         }
     }
 }

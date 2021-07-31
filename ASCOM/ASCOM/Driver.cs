@@ -74,12 +74,9 @@ namespace ASCOM.SympleAstroFocus
         /// </summary>
         private static string driverDescription = "ASCOM Focuser Driver for SympleAstroFocus.";
 
-        internal static string comPortProfileName = "COM Port"; // Constants used for Profile persistence
-        internal static string comPortDefault = "COM1";
         internal static string traceStateProfileName = "Trace Level";
         internal static string traceStateDefault = "false";
-
-        internal static string comPort; // Variables to hold the current device configuration
+        
 
         /// <summary>
         /// Private variable to hold the connected state
@@ -124,12 +121,15 @@ namespace ASCOM.SympleAstroFocus
             loader = new HidDeviceLoader();
 
             loader = new HidDeviceLoader();
-            device = loader.GetDevices(56, 78).FirstOrDefault();
+            IEnumerable<HidDevice> devices = loader.GetDevices(56, 78);
+            device = devices.FirstOrDefault();
             if (device == null)
             {
                 Console.WriteLine("Failed to open device.");
                 Environment.Exit(1);
             }
+
+            connectedState = true;
             tl.LogMessage("Focuser", "Completed initialisation");
         }
 
@@ -153,7 +153,7 @@ namespace ASCOM.SympleAstroFocus
             if (IsConnected)
                 System.Windows.Forms.MessageBox.Show("Already connected, just press OK");
 
-            using (SetupDialogForm F = new SetupDialogForm(tl))
+            using (SetupDialogForm F = new SetupDialogForm(this, tl))
             {
                 var result = F.ShowDialog();
                 if (result == System.Windows.Forms.DialogResult.OK)
@@ -234,18 +234,7 @@ namespace ASCOM.SympleAstroFocus
                 if (value == IsConnected)
                     return;
 
-                if (value)
-                {
-                    connectedState = true;
-                    LogMessage("Connected Set", "Connecting to port {0}", comPort);
-                    // TODO connect to the device
-                }
-                else
-                {
-                    connectedState = false;
-                    LogMessage("Connected Set", "Disconnecting from port {0}", comPort);
-                    // TODO disconnect from the device
-                }
+   
             }
         }
 
@@ -533,7 +522,6 @@ namespace ASCOM.SympleAstroFocus
             {
                 driverProfile.DeviceType = "Focuser";
                 tl.Enabled = Convert.ToBoolean(driverProfile.GetValue(driverID, traceStateProfileName, string.Empty, traceStateDefault));
-                comPort = driverProfile.GetValue(driverID, comPortProfileName, string.Empty, comPortDefault);
             }
         }
 
@@ -546,7 +534,6 @@ namespace ASCOM.SympleAstroFocus
             {
                 driverProfile.DeviceType = "Focuser";
                 driverProfile.WriteValue(driverID, traceStateProfileName, tl.Enabled.ToString());
-                driverProfile.WriteValue(driverID, comPortProfileName, comPort.ToString());
             }
         }
 

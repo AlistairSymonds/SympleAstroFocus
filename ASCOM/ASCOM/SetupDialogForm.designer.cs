@@ -32,9 +32,12 @@ namespace ASCOM.SympleAstroFocus
             this.cmdCancel = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.picASCOM = new System.Windows.Forms.PictureBox();
-            this.label2 = new System.Windows.Forms.Label();
             this.chkTrace = new System.Windows.Forms.CheckBox();
-            this.comboBoxComPort = new System.Windows.Forms.ComboBox();
+            this.vidLabel = new System.Windows.Forms.TextBox();
+            this.vidVal = new System.Windows.Forms.TextBox();
+            this.pidLabel = new System.Windows.Forms.TextBox();
+            this.pidVal = new System.Windows.Forms.TextBox();
+            this.connectedState = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picASCOM)).BeginInit();
             this.SuspendLayout();
             // 
@@ -42,9 +45,10 @@ namespace ASCOM.SympleAstroFocus
             // 
             this.cmdOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.cmdOK.Location = new System.Drawing.Point(281, 112);
+            this.cmdOK.Location = new System.Drawing.Point(577, 257);
+            this.cmdOK.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.cmdOK.Name = "cmdOK";
-            this.cmdOK.Size = new System.Drawing.Size(59, 24);
+            this.cmdOK.Size = new System.Drawing.Size(88, 37);
             this.cmdOK.TabIndex = 0;
             this.cmdOK.Text = "OK";
             this.cmdOK.UseVisualStyleBackColor = true;
@@ -54,9 +58,10 @@ namespace ASCOM.SympleAstroFocus
             // 
             this.cmdCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.cmdCancel.Location = new System.Drawing.Point(281, 142);
+            this.cmdCancel.Location = new System.Drawing.Point(577, 303);
+            this.cmdCancel.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.cmdCancel.Name = "cmdCancel";
-            this.cmdCancel.Size = new System.Drawing.Size(59, 25);
+            this.cmdCancel.Size = new System.Drawing.Size(88, 38);
             this.cmdCancel.TabIndex = 1;
             this.cmdCancel.Text = "Cancel";
             this.cmdCancel.UseVisualStyleBackColor = true;
@@ -64,9 +69,10 @@ namespace ASCOM.SympleAstroFocus
             // 
             // label1
             // 
-            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Location = new System.Drawing.Point(18, 14);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(123, 31);
+            this.label1.Size = new System.Drawing.Size(184, 48);
             this.label1.TabIndex = 2;
             this.label1.Text = "Construct your driver\'s setup dialog here.";
             // 
@@ -75,7 +81,8 @@ namespace ASCOM.SympleAstroFocus
             this.picASCOM.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picASCOM.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picASCOM.Image = global::ASCOM.SympleAstroFocus.Properties.Resources.ASCOM;
-            this.picASCOM.Location = new System.Drawing.Point(292, 9);
+            this.picASCOM.Location = new System.Drawing.Point(593, 14);
+            this.picASCOM.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.picASCOM.Name = "picASCOM";
             this.picASCOM.Size = new System.Drawing.Size(48, 56);
             this.picASCOM.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -84,52 +91,90 @@ namespace ASCOM.SympleAstroFocus
             this.picASCOM.Click += new System.EventHandler(this.BrowseToAscom);
             this.picASCOM.DoubleClick += new System.EventHandler(this.BrowseToAscom);
             // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(13, 90);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(58, 13);
-            this.label2.TabIndex = 5;
-            this.label2.Text = "Comm Port";
-            // 
             // chkTrace
             // 
             this.chkTrace.AutoSize = true;
-            this.chkTrace.Location = new System.Drawing.Point(77, 118);
+            this.chkTrace.Location = new System.Drawing.Point(11, 232);
+            this.chkTrace.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.chkTrace.Name = "chkTrace";
-            this.chkTrace.Size = new System.Drawing.Size(69, 17);
+            this.chkTrace.Size = new System.Drawing.Size(97, 24);
             this.chkTrace.TabIndex = 6;
             this.chkTrace.Text = "Trace on";
             this.chkTrace.UseVisualStyleBackColor = true;
             // 
-            // comboBoxComPort
+            // vidLabel
             // 
-            this.comboBoxComPort.FormattingEnabled = true;
-            this.comboBoxComPort.Location = new System.Drawing.Point(77, 87);
-            this.comboBoxComPort.Name = "comboBoxComPort";
-            this.comboBoxComPort.Size = new System.Drawing.Size(90, 21);
-            this.comboBoxComPort.TabIndex = 7;
+            this.vidLabel.Location = new System.Drawing.Point(12, 128);
+            this.vidLabel.Name = "vidLabel";
+            this.vidLabel.ReadOnly = true;
+            this.vidLabel.Size = new System.Drawing.Size(100, 26);
+            this.vidLabel.TabIndex = 7;
+            this.vidLabel.Text = "Vendor ID";
+            this.vidLabel.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            // 
+            // vidVal
+            // 
+            this.vidVal.Location = new System.Drawing.Point(118, 128);
+            this.vidVal.Name = "vidVal";
+            this.vidVal.ReadOnly = true;
+            this.vidVal.Size = new System.Drawing.Size(100, 26);
+            this.vidVal.TabIndex = 8;
+            this.vidVal.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
+            // 
+            // pidLabel
+            // 
+            this.pidLabel.Location = new System.Drawing.Point(12, 160);
+            this.pidLabel.Name = "pidLabel";
+            this.pidLabel.ReadOnly = true;
+            this.pidLabel.Size = new System.Drawing.Size(100, 26);
+            this.pidLabel.TabIndex = 9;
+            this.pidLabel.Text = "Product ID";
+            this.pidLabel.TextChanged += new System.EventHandler(this.textBox3_TextChanged);
+            // 
+            // pidVal
+            // 
+            this.pidVal.Location = new System.Drawing.Point(118, 160);
+            this.pidVal.Name = "pidVal";
+            this.pidVal.ReadOnly = true;
+            this.pidVal.Size = new System.Drawing.Size(100, 26);
+            this.pidVal.TabIndex = 10;
+            this.pidVal.TextChanged += new System.EventHandler(this.textBox4_TextChanged);
+            // 
+            // connectedState
+            // 
+            this.connectedState.AutoSize = true;
+            this.connectedState.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.connectedState.Location = new System.Drawing.Point(12, 93);
+            this.connectedState.Name = "connectedState";
+            this.connectedState.Size = new System.Drawing.Size(138, 22);
+            this.connectedState.TabIndex = 11;
+            this.connectedState.Text = "DISCONNECTED";
+            this.connectedState.Click += new System.EventHandler(this.label2_Click_1);
             // 
             // SetupDialogForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(350, 175);
-            this.Controls.Add(this.comboBoxComPort);
+            this.ClientSize = new System.Drawing.Size(680, 354);
+            this.Controls.Add(this.connectedState);
+            this.Controls.Add(this.pidVal);
+            this.Controls.Add(this.pidLabel);
+            this.Controls.Add(this.vidVal);
+            this.Controls.Add(this.vidLabel);
             this.Controls.Add(this.chkTrace);
-            this.Controls.Add(this.label2);
             this.Controls.Add(this.picASCOM);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.cmdCancel);
             this.Controls.Add(this.cmdOK);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "SetupDialogForm";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "SympleAstroFocus Setup";
+            this.Load += new System.EventHandler(this.SetupDialogForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.picASCOM)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -142,8 +187,11 @@ namespace ASCOM.SympleAstroFocus
         private System.Windows.Forms.Button cmdCancel;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.PictureBox picASCOM;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox chkTrace;
-        private System.Windows.Forms.ComboBox comboBoxComPort;
+        private System.Windows.Forms.TextBox vidLabel;
+        private System.Windows.Forms.TextBox vidVal;
+        private System.Windows.Forms.TextBox pidLabel;
+        private System.Windows.Forms.TextBox pidVal;
+        private System.Windows.Forms.Label connectedState;
     }
 }
