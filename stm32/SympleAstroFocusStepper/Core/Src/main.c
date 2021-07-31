@@ -21,6 +21,7 @@
 #include "main.h"
 #include "usb_device.h"
 
+#include "sym_defs.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -62,7 +63,7 @@ static void MX_TIM3_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+extern USBD_HandleTypeDef hUsbDeviceFS;
 /* USER CODE END 0 */
 
 /**
@@ -97,9 +98,18 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USB_DEVICE_Init();
   MX_TIM3_Init();
-  /* USER CODE BEGIN 2 */
 
-  /* USER CODE END 2 */
+  //make some dummy data and send repeatedly
+  uint32_t test_buffer[STATE_LENGTH_DWORDS];
+  test_buffer[STATE_ID_DWORD] = STATE_ID_0;
+  test_buffer[COMMAND_DWORD] = 0xDEED;
+  test_buffer[STATUS_DWORD] = 0x2F2F;
+  test_buffer[CURRENT_POSITION_DWORD] = 12345;
+  test_buffer[SET_POSITION_DWORD] = 600;
+  test_buffer[MAX_POSITION_DWORD] = 50000;
+  test_buffer[STEP_TIME] = 50; //50ms
+  test_buffer[STEP_MODE] = 128; // 128 microsteps
+
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -108,6 +118,7 @@ int main(void)
     /* USER CODE END WHILE */
 	  HAL_Delay(500);
 	  HAL_GPIO_TogglePin(GPIOC, LED_Pin);
+	  USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,(uint8_t*)test_buffer,SYM_EP_SIZE);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
