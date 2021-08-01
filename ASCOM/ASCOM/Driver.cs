@@ -98,7 +98,7 @@ namespace ASCOM.SympleAstroFocus
         /// </summary>
         internal TraceLogger tl;
 
-        HidDeviceLoader loader;
+        FilteredDeviceList devices;
         HidDevice device;
         HidStream stream;
 
@@ -118,19 +118,45 @@ namespace ASCOM.SympleAstroFocus
             astroUtilities = new AstroUtils(); // Initialise astro-utilities object
             //TODO: Implement your additional construction here
 
-            loader = new HidDeviceLoader();
+            devices = new FilteredDeviceList();
+            devices.Add(DeviceList.Local);
+            updateConnectionStatus();
 
-            loader = new HidDeviceLoader();
-            IEnumerable<HidDevice> devices = loader.GetDevices(56, 78);
-            device = devices.FirstOrDefault();
-            if (device == null)
+            
+
+            tl.LogMessage("Focuser", "Completed initialisation");
+        }
+
+
+        protected virtual void OnDevicesChanged(EventArgs e)
+        {
+            updateConnectionStatus();
+        }
+
+        public bool updateConnectionStatus()
+        {
+            bool existingConnectedState = connectedState;
+            if (connectedState == false)
             {
-                Console.WriteLine("Failed to open device.");
-                Environment.Exit(1);
+
+                IEnumerable<HidDevice> candidate_devices = devices.GetHidDevices(56, 78);
+
+
+                device = candidate_devices.FirstOrDefault();
+                if (device != null)
+                {
+                    HidSharp.Reports.ReportDescriptor desc =  device.GetReportDescriptor();
+                    Console.WriteLine(desc.ToString());
+                }
+            }
+            
+
+            
+            if (connectedState == existingConnectedState) {
+                return false;
             }
 
-            connectedState = true;
-            tl.LogMessage("Focuser", "Completed initialisation");
+            return true;
         }
 
 
