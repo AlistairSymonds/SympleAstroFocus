@@ -16,3 +16,7 @@
 #define STEP_MODE 7
 
 
+#define STATUS_REVERSE_BIT   ( 1 << 0)
+#define STATUS_IS_MOVING_BIT ( 1 << 1)
+#define STATUS_STALLED_BIT   ( 1 << 2)
+#define STATUS_HOMING_BIT    ( 1 << 3)

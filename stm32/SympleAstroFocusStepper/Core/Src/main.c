@@ -64,6 +64,20 @@ static void MX_TIM3_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 extern USBD_HandleTypeDef hUsbDeviceFS;
+TIM_HandleTypeDef htim3;
+
+volatile uint32_t status_flags;
+volatile uint32_t current_pos = 0;
+volatile uint32_t set_pos = 50000;
+volatile uint32_t step_time_ms;
+
+typedef enum
+{
+  POSEDGE,
+  NEGEDGE
+} edge_dir_t;
+volatile edge_dir_t next_edge_dir = POSEDGE;
+
 /* USER CODE END 0 */
 
 /**
@@ -98,17 +112,9 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USB_DEVICE_Init();
   MX_TIM3_Init();
+  HAL_TIM_Base_Start_IT(&htim3);
 
-  //make some dummy data and send repeatedly
-  uint32_t test_buffer[STATE_LENGTH_DWORDS];
-  test_buffer[STATE_ID_DWORD] = STATE_ID_0;
-  test_buffer[COMMAND_DWORD] = 0xDEED;
-  test_buffer[STATUS_DWORD] = 0x2F2F;
-  test_buffer[CURRENT_POSITION_DWORD] = 12345;
-  test_buffer[SET_POSITION_DWORD] = 600;
-  test_buffer[MAX_POSITION_DWORD] = 50000;
-  test_buffer[STEP_TIME] = 50; //50ms
-  test_buffer[STEP_MODE] = 128; // 128 microsteps
+
 
 
   /* Infinite loop */
@@ -117,12 +123,74 @@ int main(void)
   {
     /* USER CODE END WHILE */
 	  HAL_Delay(500);
-	  HAL_GPIO_TogglePin(GPIOC, LED_Pin);
-	  USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS,(uint8_t*)test_buffer,SYM_EP_SIZE);
+
+	  //make some dummy data and send repeatedly
+	  uint32_t test_buffer[STATE_LENGTH_DWORDS];
+	  test_buffer[STATE_ID_DWORD] = STATE_ID_0;
+	  test_buffer[COMMAND_DWORD] = 0x89ABCDEF;
+	  test_buffer[STATUS_DWORD] = status_flags;
+	  test_buffer[CURRENT_POSITION_DWORD] = current_pos;
+	  test_buffer[SET_POSITION_DWORD] = set_pos;
+	  test_buffer[MAX_POSITION_DWORD] = 0x0FFFFFFF;
+	  test_buffer[STEP_TIME] = 50; //50ms
+	  test_buffer[STEP_MODE] = 128; // 128 microsteps
+
+	  uint8_t usb_data[SYM_EP_SIZE];
+	  memcpy(usb_data, test_buffer, 32);
+
+	  USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, (uint8_t*)usb_data, SYM_EP_SIZE);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
+
+
+void do_step(){
+	if (next_edge_dir == POSEDGE)
+	  {
+	    HAL_GPIO_WritePin(GPIOA, STEP_Pin, GPIO_PIN_SET);
+	    next_edge_dir = NEGEDGE;
+	  }
+	  else
+	  {
+		HAL_GPIO_WritePin(GPIOA, STEP_Pin, GPIO_PIN_RESET);
+	    next_edge_dir = POSEDGE;
+	  }
+}
+
+void update_motor_pos()
+{
+  if (current_pos != set_pos) //do a step
+  {
+	GPIO_PinState shaft_dir = current_pos < set_pos ? GPIO_PIN_SET : GPIO_PIN_RESET;
+
+    if (status_flags & STATUS_REVERSE_BIT){
+    	shaft_dir = !shaft_dir;
+    }
+
+    HAL_GPIO_WritePin(GPIOA, DIR_Pin, shaft_dir);
+    do_step();
+    if (shaft_dir)
+    {
+      current_pos++;
+    }
+    else
+    {
+      current_pos--;
+    }
+    status_flags |= STATUS_IS_MOVING_BIT; //if we've moved set the bit
+  } else {
+	  status_flags &=~ STATUS_IS_MOVING_BIT;
+  }
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
+{
+	HAL_GPIO_TogglePin(GPIOC, LED_Pin);
+	update_motor_pos();
+}
+
+
 
 /**
   * @brief System Clock Configuration
