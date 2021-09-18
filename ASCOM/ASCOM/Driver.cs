@@ -31,7 +31,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.ComponentModel;
 
+using System.Net;
 using ASCOM;
 using ASCOM.Astrometry;
 using ASCOM.Astrometry.AstroUtils;
@@ -39,9 +42,12 @@ using ASCOM.Utilities;
 using ASCOM.DeviceInterface;
 using System.Globalization;
 using System.Collections;
+using System.Collections.Specialized;
 
 using HidSharp;
 using System.Linq;
+
+
 
 namespace ASCOM.SympleAstroFocus
 {
@@ -102,6 +108,16 @@ namespace ASCOM.SympleAstroFocus
         HidDevice device;
         HidStream stream;
 
+        BackgroundWorker usbBgWorker;
+
+        #region IFocuser variables
+        private uint currentPos = 0; // Class level variable to hold the current focuser position
+        private uint appSetPos = 0;
+        private uint deviceSetPos = 0;
+        private uint maxPos = 0;
+        private Constants.Status_Dword_Bits status_flags;
+        #endregion
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SympleAstroFocus"/> class.
         /// Must be public for COM registration.
@@ -116,7 +132,7 @@ namespace ASCOM.SympleAstroFocus
             connectedState = false; // Initialise connected to false
             utilities = new Util(); //Initialise util object
             astroUtilities = new AstroUtils(); // Initialise astro-utilities object
-            //TODO: Implement your additional construction here
+
 
             devices = new FilteredDeviceList();
             devices.Add(DeviceList.Local);
@@ -139,6 +155,7 @@ namespace ASCOM.SympleAstroFocus
             if (connectedState == false)
             {
 
+                //nothing connected, try to connect
                 IEnumerable<HidDevice> candidate_devices = devices.GetHidDevices(56, 78);
 
 
@@ -147,11 +164,23 @@ namespace ASCOM.SympleAstroFocus
                 {
                     HidSharp.Reports.ReportDescriptor desc =  device.GetReportDescriptor();
                     Console.WriteLine(desc.ToString());
-                }
-            }
-            
 
-            
+
+                    connectedState = true;
+                    //
+                    updateStateFromDevice();
+                    usbBgWorker = new BackgroundWorker();
+                    usbBgWorker.DoWork += new DoWorkEventHandler(bgThread);
+                    usbBgWorker.RunWorkerAsync();
+                }
+            } else {
+
+                //we're already connected - make sure its still there
+                //TODO
+            }
+
+
+
             if (connectedState == existingConnectedState) {
                 return false;
             }
@@ -159,7 +188,79 @@ namespace ASCOM.SympleAstroFocus
             return true;
         }
 
+        private void bgThread(object sender,
+            DoWorkEventArgs e)
+        {   
+            while (true)
+            {
+                updateStateFromDevice();
+                Thread.Sleep(1000);
+            }
+        }
 
+        private int updateStateFromDevice()
+        {
+
+            int bytes_read = 0;
+            if (!device.TryOpen(out stream))
+            {
+                Console.WriteLine("Failed to open device.");
+                throw new ASCOM.NotConnectedException("Couldn't open a stream for reading latest state from device");
+            }
+
+            using (stream)
+            {
+
+                byte[] bytes;
+                bytes = new byte[64];
+
+                UInt32[] dwords_from_dev;
+                dwords_from_dev = new UInt32[16];
+                try
+                {
+                    bytes_read = stream.Read(bytes);
+                    Console.WriteLine(bytes);
+
+                    for (int i = 1; i < bytes_read-4; i=i+4) //starting at 1 is weird - might be HidSharp or uC code's fault
+                    {
+                        int dword = BitConverter.ToInt32(bytes, i);
+                        //dword = IPAddress.HostToNetworkOrder(dword);
+                        dwords_from_dev[i / 4] = unchecked((uint)dword);
+                    }
+
+                    switch (dwords_from_dev[Constants.STATE_ID_DWORD])
+                    {
+                        case Constants.STATE_ID_0:
+                            decodeStateId0(dwords_from_dev);
+                            break;
+                        default:
+                            Console.WriteLine("Unrecognised state word type");
+                            break;
+                    }
+                }
+                catch (TimeoutException)
+                {
+                    Console.WriteLine("Read timed out.");
+                }
+
+            }
+            return bytes_read;
+        }
+
+        private void decodeStateId0(UInt32[] state_words)
+        {
+            currentPos   = state_words[Constants.CURRENT_POSITION_DWORD];
+            maxPos       = state_words[Constants.MAX_POSITION_DWORD];
+            deviceSetPos = state_words[Constants.SET_POSITION_DWORD];
+
+            status_flags = (Constants.Status_Dword_Bits)state_words[Constants.STATUS_DWORD];
+            //isMoving = Constants.Status_Dword_Bits.HasFlag();// state_words[Constants.STATUS_DWORD] & .STATUS_IS_MOVING_BIT;
+        }
+
+        private void updateDeviceFromHost()
+        {
+
+        }
         //
         // PUBLIC COM INTERFACE IFocuserV3 IMPLEMENTATION
         //
@@ -321,14 +422,11 @@ namespace ASCOM.SympleAstroFocus
 
         #region IFocuser Implementation
 
-        private int focuserPosition = 0; // Class level variable to hold the current focuser position
-        private const int focuserSteps = 10000;
 
         public bool Absolute
         {
             get
             {
-                tl.LogMessage("Absolute Get", true.ToString());
                 return true; // This is an absolute focuser
             }
         }
@@ -344,7 +442,7 @@ namespace ASCOM.SympleAstroFocus
             get
             {
                 tl.LogMessage("IsMoving Get", false.ToString());
-                return false; // This focuser always moves instantaneously so no need for IsMoving ever to be True
+                return status_flags.HasFlag(Constants.Status_Dword_Bits.STATUS_IS_MOVING_BIT);
             }
         }
 
@@ -366,8 +464,7 @@ namespace ASCOM.SympleAstroFocus
         {
             get
             {
-                tl.LogMessage("MaxIncrement Get", focuserSteps.ToString());
-                return focuserSteps; // Maximum change in one move
+                return Convert.ToInt32(maxPos); // Maximum change in one move
             }
         }
 
@@ -375,22 +472,21 @@ namespace ASCOM.SympleAstroFocus
         {
             get
             {
-                tl.LogMessage("MaxStep Get", focuserSteps.ToString());
-                return focuserSteps; // Maximum extent of the focuser, so position range is 0 to 10,000
+                return Convert.ToInt32(maxPos);
             }
         }
 
         public void Move(int Position)
         {
             tl.LogMessage("Move", Position.ToString());
-            focuserPosition = Position; // Set the focuser position
+            appSetPos = Convert.ToUInt32(Position); // Set the focuser position
         }
 
         public int Position
         {
             get
             {
-                return focuserPosition; // Return the focuser position
+                return Convert.ToInt32(currentPos); // Return the focuser position
             }
         }
 
@@ -432,6 +528,18 @@ namespace ASCOM.SympleAstroFocus
             {
                 tl.LogMessage("Temperature Get", "Not implemented");
                 throw new ASCOM.PropertyNotImplementedException("Temperature", false);
+            }
+        }
+
+        #endregion
+
+        #region SympleAstro specific information
+        
+        public string SerialNumber
+        {
+            get
+            {
+                return device.GetSerialNumber();
             }
         }
 

@@ -58,10 +58,23 @@ namespace ASCOM.SympleAstroFocus
         private void InitUI()
         {
             chkTrace.Checked = tl.Enabled;
-            // set the list of com ports to those that are currently available
-            if (f.Connected == true) {
+
+
+
+            updateDisplayedValues();
+
+
+        }
+
+        private void updateDisplayedValues()
+        {
+            serialNumberVal.Text = "";
+
+            if (f.Connected == true)
+            {
 
                 connectedState.Text = "CONNECTED";
+                serialNumberVal.Text = f.SerialNumber;
             }
         }
 
@@ -96,6 +109,11 @@ namespace ASCOM.SympleAstroFocus
         }
 
         private void label2_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click_2(object sender, EventArgs e)
         {
 
         }

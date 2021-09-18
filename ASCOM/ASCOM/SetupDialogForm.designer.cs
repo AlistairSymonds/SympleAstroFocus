@@ -38,6 +38,8 @@ namespace ASCOM.SympleAstroFocus
             this.pidLabel = new System.Windows.Forms.TextBox();
             this.pidVal = new System.Windows.Forms.TextBox();
             this.connectedState = new System.Windows.Forms.Label();
+            this.serialNumberLabel = new System.Windows.Forms.Label();
+            this.serialNumberVal = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picASCOM)).BeginInit();
             this.SuspendLayout();
             // 
@@ -94,7 +96,7 @@ namespace ASCOM.SympleAstroFocus
             // chkTrace
             // 
             this.chkTrace.AutoSize = true;
-            this.chkTrace.Location = new System.Drawing.Point(11, 232);
+            this.chkTrace.Location = new System.Drawing.Point(577, 80);
             this.chkTrace.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.chkTrace.Name = "chkTrace";
             this.chkTrace.Size = new System.Drawing.Size(97, 24);
@@ -114,7 +116,7 @@ namespace ASCOM.SympleAstroFocus
             // 
             // vidVal
             // 
-            this.vidVal.Location = new System.Drawing.Point(118, 128);
+            this.vidVal.Location = new System.Drawing.Point(130, 128);
             this.vidVal.Name = "vidVal";
             this.vidVal.ReadOnly = true;
             this.vidVal.Size = new System.Drawing.Size(100, 26);
@@ -133,7 +135,7 @@ namespace ASCOM.SympleAstroFocus
             // 
             // pidVal
             // 
-            this.pidVal.Location = new System.Drawing.Point(118, 160);
+            this.pidVal.Location = new System.Drawing.Point(130, 160);
             this.pidVal.Name = "pidVal";
             this.pidVal.ReadOnly = true;
             this.pidVal.Size = new System.Drawing.Size(100, 26);
@@ -151,11 +153,32 @@ namespace ASCOM.SympleAstroFocus
             this.connectedState.Text = "DISCONNECTED";
             this.connectedState.Click += new System.EventHandler(this.label2_Click_1);
             // 
+            // serialNumberLabel
+            // 
+            this.serialNumberLabel.AutoSize = true;
+            this.serialNumberLabel.Location = new System.Drawing.Point(11, 193);
+            this.serialNumberLabel.Name = "serialNumberLabel";
+            this.serialNumberLabel.Size = new System.Drawing.Size(109, 20);
+            this.serialNumberLabel.TabIndex = 12;
+            this.serialNumberLabel.Text = "Serial Number";
+            this.serialNumberLabel.Click += new System.EventHandler(this.label2_Click_2);
+            // 
+            // serialNumberVal
+            // 
+            this.serialNumberVal.AutoSize = true;
+            this.serialNumberVal.Location = new System.Drawing.Point(126, 193);
+            this.serialNumberVal.Name = "serialNumberVal";
+            this.serialNumberVal.Size = new System.Drawing.Size(109, 20);
+            this.serialNumberVal.TabIndex = 13;
+            this.serialNumberVal.Text = "Serial Number";
+            // 
             // SetupDialogForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(680, 354);
+            this.Controls.Add(this.serialNumberVal);
+            this.Controls.Add(this.serialNumberLabel);
             this.Controls.Add(this.connectedState);
             this.Controls.Add(this.pidVal);
             this.Controls.Add(this.pidLabel);
@@ -193,5 +216,7 @@ namespace ASCOM.SympleAstroFocus
         private System.Windows.Forms.TextBox pidLabel;
         private System.Windows.Forms.TextBox pidVal;
         private System.Windows.Forms.Label connectedState;
+        private System.Windows.Forms.Label serialNumberLabel;
+        private System.Windows.Forms.Label serialNumberVal;
     }
 }

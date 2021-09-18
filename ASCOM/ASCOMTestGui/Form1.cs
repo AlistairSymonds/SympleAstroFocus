@@ -56,5 +56,10 @@ namespace ASCOM.SympleAstroFocus
                 return ((this.driver != null) && (driver.Connected == true));
             }
         }
+
+        private void driver_config_button_Click(object sender, EventArgs e)
+        {
+            driver.SetupDialog();
+        }
     }
 }
