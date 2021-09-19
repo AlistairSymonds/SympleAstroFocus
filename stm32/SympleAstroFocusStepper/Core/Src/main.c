@@ -21,6 +21,8 @@
 #include "main.h"
 #include "usb_device.h"
 
+#include "tmc/ic/TMC2209/TMC2209.h"
+
 #include "sym_defs.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -57,6 +59,7 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_TIM3_Init(void);
+static void STEPPER_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -66,10 +69,18 @@ static void MX_TIM3_Init(void);
 extern USBD_HandleTypeDef hUsbDeviceFS;
 TIM_HandleTypeDef htim3;
 
+static TMC2209TypeDef TMC2209;
+volatile static ConfigurationTypeDef TMC2209_config;
+// Helper macro - index is always 1 here (channel 1 <-> index 0, channel 2 <-> index 1)
+#define TMC2209_CRC(data, length) tmc_CRC8(data, length, 1)
+
 volatile uint32_t status_flags;
 volatile uint32_t current_pos = 0;
 volatile uint32_t set_pos = 50000;
 volatile uint32_t step_time_ms;
+
+
+uint32_t last_usb_ms = 0;
 
 typedef enum
 {
@@ -80,6 +91,17 @@ volatile edge_dir_t next_edge_dir = POSEDGE;
 
 /* USER CODE END 0 */
 
+void tmc2209_readWriteArray(uint8_t channel, uint8_t *data, size_t writeLength, size_t readLength)
+{
+
+	HAL_UART_Transmit(&huart2, data, writeLength, HAL_MAX_DELAY);
+}
+
+// Return the CRC8 of [length] bytes of data stored in the [data] array.
+uint8_t tmc2209_CRC8(uint8_t *data, size_t length)
+{
+	return TMC2209_CRC(data, length);
+}
 /**
   * @brief  The application entry point.
   * @retval int
@@ -111,10 +133,12 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   MX_USB_DEVICE_Init();
+  STEPPER_Init();
+  tmc2209_restore(&TMC2209);
+
+
   MX_TIM3_Init();
   HAL_TIM_Base_Start_IT(&htim3);
-
-
 
 
   /* Infinite loop */
@@ -122,23 +146,32 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  HAL_Delay(500);
+	  if (HAL_GetTick() - last_usb_ms > 500){
+		  //make some dummy data and send repeatedly
+		  uint32_t test_buffer[STATE_LENGTH_DWORDS];
+		  test_buffer[STATE_ID_DWORD] = STATE_ID_0;
+		  test_buffer[COMMAND_DWORD] = 0x89ABCDEF;
+		  test_buffer[STATUS_DWORD] = status_flags;
+		  test_buffer[CURRENT_POSITION_DWORD] = current_pos;
+		  test_buffer[SET_POSITION_DWORD] = set_pos;
+		  test_buffer[MAX_POSITION_DWORD] = 0x0FFFFFFF;
+		  test_buffer[STEP_TIME] = 50; //50ms
+		  test_buffer[STEP_MODE] = 128; // 128 microsteps
 
-	  //make some dummy data and send repeatedly
-	  uint32_t test_buffer[STATE_LENGTH_DWORDS];
-	  test_buffer[STATE_ID_DWORD] = STATE_ID_0;
-	  test_buffer[COMMAND_DWORD] = 0x89ABCDEF;
-	  test_buffer[STATUS_DWORD] = status_flags;
-	  test_buffer[CURRENT_POSITION_DWORD] = current_pos;
-	  test_buffer[SET_POSITION_DWORD] = set_pos;
-	  test_buffer[MAX_POSITION_DWORD] = 0x0FFFFFFF;
-	  test_buffer[STEP_TIME] = 50; //50ms
-	  test_buffer[STEP_MODE] = 128; // 128 microsteps
+		  uint8_t usb_data[SYM_EP_SIZE];
+		  memcpy(usb_data, test_buffer, 32);
 
-	  uint8_t usb_data[SYM_EP_SIZE];
-	  memcpy(usb_data, test_buffer, 32);
+		  USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, (uint8_t*)usb_data, SYM_EP_SIZE);
+		  last_usb_ms = HAL_GetTick();
+	  }
 
-	  USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, (uint8_t*)usb_data, SYM_EP_SIZE);
+
+	  tmc2209_periodicJob(&TMC2209, HAL_GetTick());
+
+	  if(TMC2209_config.state == CONFIG_READY){
+
+		  HAL_GPIO_WritePin(GPIOA, ENN_Pin, GPIO_PIN_RESET);
+	  }
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -160,7 +193,7 @@ void do_step(){
 
 void update_motor_pos()
 {
-  if (current_pos != set_pos) //do a step
+  if (current_pos != set_pos && (TMC2209_config.state == CONFIG_READY)) //do a step
   {
 	GPIO_PinState shaft_dir = current_pos < set_pos ? GPIO_PIN_SET : GPIO_PIN_RESET;
 
@@ -180,7 +213,7 @@ void update_motor_pos()
     }
     status_flags |= STATUS_IS_MOVING_BIT; //if we've moved set the bit
   } else {
-	  status_flags &=~ STATUS_IS_MOVING_BIT;
+	status_flags &=~ STATUS_IS_MOVING_BIT;
   }
 }
 
@@ -298,7 +331,7 @@ static void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 9600;
+  huart2.Init.BaudRate = 115200;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
@@ -367,7 +400,10 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, STEP_Pin|DIR_Pin|ENN_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, STEP_Pin|DIR_Pin, GPIO_PIN_RESET);
+
+
+  HAL_GPIO_WritePin(GPIOA, ENN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : LED_Pin */
   GPIO_InitStruct.Pin = LED_Pin;
@@ -391,10 +427,28 @@ static void MX_GPIO_Init(void)
 
 }
 
-/* USER CODE BEGIN 4 */
+void STEPPER_Init(void)
+{
+	tmc_fillCRC8Table(0x07, true, 1);
 
-/* USER CODE END 4 */
 
+	TMC2209_config.channel = 0;
+
+	TMC2209_config.shadowRegister[TMC2209_GCONF] |= TMC2209_INTERNAL_RSENSE_MASK;
+	TMC2209_config.shadowRegister[TMC2209_GCONF] |= TMC2209_SHAFT_MASK;
+	TMC2209_config.shadowRegister[TMC2209_GCONF] |= TMC2209_PDN_DISABLE_MASK;
+	TMC2209_config.shadowRegister[TMC2209_GCONF] |= TMC2209_MSTEP_REG_SELECT_MASK;
+
+	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] = 0;
+	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] |= (8 << TMC2209_IRUN_SHIFT)  &  TMC2209_IRUN_MASK;
+	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] |= (1 << TMC2209_IHOLD_SHIFT) &  TMC2209_IHOLD_MASK;
+	//TMC2209_config.shadowRegister[TMC2209_CHOPCONF] |= (8 << TMC2209_MRES_SHIFT) &  TMC2209_MRES_MASK;
+	tmc2209_init(&TMC2209, 0, 0, &TMC2209_config, &tmc2209_defaultRegisterResetState[0]);
+
+
+
+
+};
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
