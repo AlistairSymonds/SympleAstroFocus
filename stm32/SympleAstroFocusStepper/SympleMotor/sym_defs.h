@@ -20,6 +20,9 @@
 #define STEP_MODE 7
 
 
+#define COMMAND_TOGGLE_REVERSE_BIT   ( 1 << 0)
+#define COMMAND_SET_ZERO_BIT   ( 1 << 1)
+
 #define STATUS_REVERSE_BIT   ( 1 << 0)
 #define STATUS_IS_MOVING_BIT ( 1 << 1)
 #define STATUS_STALLED_BIT   ( 1 << 2)
@@ -34,5 +37,6 @@ static const uint16_t sym_state_writeable_dwords[NUM_STATE_INFOS]={
 		0xF2
 };
 
+void process_command_bits();
 
 #endif

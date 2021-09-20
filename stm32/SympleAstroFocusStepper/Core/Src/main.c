@@ -139,7 +139,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  if (HAL_GetTick() - last_usb_ms > 500){
+	  if (HAL_GetTick() - last_usb_ms > 16){
 		  //make some dummy data and send repeatedly
 
 		  uint8_t usb_data[SYM_EP_SIZE];
