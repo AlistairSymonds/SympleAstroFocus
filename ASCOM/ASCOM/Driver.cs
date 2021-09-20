@@ -111,10 +111,14 @@ namespace ASCOM.SympleAstroFocus
         BackgroundWorker usbBgWorker;
 
         #region IFocuser variables
-        private uint currentPos = 0; // Class level variable to hold the current focuser position
+        //TODO: figure out out the most "C#" way of maintaining these variables
+        //small class, tuple, array per var?
+        private uint appCurrentPos = 0; 
+        private uint deviceCurrentPos = 0;
         private uint appSetPos = 0;
         private uint deviceSetPos = 0;
-        private uint maxPos = 0;
+        private uint appMaxPos = 0;
+        private uint deviceMaxPos = 0;
         private Constants.Status_Dword_Bits status_flags;
         #endregion
 
@@ -169,6 +173,7 @@ namespace ASCOM.SympleAstroFocus
                     connectedState = true;
                     //
                     updateStateFromDevice();
+                    syncAppFromDeviceState();
                     usbBgWorker = new BackgroundWorker();
                     usbBgWorker.DoWork += new DoWorkEventHandler(bgThread);
                     usbBgWorker.RunWorkerAsync();
@@ -188,12 +193,15 @@ namespace ASCOM.SympleAstroFocus
             return true;
         }
 
+        public event EventHandler UpdateRecievdFromDevice;
+
         private void bgThread(object sender,
             DoWorkEventArgs e)
         {   
             while (true)
             {
                 updateStateFromDevice();
+                updateDeviceFromHost();
                 Thread.Sleep(1000);
             }
         }
@@ -244,23 +252,66 @@ namespace ASCOM.SympleAstroFocus
                 }
 
             }
+            UpdateRecievdFromDevice?.Invoke(this, EventArgs.Empty);
             return bytes_read;
         }
 
-        private void decodeStateId0(UInt32[] state_words)
+        private void decodeStateId0(uint[] state_words)
         {
-            currentPos   = state_words[Constants.CURRENT_POSITION_DWORD];
-            maxPos       = state_words[Constants.MAX_POSITION_DWORD];
-            deviceSetPos = state_words[Constants.SET_POSITION_DWORD];
+            deviceCurrentPos   = state_words[Constants.CURRENT_POSITION_DWORD];
+            deviceMaxPos       = state_words[Constants.MAX_POSITION_DWORD];
+            deviceSetPos       = state_words[Constants.SET_POSITION_DWORD];
 
             status_flags = (Constants.Status_Dword_Bits)state_words[Constants.STATUS_DWORD];
-            //isMoving = Constants.Status_Dword_Bits.HasFlag();// state_words[Constants.STATUS_DWORD] & .STATUS_IS_MOVING_BIT;
         }
 
         private void updateDeviceFromHost()
-        {
+        {   
+            //if (stale values on dev)
+            if (!device.TryOpen(out stream))
+            {
+                Console.WriteLine("Failed to open device.");
+                throw new ASCOM.NotConnectedException("Couldn't open a stream for writing latest state to device");
+            }
 
+            using (stream)
+            {
+
+                byte[] bytes;
+                bytes = new byte[65];
+
+                uint[] dwords_to_dev;
+                dwords_to_dev = new uint[16];
+
+                dwords_to_dev[Constants.STATE_ID_DWORD] = Constants.STATE_ID_0;
+                //This isn't right
+                //dwords_to_dev[Constants.CURRENT_POSITION_DWORD] = appCurrentPos;
+                dwords_to_dev[Constants.SET_POSITION_DWORD] = appSetPos;
+                dwords_to_dev[Constants.MAX_POSITION_DWORD] = appMaxPos;
+
+                for (int i = 0; i < dwords_to_dev.Length; i++)
+                {
+                    byte[] dword_as_bytes;
+                    dword_as_bytes = BitConverter.GetBytes(dwords_to_dev[i]);
+                    for(int j = 0; j < 4; j++)
+                    {
+                        bytes[1+(i * 4) + j] = dword_as_bytes[j];
+                    }
+                }
+                bytes[0] = 1;
+                stream.Write(bytes);
+
+            }
+            
         }
+
+        private void syncAppFromDeviceState()
+        {
+            appMaxPos = deviceMaxPos;
+            appSetPos = deviceSetPos;
+            appCurrentPos = deviceCurrentPos;
+        }
+    
         //
         // PUBLIC COM INTERFACE IFocuserV3 IMPLEMENTATION
         //
@@ -464,7 +515,7 @@ namespace ASCOM.SympleAstroFocus
         {
             get
             {
-                return Convert.ToInt32(maxPos); // Maximum change in one move
+                return Convert.ToInt32(deviceMaxPos); // Maximum change in one move
             }
         }
 
@@ -472,13 +523,14 @@ namespace ASCOM.SympleAstroFocus
         {
             get
             {
-                return Convert.ToInt32(maxPos);
+                return Convert.ToInt32(deviceMaxPos);
             }
         }
 
         public void Move(int Position)
         {
             tl.LogMessage("Move", Position.ToString());
+            Console.WriteLine(Position.ToString());
             appSetPos = Convert.ToUInt32(Position); // Set the focuser position
         }
 
@@ -486,7 +538,7 @@ namespace ASCOM.SympleAstroFocus
         {
             get
             {
-                return Convert.ToInt32(currentPos); // Return the focuser position
+                return Convert.ToInt32(deviceCurrentPos); // Return the focuser position
             }
         }
 
