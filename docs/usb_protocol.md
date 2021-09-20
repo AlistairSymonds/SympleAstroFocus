@@ -68,6 +68,23 @@ Currently only one stateword is defined
 
 |Bit  | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
 | --- |--- |--- |--- |--- |--- |--- |--- |--- |
+|Name |    |    |  | |  |   | Set Zero to current pos   |  Toggle Reverse Step direction |
+
+### Status Flags 
+|Bit  | 31 | 30 | 29 | 28 | 27 | 26 | 25 | 24 |
+| --- |--- |--- |--- |--- |--- |--- |--- |--- |
+|Name |    |    |    |    |    |    |    |    |
+
+|Bit  | 23 | 22 | 21 | 20 | 19 | 18 | 17 | 16 |
+| --- |--- |--- |--- |--- |--- |--- |--- |--- |
+|Name |    |    |    |    |    |    |    |    |
+
+|Bit  | 15 | 14 | 13 | 12 | 11 | 10 | 9 | 8 |
+| --- |--- |--- |--- |--- |--- |--- |--- |--- |
+|Name |    |    |    |    |    |    |    |    |
+
+|Bit  | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+| --- |--- |--- |--- |--- |--- |--- |--- |--- |
 |Name |    |    |  Home towards max enabled  | Home towards 0 enabled   |  Homing   |   Stalled |   Moving |  Reverse Step direction |
 
 ## Out of host
