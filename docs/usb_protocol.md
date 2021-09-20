@@ -53,7 +53,8 @@ Currently only one stateword is defined
 |6      | Step Time         |                 |  RW  | 
 |7      | Step Mode         |                 | RW |
 
-### Status Flags 
+### Command Bits
+These are cleared once the sepcified operation is complete
 |Bit  | 31 | 30 | 29 | 28 | 27 | 26 | 25 | 24 |
 | --- |--- |--- |--- |--- |--- |--- |--- |--- |
 |Name |    |    |    |    |    |    |    |    |
