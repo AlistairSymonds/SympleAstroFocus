@@ -1,5 +1,6 @@
 #ifndef SYM_DEFS_H
 #define SYM_DEFS_H
+#include <stdint.h>
 
 #define NUM_STATE_INFOS 1
 #define STATE_LENGTH_DWORDS 0x10 //16 dwords per 64bytes
@@ -22,6 +23,7 @@
 
 #define COMMAND_TOGGLE_REVERSE_BIT   ( 1 << 0)
 #define COMMAND_SET_ZERO_BIT   ( 1 << 1)
+#define COMMAND_HALT_BIT   	( 1 << 2)
 
 #define STATUS_REVERSE_BIT   ( 1 << 0)
 #define STATUS_IS_MOVING_BIT ( 1 << 1)
@@ -37,6 +39,6 @@ static const uint16_t sym_state_writeable_dwords[NUM_STATE_INFOS]={
 		0xF2
 };
 
-void process_command_bits();
+void process_command_bits(symple_state_t* ss);
 
 #endif
