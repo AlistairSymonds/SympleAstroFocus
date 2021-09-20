@@ -1,9 +1,13 @@
+#ifndef SYM_DEFS_H
+#define SYM_DEFS_H
 
-#define STATE_LENGTH_DWORDS 0x08
-#define SYM_EP_SIZE (STATE_LENGTH_DWORDS * 8) //64bytes
+#define NUM_STATE_INFOS 1
+#define STATE_LENGTH_DWORDS 0x10 //16 dwords per 64bytes
+#define SYM_EP_SIZE (STATE_LENGTH_DWORDS * 4) //64bytes
+
 
 #define STATE_ID_DWORD 0
-#define STATE_ID_0 0x0000;
+#define STATE_ID_0 0x0000
 
 
 //definitions for fields in state ID 0
@@ -20,3 +24,15 @@
 #define STATUS_IS_MOVING_BIT ( 1 << 1)
 #define STATUS_STALLED_BIT   ( 1 << 2)
 #define STATUS_HOMING_BIT    ( 1 << 3)
+
+
+
+typedef volatile uint32_t symple_state_t[NUM_STATE_INFOS][STATE_LENGTH_DWORDS];
+
+symple_state_t symple_state;
+static const uint16_t sym_state_writeable_dwords[NUM_STATE_INFOS]={
+		0xF2
+};
+
+
+#endif
