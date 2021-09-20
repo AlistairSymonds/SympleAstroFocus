@@ -117,5 +117,15 @@ namespace ASCOM.SympleAstroFocus
         {
 
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            f.Move(Int32.Parse(MoveVal.Text));
+        }
+
+        private void MoveVal_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
