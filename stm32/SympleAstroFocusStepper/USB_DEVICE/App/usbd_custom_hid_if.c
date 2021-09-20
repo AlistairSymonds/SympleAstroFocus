@@ -21,7 +21,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_custom_hid_if.h"
-
+#include "sym_defs.h"
 /* USER CODE BEGIN INCLUDE */
 
 /* USER CODE END INCLUDE */
@@ -190,9 +190,18 @@ static int8_t CUSTOM_HID_DeInit_FS(void)
   */
 static int8_t CUSTOM_HID_OutEvent_FS(uint8_t* buffer)
 {
-  /* USER CODE BEGIN 6 */
+  uint32_t* incoming_dwords = (uint32_t*)buffer;
+
+  uint32_t state_id;
+  state_id = incoming_dwords[STATE_ID_DWORD];
+  for (int i = 0; i < STATE_LENGTH_DWORDS; i++){
+	  int is_writable_dword = sym_state_writeable_dwords[state_id] & (1 << i);
+	  if (is_writable_dword){
+		  uint32_t data = incoming_dwords[i];
+		  symple_state[state_id][i] = data;
+	  }
+  }
   return (USBD_OK);
-  /* USER CODE END 6 */
 }
 
 /* USER CODE BEGIN 7 */
