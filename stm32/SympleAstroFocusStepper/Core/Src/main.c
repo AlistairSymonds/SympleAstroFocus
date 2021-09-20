@@ -74,11 +74,6 @@ volatile static ConfigurationTypeDef TMC2209_config;
 // Helper macro - index is always 1 here (channel 1 <-> index 0, channel 2 <-> index 1)
 #define TMC2209_CRC(data, length) tmc_CRC8(data, length, 1)
 
-volatile uint32_t status_flags;
-volatile uint32_t current_pos = 0;
-volatile uint32_t set_pos = 50000;
-volatile uint32_t step_time_ms;
-
 
 uint32_t last_usb_ms = 0;
 
@@ -124,9 +119,8 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
+  //setup internal values before doing any sort of IO
+  SympleState_Init();
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
@@ -135,7 +129,6 @@ int main(void)
   MX_USB_DEVICE_Init();
   STEPPER_Init();
   tmc2209_restore(&TMC2209);
-
 
   MX_TIM3_Init();
   HAL_TIM_Base_Start_IT(&htim3);
@@ -148,18 +141,9 @@ int main(void)
     /* USER CODE END WHILE */
 	  if (HAL_GetTick() - last_usb_ms > 500){
 		  //make some dummy data and send repeatedly
-		  uint32_t test_buffer[STATE_LENGTH_DWORDS];
-		  test_buffer[STATE_ID_DWORD] = STATE_ID_0;
-		  test_buffer[COMMAND_DWORD] = 0x89ABCDEF;
-		  test_buffer[STATUS_DWORD] = status_flags;
-		  test_buffer[CURRENT_POSITION_DWORD] = current_pos;
-		  test_buffer[SET_POSITION_DWORD] = set_pos;
-		  test_buffer[MAX_POSITION_DWORD] = 0x0FFFFFFF;
-		  test_buffer[STEP_TIME] = 50; //50ms
-		  test_buffer[STEP_MODE] = 128; // 128 microsteps
 
 		  uint8_t usb_data[SYM_EP_SIZE];
-		  memcpy(usb_data, test_buffer, 32);
+		  memcpy(usb_data, symple_state[STATE_ID_0], 32);
 
 		  USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, (uint8_t*)usb_data, SYM_EP_SIZE);
 		  last_usb_ms = HAL_GetTick();
@@ -193,11 +177,14 @@ void do_step(){
 
 void update_motor_pos()
 {
-  if (current_pos != set_pos && (TMC2209_config.state == CONFIG_READY)) //do a step
+  if (symple_state[STATE_ID_0][CURRENT_POSITION_DWORD] != symple_state[STATE_ID_0][SET_POSITION_DWORD]
+		   && (TMC2209_config.state == CONFIG_READY)) //do a step
   {
-	GPIO_PinState shaft_dir = current_pos < set_pos ? GPIO_PIN_SET : GPIO_PIN_RESET;
+	GPIO_PinState shaft_dir =
+			symple_state[STATE_ID_0][CURRENT_POSITION_DWORD] < symple_state[STATE_ID_0][SET_POSITION_DWORD] ?
+					GPIO_PIN_SET : GPIO_PIN_RESET;
 
-    if (status_flags & STATUS_REVERSE_BIT){
+    if (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_REVERSE_BIT){
     	shaft_dir = !shaft_dir;
     }
 
@@ -205,15 +192,15 @@ void update_motor_pos()
     do_step();
     if (shaft_dir)
     {
-      current_pos++;
+    	symple_state[STATE_ID_0][CURRENT_POSITION_DWORD]++;
     }
     else
     {
-      current_pos--;
+    	symple_state[STATE_ID_0][CURRENT_POSITION_DWORD]--;
     }
-    status_flags |= STATUS_IS_MOVING_BIT; //if we've moved set the bit
+    symple_state[STATE_ID_0][STATUS_DWORD] |= STATUS_IS_MOVING_BIT; //if we've moved set the bit
   } else {
-	status_flags &=~ STATUS_IS_MOVING_BIT;
+	  symple_state[STATE_ID_0][STATUS_DWORD] &=~ STATUS_IS_MOVING_BIT;
   }
 }
 
@@ -268,6 +255,18 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+
+void SympleState_Init(){
+	symple_state[STATE_ID_0][COMMAND_DWORD] = 0;
+	symple_state[STATE_ID_0][STATUS_DWORD] = 0;
+	symple_state[STATE_ID_0][CURRENT_POSITION_DWORD] = 0;
+	symple_state[STATE_ID_0][SET_POSITION_DWORD] = 0;
+	symple_state[STATE_ID_0][MAX_POSITION_DWORD] = 60000;
+	symple_state[STATE_ID_0][STEP_TIME] = 50;
+	symple_state[STATE_ID_0][STEP_MODE] = 128;
+
 }
 
 /**
@@ -442,7 +441,7 @@ void STEPPER_Init(void)
 	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] = 0;
 	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] |= (8 << TMC2209_IRUN_SHIFT)  &  TMC2209_IRUN_MASK;
 	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] |= (1 << TMC2209_IHOLD_SHIFT) &  TMC2209_IHOLD_MASK;
-	//TMC2209_config.shadowRegister[TMC2209_CHOPCONF] |= (8 << TMC2209_MRES_SHIFT) &  TMC2209_MRES_MASK;
+	TMC2209_config.shadowRegister[TMC2209_CHOPCONF] |= (8 << TMC2209_MRES_SHIFT) &  TMC2209_MRES_MASK;
 	tmc2209_init(&TMC2209, 0, 0, &TMC2209_config, &tmc2209_defaultRegisterResetState[0]);
 
 
