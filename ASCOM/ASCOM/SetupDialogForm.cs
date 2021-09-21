@@ -75,6 +75,8 @@ namespace ASCOM.SympleAstroFocus
 
                 connectedState.Text = "CONNECTED";
                 serialNumberVal.Text = f.SerialNumber;
+
+                reverseLabel.Text = "Reversed: " + f.ReversedMotor;
             }
         }
 
@@ -126,6 +128,26 @@ namespace ASCOM.SympleAstroFocus
         private void MoveVal_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void toggleDirection_Click(object sender, EventArgs e)
+        {
+            f.ToggleReverse();
+        }
+
+        private void refreshUi_Click(object sender, EventArgs e)
+        {
+            updateDisplayedValues();
+        }
+
+        private void setZeroPosButton_Click(object sender, EventArgs e)
+        {
+            f.SetZero();
+        }
+
+        private void haltButton_Click(object sender, EventArgs e)
+        {
+            f.Halt();
         }
     }
 }
