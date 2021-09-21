@@ -12,8 +12,16 @@ public class Constants
     public const int CURRENT_POSITION_DWORD = 3;
     public const int SET_POSITION_DWORD = 4;
     public const int MAX_POSITION_DWORD = 5;
-    public const int STEP_TIME = 6;
-    public const int STEP_MODE = 7;
+    public const int STEP_TIME_MS_DWORD = 6;
+    public const int STEP_MODE_DENOM_DWORD = 7;
+
+    [Flags]
+    public enum Command_Dword_Bits : uint
+    {
+        TOGGLE_REVERSE_BIT = 1 << 0,
+        SET_ZERO_BIT = 1 << 1,
+        HALT_MOTOR_BIT = 1 << 2
+    }
 
     [Flags]
     public enum Status_Dword_Bits : uint
