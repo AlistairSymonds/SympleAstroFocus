@@ -39,6 +39,6 @@ static const uint16_t sym_state_writeable_dwords[NUM_STATE_INFOS]={
 		0xF2
 };
 
-void process_command_bits(symple_state_t* ss);
+void process_command_bits(symple_state_t ss);
 
 #endif

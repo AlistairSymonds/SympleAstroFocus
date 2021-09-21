@@ -202,7 +202,7 @@ static int8_t CUSTOM_HID_OutEvent_FS(uint8_t* buffer)
 	  }
   }
 
-  process_command_bits(&symple_state);
+  process_command_bits(symple_state);
   return (USBD_OK);
 }
 

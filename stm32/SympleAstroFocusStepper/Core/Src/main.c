@@ -180,17 +180,19 @@ void update_motor_pos()
   if (symple_state[STATE_ID_0][CURRENT_POSITION_DWORD] != symple_state[STATE_ID_0][SET_POSITION_DWORD]
 		   && (TMC2209_config.state == CONFIG_READY)) //do a step
   {
+
 	GPIO_PinState shaft_dir =
 			symple_state[STATE_ID_0][CURRENT_POSITION_DWORD] < symple_state[STATE_ID_0][SET_POSITION_DWORD] ?
 					GPIO_PIN_SET : GPIO_PIN_RESET;
 
+	int counting_dir = shaft_dir;
     if (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_REVERSE_BIT){
     	shaft_dir = !shaft_dir;
     }
 
     HAL_GPIO_WritePin(GPIOA, DIR_Pin, shaft_dir);
     do_step();
-    if (shaft_dir)
+    if (counting_dir)
     {
     	symple_state[STATE_ID_0][CURRENT_POSITION_DWORD]++;
     }
