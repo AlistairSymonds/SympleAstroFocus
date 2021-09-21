@@ -120,6 +120,7 @@ namespace ASCOM.SympleAstroFocus
         private uint appMaxPos = 0;
         private uint deviceMaxPos = 0;
         private Constants.Status_Dword_Bits status_flags;
+        private Constants.Command_Dword_Bits commands;
         #endregion
 
         /// <summary>
@@ -202,7 +203,7 @@ namespace ASCOM.SympleAstroFocus
             {
                 updateStateFromDevice();
                 updateDeviceFromHost();
-                Thread.Sleep(1000);
+                Thread.Sleep(100);
             }
         }
 
@@ -284,11 +285,9 @@ namespace ASCOM.SympleAstroFocus
                 dwords_to_dev = new uint[16];
 
                 dwords_to_dev[Constants.STATE_ID_DWORD] = Constants.STATE_ID_0;
-                //This isn't right
-                //dwords_to_dev[Constants.CURRENT_POSITION_DWORD] = appCurrentPos;
                 dwords_to_dev[Constants.SET_POSITION_DWORD] = appSetPos;
                 dwords_to_dev[Constants.MAX_POSITION_DWORD] = appMaxPos;
-
+                dwords_to_dev[Constants.COMMAND_DWORD] = (uint) commands; 
                 for (int i = 0; i < dwords_to_dev.Length; i++)
                 {
                     byte[] dword_as_bytes;
@@ -300,6 +299,8 @@ namespace ASCOM.SympleAstroFocus
                 }
                 bytes[0] = 1;
                 stream.Write(bytes);
+
+                commands = 0;
 
             }
             
@@ -484,8 +485,7 @@ namespace ASCOM.SympleAstroFocus
 
         public void Halt()
         {
-            tl.LogMessage("Halt", "Not implemented");
-            throw new ASCOM.MethodNotImplementedException("Halt");
+            commands |= Constants.Command_Dword_Bits.HALT_MOTOR_BIT;
         }
 
         public bool IsMoving
@@ -593,6 +593,27 @@ namespace ASCOM.SympleAstroFocus
             {
                 return device.GetSerialNumber();
             }
+        }
+
+        public void ToggleReverse()
+        {
+            commands |= Constants.Command_Dword_Bits.TOGGLE_REVERSE_BIT;
+
+        }
+
+        public bool ReversedMotor
+        {
+            get
+            {
+                return status_flags.HasFlag(Constants.Status_Dword_Bits.STATUS_REVERSE_BIT);
+            }
+        }
+
+        public void SetZero()
+        {
+            commands |= Constants.Command_Dword_Bits.SET_ZERO_BIT;
+            appSetPos = 0;
+
         }
 
         #endregion
