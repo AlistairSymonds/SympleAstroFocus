@@ -69,7 +69,7 @@ These are cleared once the sepcified operation is complete
 
 |Bit  | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
 | --- |--- |--- |--- |--- |--- |--- |--- |--- |
-|Name |    |    |  | | Set Point Write Enable | Halt Motor  | Set Zero to current pos   |  Toggle Reverse Step direction |
+|Name |    |    |  | |  | Halt Motor  | Set Zero to current pos   |  Toggle Reverse Step direction |
 
 ### Status Flags 
 |Bit  | 31 | 30 | 29 | 28 | 27 | 26 | 25 | 24 |
