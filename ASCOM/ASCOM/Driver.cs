@@ -110,9 +110,12 @@ namespace ASCOM.SympleAstroFocus
 
         BackgroundWorker usbBgWorker;
 
+        private Mutex usbMut;
+
         #region IFocuser variables
         //TODO: figure out out the most "C#" way of maintaining these variables
         //small class, tuple, array per var?
+        private bool deviceNeedsUpdating;
         private uint appCurrentPos = 0; 
         private uint deviceCurrentPos = 0;
         private uint appSetPos = 0;
@@ -175,6 +178,8 @@ namespace ASCOM.SympleAstroFocus
                     //
                     updateStateFromDevice();
                     syncAppFromDeviceState();
+                    deviceNeedsUpdating = false;
+                    usbMut = new Mutex();
                     usbBgWorker = new BackgroundWorker();
                     usbBgWorker.DoWork += new DoWorkEventHandler(bgThread);
                     usbBgWorker.RunWorkerAsync();
@@ -201,8 +206,14 @@ namespace ASCOM.SympleAstroFocus
         {   
             while (true)
             {
+                usbMut.WaitOne();
                 updateStateFromDevice();
+                usbMut.ReleaseMutex();
+
+                usbMut.WaitOne();
                 updateDeviceFromHost();
+                usbMut.ReleaseMutex();
+
                 Thread.Sleep(100);
             }
         }
@@ -267,41 +278,44 @@ namespace ASCOM.SympleAstroFocus
         }
 
         private void updateDeviceFromHost()
-        {   
-            //if (stale values on dev)
-            if (!device.TryOpen(out stream))
+        {
+            if (deviceNeedsUpdating)
             {
-                Console.WriteLine("Failed to open device.");
-                throw new ASCOM.NotConnectedException("Couldn't open a stream for writing latest state to device");
-            }
-
-            using (stream)
-            {
-
-                byte[] bytes;
-                bytes = new byte[65];
-
-                uint[] dwords_to_dev;
-                dwords_to_dev = new uint[16];
-
-                dwords_to_dev[Constants.STATE_ID_DWORD] = Constants.STATE_ID_0;
-                dwords_to_dev[Constants.SET_POSITION_DWORD] = appSetPos;
-                dwords_to_dev[Constants.MAX_POSITION_DWORD] = appMaxPos;
-                dwords_to_dev[Constants.COMMAND_DWORD] = (uint) commands; 
-                for (int i = 0; i < dwords_to_dev.Length; i++)
+                if (!device.TryOpen(out stream))
                 {
-                    byte[] dword_as_bytes;
-                    dword_as_bytes = BitConverter.GetBytes(dwords_to_dev[i]);
-                    for(int j = 0; j < 4; j++)
-                    {
-                        bytes[1+(i * 4) + j] = dword_as_bytes[j];
-                    }
+                    Console.WriteLine("Failed to open device.");
+                    throw new ASCOM.NotConnectedException("Couldn't open a stream for writing latest state to device");
                 }
-                bytes[0] = 1;
-                stream.Write(bytes);
 
-                commands = 0;
+                using (stream)
+                {
 
+                    byte[] bytes;
+                    bytes = new byte[65];
+
+                    uint[] dwords_to_dev;
+                    dwords_to_dev = new uint[16];
+
+                    dwords_to_dev[Constants.STATE_ID_DWORD] = Constants.STATE_ID_0;
+                    dwords_to_dev[Constants.SET_POSITION_DWORD] = appSetPos;
+                    dwords_to_dev[Constants.MAX_POSITION_DWORD] = appMaxPos;
+                    dwords_to_dev[Constants.COMMAND_DWORD] = (uint)commands;
+                    for (int i = 0; i < dwords_to_dev.Length; i++)
+                    {
+                        byte[] dword_as_bytes;
+                        dword_as_bytes = BitConverter.GetBytes(dwords_to_dev[i]);
+                        for (int j = 0; j < 4; j++)
+                        {
+                            bytes[1 + (i * 4) + j] = dword_as_bytes[j];
+                        }
+                    }
+                    bytes[0] = 1;
+                    stream.Write(bytes);
+
+                    commands = 0;
+
+                }
+                deviceNeedsUpdating = false;
             }
             
         }
@@ -485,7 +499,10 @@ namespace ASCOM.SympleAstroFocus
 
         public void Halt()
         {
+            usbMut.WaitOne();
             commands |= Constants.Command_Dword_Bits.HALT_MOTOR_BIT;
+            deviceNeedsUpdating = true;
+            usbMut.ReleaseMutex();
         }
 
         public bool IsMoving
@@ -531,7 +548,11 @@ namespace ASCOM.SympleAstroFocus
         {
             tl.LogMessage("Move", Position.ToString());
             Console.WriteLine(Position.ToString());
+
+            usbMut.WaitOne();
             appSetPos = Convert.ToUInt32(Position); // Set the focuser position
+            deviceNeedsUpdating = true;
+            usbMut.ReleaseMutex();
         }
 
         public int Position
@@ -597,8 +618,11 @@ namespace ASCOM.SympleAstroFocus
 
         public void ToggleReverse()
         {
-            commands |= Constants.Command_Dword_Bits.TOGGLE_REVERSE_BIT;
 
+            usbMut.WaitOne();
+            commands |= Constants.Command_Dword_Bits.TOGGLE_REVERSE_BIT;
+            deviceNeedsUpdating = true;
+            usbMut.ReleaseMutex();
         }
 
         public bool ReversedMotor
@@ -611,7 +635,10 @@ namespace ASCOM.SympleAstroFocus
 
         public void SetZero()
         {
+            usbMut.WaitOne();
             commands |= Constants.Command_Dword_Bits.SET_ZERO_BIT;
+            deviceNeedsUpdating = true;
+            usbMut.ReleaseMutex();
             appSetPos = 0;
 
         }
