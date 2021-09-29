@@ -32,7 +32,7 @@
 
 
 
-typedef volatile uint32_t symple_state_t[NUM_STATE_INFOS][STATE_LENGTH_DWORDS];
+typedef volatile uint32_t symple_state_t[NUM_STATE_INFOS][STATE_LENGTH_DWORDS-1];
 
 symple_state_t symple_state;
 static const uint16_t sym_state_writeable_dwords[NUM_STATE_INFOS]={
@@ -40,5 +40,7 @@ static const uint16_t sym_state_writeable_dwords[NUM_STATE_INFOS]={
 };
 
 void process_command_bits(symple_state_t ss);
+
+void save_recieved_state(uint32_t* state_in , symple_state_t ss);
 
 #endif

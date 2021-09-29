@@ -260,7 +260,7 @@ void SystemClock_Config(void)
 }
 
 
-void SympleState_Init(){
+void SympleState_Init(void){
 	symple_state[STATE_ID_0][COMMAND_DWORD] = 0;
 	symple_state[STATE_ID_0][STATUS_DWORD] = 0;
 	symple_state[STATE_ID_0][CURRENT_POSITION_DWORD] = 0;

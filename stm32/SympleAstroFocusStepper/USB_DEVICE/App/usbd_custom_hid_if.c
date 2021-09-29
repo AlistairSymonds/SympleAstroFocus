@@ -192,15 +192,7 @@ static int8_t CUSTOM_HID_OutEvent_FS(uint8_t* buffer)
 {
   uint32_t* incoming_dwords = (uint32_t*)buffer;
 
-  uint32_t state_id;
-  state_id = incoming_dwords[STATE_ID_DWORD];
-  for (int i = 0; i < STATE_LENGTH_DWORDS; i++){
-	  int is_writable_dword = sym_state_writeable_dwords[state_id] & (1 << i);
-	  if (is_writable_dword){
-		  uint32_t data = incoming_dwords[i];
-		  symple_state[state_id][i] = data;
-	  }
-  }
+  save_recieved_state(incoming_dwords, symple_state);
 
   process_command_bits(symple_state);
   return (USBD_OK);
