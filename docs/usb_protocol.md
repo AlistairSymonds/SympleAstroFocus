@@ -48,7 +48,7 @@ Currently only one stateword is defined
 |1      | Command Bits      | See below       |RW |
 |2      | Status Flags      | See below       | RO |
 |3      | Current Position  | Constant, 32'h00| RO |
-|4      | Set Position      | Constant, 32'h00| RW |
+|4      | Set Position      | Constant, 32'h00| R, Write when enable cmd bit set |
 |5      | Max Position      | Constant, 32'h00| RW |
 |6      | Step Time         |                 |  RW  | 
 |7      | Step Mode         |                 | RW |
@@ -69,7 +69,7 @@ These are cleared once the sepcified operation is complete
 
 |Bit  | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
 | --- |--- |--- |--- |--- |--- |--- |--- |--- |
-|Name |    |    |  | |  | Halt Motor  | Set Zero to current pos   |  Toggle Reverse Step direction |
+|Name |    |    |  | | Set Point Write Enable | Halt Motor  | Set Zero to current pos   |  Toggle Reverse Step direction |
 
 ### Status Flags 
 |Bit  | 31 | 30 | 29 | 28 | 27 | 26 | 25 | 24 |
