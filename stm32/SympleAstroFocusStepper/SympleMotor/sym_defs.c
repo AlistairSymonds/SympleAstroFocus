@@ -24,11 +24,11 @@ void process_command_bits(symple_state_t ss){
 
 void save_recieved_state(uint32_t* state_in , symple_state_t ss){
 	uint32_t state_id;
-	  state_id = incoming_dwords[STATE_ID_DWORD];
+	  state_id = state_in[STATE_ID_DWORD];
 	  for (int i = 1; i < STATE_LENGTH_DWORDS; i++){
 		  int is_writable_dword = sym_state_writeable_dwords[state_id] & (1 << i);
 		  if (is_writable_dword){
-			  uint32_t data = incoming_dwords[i];
+			  uint32_t data = state_in[i];
 			  ss[state_id][i-1] = data;
 		  }
 	  }
