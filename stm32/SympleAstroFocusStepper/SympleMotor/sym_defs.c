@@ -29,7 +29,7 @@ void save_recieved_state(uint32_t* state_in , symple_state_t ss){
 		  int is_writable_dword = sym_state_writeable_dwords[state_id] & (1 << i);
 		  if (is_writable_dword){
 			  uint32_t data = state_in[i];
-			  ss[state_id][i-1] = data;
+			  ss[state_id][i] = data;
 		  }
 	  }
 }
