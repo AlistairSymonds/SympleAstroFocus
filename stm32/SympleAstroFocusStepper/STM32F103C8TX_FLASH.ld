@@ -37,7 +37,8 @@ _Min_Stack_Size = 0x400 ;	/* required amount of stack */
 MEMORY
 {
   RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = 20K
-  FLASH    (rx)    : ORIGIN = 0x8000000,   LENGTH = 64K
+  FLASH    (rx)    : ORIGIN = 0x8000000,   LENGTH = 60K
+  USER_FLASH    (rw)    : ORIGIN = 0x800f000,   LENGTH = 4K
 }
 
 /* Sections */
@@ -119,6 +120,13 @@ SECTIONS
     PROVIDE_HIDDEN (__fini_array_end = .);
     . = ALIGN(4);
   } >FLASH
+  
+  .user_flash_section :
+  {
+    __USER_FLASH_SECTION_START = .;
+  KEEP(*(.user_flash_section)) 
+  __USER_FLASH_SECTION_END = .;
+  } >USER_FLASH
 
   /* Used by the startup to initialize data */
   _sidata = LOADADDR(.data);

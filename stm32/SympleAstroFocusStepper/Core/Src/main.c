@@ -49,6 +49,7 @@ TIM_HandleTypeDef htim3;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 
+bool flash_needs_write;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -60,11 +61,16 @@ static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_TIM3_Init(void);
 static void STEPPER_Init(void);
+static void FLASH_init(void);
+static void load_state_from_flash(symple_state_t ss);
+static void write_state_to_flash(symple_state_t ss);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
+
+extern int __USER_FLASH_SECTION_START;
 /* USER CODE BEGIN 0 */
 extern USBD_HandleTypeDef hUsbDeviceFS;
 TIM_HandleTypeDef htim3;
@@ -76,6 +82,7 @@ volatile static ConfigurationTypeDef TMC2209_config;
 
 
 uint32_t last_usb_ms = 0;
+uint32_t last_flash_ms = 0;
 
 typedef enum
 {
@@ -156,7 +163,16 @@ int main(void)
 
 		  HAL_GPIO_WritePin(GPIOA, ENN_Pin, GPIO_PIN_RESET);
 	  }
-    /* USER CODE BEGIN 3 */
+
+	  if (HAL_GetTick() - last_flash_ms > 5000){
+		  flash_needs_write = 1; //TODO: remove this on real boards
+		  if(flash_needs_write){
+			  //write to flash
+			  write_state_to_flash(symple_state);
+			  flash_needs_write = 0;
+		  }
+		  last_flash_ms = HAL_GetTick();
+	  }
   }
   /* USER CODE END 3 */
 }
@@ -260,6 +276,32 @@ void SystemClock_Config(void)
 }
 
 
+void load_state_from_flash(symple_state_t ss){
+	uint32_t* state_loc;
+	state_loc = (uint32_t*)&__USER_FLASH_SECTION_START;
+	for (int i = 0; i < NUM_STATE_INFOS; i++){
+		for(int j = 0; j < STATE_LENGTH_DWORDS-1; j++){
+			ss[i][j] = state_loc[(i*STATE_LENGTH_DWORDS-1) + j];
+		}
+	}
+}
+
+void write_state_to_flash(symple_state_t ss){
+	HAL_FLASH_Unlock();
+	uint32_t* state_loc;
+	state_loc = (uint32_t*)&__USER_FLASH_SECTION_START;
+		for (int i = 0; i < NUM_STATE_INFOS; i++){
+			for(int j = 0; j < STATE_LENGTH_DWORDS-1; j++){
+				uint32_t wdata = ss[i][j];
+				uint32_t waddar_offset_dwords = (i*STATE_LENGTH_DWORDS-1) + j;
+				uint32_t waddar_offset_bytes = waddar_offset_dwords * 4;
+				HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, state_loc + waddar_offset_dwords, wdata);
+			}
+		}
+
+	HAL_FLASH_Lock();
+}
+
 void SympleState_Init(void){
 	symple_state[STATE_ID_0][COMMAND_DWORD] = 0;
 	symple_state[STATE_ID_0][STATUS_DWORD] = 0;
@@ -269,6 +311,9 @@ void SympleState_Init(void){
 	symple_state[STATE_ID_0][STEP_TIME] = 50;
 	symple_state[STATE_ID_0][STEP_MODE] = 128;
 
+	load_state_from_flash(symple_state);
+	//sanity assignment to stop motor from being driven on power up
+	symple_state[STATE_ID_0][SET_POSITION_DWORD] = symple_state[STATE_ID_0][CURRENT_POSITION_DWORD];
 }
 
 /**
