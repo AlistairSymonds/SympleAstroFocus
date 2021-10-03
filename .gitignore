@@ -397,7 +397,6 @@ Temporary Items
 
 *.bin
 *.elf
-*.ld
 *.o
 
 .metadata
@@ -421,8 +420,6 @@ local.properties
 # PyDev specific (Python IDE for Eclipse)
 *.pydevproject
 
-# CDT-specific (C/C++ Development Tooling)
-.cproject
 
 # CDT- autotools
 .autotools
