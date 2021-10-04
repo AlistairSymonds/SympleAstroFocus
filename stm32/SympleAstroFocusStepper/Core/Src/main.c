@@ -71,6 +71,26 @@ static void write_state_to_flash(symple_state_t ss);
 /* Private user code ---------------------------------------------------------*/
 
 extern int __USER_FLASH_SECTION_START;
+extern int __USER_FLASH_SECTION_END;
+/*
+//the state is saved across the flash in such a way to reduce the number of erase cycles needed
+//when erasing the entire page is reset to 1s in every bit
+//additionally the stm32f103 has some additional restrictions on writing, namely:
+	+ a halfword can be written to any value ONLY when it is currently 0xFFFF
+	+ a halfword can always be written to 0x0000
+	+ a halfword can be set to 0xFFFF when the whole page is erased
+
+So each half word keeps track of two writes:
+ 0xff (no writes) -> 0xfe -> (one write) -> 0x00 (two writes)
+
+then the management will store in the next word
+*/
+int USER_FLASH_SIZE;
+const int FLASH_JOURNAL_HEADER_SIZE_DWORDS = 8;
+int USER_FLASH_JOURNAL_BYTES;
+int NUM_STATE_WRITES_PER_USER_FLASH;
+
+
 /* USER CODE BEGIN 0 */
 extern USBD_HandleTypeDef hUsbDeviceFS;
 TIM_HandleTypeDef htim3;
@@ -126,6 +146,7 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
+  FLASH_init();
   //setup internal values before doing any sort of IO
   SympleState_Init();
 
@@ -275,45 +296,126 @@ void SystemClock_Config(void)
   }
 }
 
+//these are basically constant, just can't inform the compiler of that since the flas sections come from link script
+void FLASH_init(void){
+	USER_FLASH_SIZE = 4096;//&__USER_FLASH_SECTION_END - &__USER_FLASH_SECTION_START;
+	USER_FLASH_JOURNAL_BYTES = USER_FLASH_SIZE - (FLASH_JOURNAL_HEADER_SIZE_DWORDS * 4);
+	NUM_STATE_WRITES_PER_USER_FLASH = (FLASH_JOURNAL_HEADER_SIZE_DWORDS * 4);
+}
+
+int get_last_saved_chunk(){
+	uint16_t * chunk_headers = (uint16_t*)&__USER_FLASH_SECTION_START;
+	//if we never find an empty chunk
+	int cur_chunk = 0;
+	for (int i = 0; i < FLASH_JOURNAL_HEADER_SIZE_DWORDS * 2; i++){
+		uint16_t header = chunk_headers[i];
+		//if we're looking at all ones we've already got the latest write
+		if (header == 0xFFFF){
+			break;
+		}
+
+		if (header){ //any bits are set (one write)
+			cur_chunk = (i * 2);
+		} else { //no bits are set (two writes/the upper chunk tagged by this header word)
+
+			cur_chunk = (i * 2) + 1;
+		}
+	}
+
+
+	return cur_chunk;
+}
+
 
 void load_state_from_flash(symple_state_t ss){
 	uint32_t* state_loc;
 	state_loc = (uint32_t*)&__USER_FLASH_SECTION_START;
+	uint32_t chunk_to_read = get_last_saved_chunk();
 	for (int i = 0; i < NUM_STATE_INFOS; i++){
-		for(int j = 0; j < STATE_LENGTH_DWORDS-1; j++){
-			ss[i][j] = state_loc[(i*STATE_LENGTH_DWORDS-1) + j];
+		for(int j = 0; j < STATE_LENGTH_DWORDS; j++){
+			int raddr_offset = (i*STATE_LENGTH_DWORDS) + j;
+			raddr_offset = raddr_offset + (chunk_to_read * STATE_LENGTH_DWORDS * NUM_STATE_INFOS) + FLASH_JOURNAL_HEADER_SIZE_DWORDS;
+			ss[i][j] = state_loc[raddr_offset];
 		}
 	}
+	//if we think its from 0 chunk and the zero hasn't be written - either its first boot or
+	// the power got removed after an erase but before
+	if ((chunk_to_read == 0) && (*state_loc & 0x0000FFFF == 0x0000FFFF)){
+
+		symple_state[STATE_ID_0][STATE_ID_DWORD] = STATE_ID_0;
+		symple_state[STATE_ID_0][COMMAND_DWORD] = 0;
+		symple_state[STATE_ID_0][STATUS_DWORD] = 0;
+		symple_state[STATE_ID_0][CURRENT_POSITION_DWORD] = 0;
+		symple_state[STATE_ID_0][SET_POSITION_DWORD] = 0;
+		symple_state[STATE_ID_0][MAX_POSITION_DWORD] = 60000;
+		symple_state[STATE_ID_0][STEP_TIME] = 50;
+		symple_state[STATE_ID_0][STEP_MODE] = 128;
+	}
+}
+
+void mark_write_in_flash_header(int chunk){
+	uint16_t newval;
+
+	if (chunk % 2){ //the first write is even, then its odd for the upper chunk
+		newval = 0x0000; //odd chunk
+	} else{
+		newval = 0xFFFE;
+	}
+
+	uint16_t* state_loc;
+	state_loc = (uint16_t*)&__USER_FLASH_SECTION_START;
+	uint32_t halfword_offset = chunk >> 1;
+	uint16_t *addr_to_write = state_loc + halfword_offset;
+	HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, addr_to_write, newval);
 }
 
 void write_state_to_flash(symple_state_t ss){
 	HAL_FLASH_Unlock();
 	uint32_t* state_loc;
 	state_loc = (uint32_t*)&__USER_FLASH_SECTION_START;
-		for (int i = 0; i < NUM_STATE_INFOS; i++){
-			for(int j = 0; j < STATE_LENGTH_DWORDS-1; j++){
-				uint32_t wdata = ss[i][j];
-				uint32_t waddar_offset_dwords = (i*STATE_LENGTH_DWORDS-1) + j;
-				uint32_t waddar_offset_bytes = waddar_offset_dwords * 4;
-				HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, state_loc + waddar_offset_dwords, wdata);
-			}
+
+	int chunk_to_write = get_last_saved_chunk();
+
+	if (chunk_to_write == NUM_STATE_WRITES_PER_USER_FLASH-1){
+		FLASH_EraseInitTypeDef erase_page_config;
+		erase_page_config.TypeErase = TYPEERASE_PAGEERASE;
+		erase_page_config.PageAddress = &__USER_FLASH_SECTION_START;
+		erase_page_config.NbPages = 4U;
+		erase_page_config.Banks = FLASH_BANK_1;
+		uint32_t erase_error;
+		HAL_FLASHEx_Erase(&erase_page_config, &erase_error);
+		//reset the chunk now they've all been erased
+		chunk_to_write = 0;
+	} else {
+		chunk_to_write++;
+	}
+
+
+
+	for (int i = 0; i < NUM_STATE_INFOS; i++){
+		for(int j = 0; j < STATE_LENGTH_DWORDS; j++){
+			uint32_t wdata = ss[i][j];
+			uint32_t wchunk_offset = (STATE_LENGTH_DWORDS * NUM_STATE_INFOS * chunk_to_write) + FLASH_JOURNAL_HEADER_SIZE_DWORDS;
+			uint32_t waddar_offset_dwords = (i*STATE_LENGTH_DWORDS) + j;
+			HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, state_loc + wchunk_offset + waddar_offset_dwords, wdata);
 		}
+	}
+
+
+	mark_write_in_flash_header(chunk_to_write);
 
 	HAL_FLASH_Lock();
 }
 
 void SympleState_Init(void){
-	symple_state[STATE_ID_0][COMMAND_DWORD] = 0;
-	symple_state[STATE_ID_0][STATUS_DWORD] = 0;
-	symple_state[STATE_ID_0][CURRENT_POSITION_DWORD] = 0;
-	symple_state[STATE_ID_0][SET_POSITION_DWORD] = 0;
-	symple_state[STATE_ID_0][MAX_POSITION_DWORD] = 60000;
-	symple_state[STATE_ID_0][STEP_TIME] = 50;
-	symple_state[STATE_ID_0][STEP_MODE] = 128;
+
 
 	load_state_from_flash(symple_state);
 	//sanity assignment to stop motor from being driven on power up
 	symple_state[STATE_ID_0][SET_POSITION_DWORD] = symple_state[STATE_ID_0][CURRENT_POSITION_DWORD];
+	//ensure header is set correctly otherwise host will never understand
+	symple_state[STATE_ID_0][STATE_ID_DWORD] = STATE_ID_0;
+
 }
 
 /**
