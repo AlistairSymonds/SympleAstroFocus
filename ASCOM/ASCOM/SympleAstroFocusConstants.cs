@@ -18,9 +18,10 @@ public class Constants
     [Flags]
     public enum Command_Dword_Bits : uint
     {
-        TOGGLE_REVERSE_BIT = 1 << 0,
-        SET_ZERO_BIT = 1 << 1,
-        HALT_MOTOR_BIT = 1 << 2
+        TOGGLE_REVERSE_BIT  = 1 << 0,
+        SET_ZERO_BIT        = 1 << 1,
+        HALT_MOTOR_BIT      = 1 << 2,
+        SAVE_TO_FLASH_BIT   = 1 << 3
     }
 
     [Flags]
