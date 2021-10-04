@@ -99,10 +99,11 @@ static TMC2209TypeDef TMC2209;
 volatile static ConfigurationTypeDef TMC2209_config;
 // Helper macro - index is always 1 here (channel 1 <-> index 0, channel 2 <-> index 1)
 #define TMC2209_CRC(data, length) tmc_CRC8(data, length, 1)
-
+volatile int flash_save_needed = 0;
 
 uint32_t last_usb_ms = 0;
 uint32_t last_flash_ms = 0;
+uint32_t last_motor_ms = 0;
 
 typedef enum
 {
@@ -186,14 +187,18 @@ int main(void)
 	  }
 
 	  if (HAL_GetTick() - last_flash_ms > 5000){
-		  flash_needs_write = 1; //TODO: remove this on real boards
-		  if(flash_needs_write){
+
+		  if((symple_state[STATE_ID_0][COMMAND_DWORD] & COMMAND_SAVE_TO_FLASH_BIT) || flash_save_needed){
 			  //write to flash
+			  //clear the cmd bit before it occurs, otherwise we'll save a command that has ocurred every time
+			  symple_state[STATE_ID_0][COMMAND_DWORD] &= ~COMMAND_SAVE_TO_FLASH_BIT;
+			  flash_save_needed = 0;
 			  write_state_to_flash(symple_state);
-			  flash_needs_write = 0;
+
 		  }
 		  last_flash_ms = HAL_GetTick();
 	  }
+
   }
   /* USER CODE END 3 */
 }
@@ -237,8 +242,14 @@ void update_motor_pos()
     {
     	symple_state[STATE_ID_0][CURRENT_POSITION_DWORD]--;
     }
-    symple_state[STATE_ID_0][STATUS_DWORD] |= STATUS_IS_MOVING_BIT; //if we've moved set the bit
+    //if we've moved set the bit, and signal a save will be needed
+    symple_state[STATE_ID_0][STATUS_DWORD] |= STATUS_IS_MOVING_BIT;
+    flash_save_needed = 1;
   } else {
+	  //we've just finished a move - make sure its saved!
+	  if (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_IS_MOVING_BIT){
+		  flash_save_needed = 1;
+	  }
 	  symple_state[STATE_ID_0][STATUS_DWORD] &=~ STATUS_IS_MOVING_BIT;
   }
 }
