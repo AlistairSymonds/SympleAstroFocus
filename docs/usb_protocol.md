@@ -1,7 +1,10 @@
 # Device Descriptor
 VID: TBC
+
 PID: TBC
+
 iProduct must be: SympleAstroFocus
+
 Type: HID
 
 # HID Config:
