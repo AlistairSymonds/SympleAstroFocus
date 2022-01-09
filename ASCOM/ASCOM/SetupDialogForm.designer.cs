@@ -47,6 +47,14 @@ namespace ASCOM.SympleAstroFocus
             this.reverseLabel = new System.Windows.Forms.Label();
             this.refreshUi = new System.Windows.Forms.Button();
             this.setZeroPosButton = new System.Windows.Forms.Button();
+            this.CurrentPosLabel = new System.Windows.Forms.Label();
+            this.CurrentPositionValue = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.MaxPosition = new System.Windows.Forms.Label();
+            this.MaxPositionValue = new System.Windows.Forms.Label();
+            this.newMaxPos = new System.Windows.Forms.TextBox();
+            this.updateMaxButton = new System.Windows.Forms.Button();
+            this.reversedValLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picASCOM)).BeginInit();
             this.SuspendLayout();
             // 
@@ -124,7 +132,7 @@ namespace ASCOM.SympleAstroFocus
             // 
             // vidVal
             // 
-            this.vidVal.Location = new System.Drawing.Point(116, 102);
+            this.vidVal.Location = new System.Drawing.Point(121, 102);
             this.vidVal.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.vidVal.Name = "vidVal";
             this.vidVal.ReadOnly = true;
@@ -145,7 +153,7 @@ namespace ASCOM.SympleAstroFocus
             // 
             // pidVal
             // 
-            this.pidVal.Location = new System.Drawing.Point(116, 128);
+            this.pidVal.Location = new System.Drawing.Point(121, 128);
             this.pidVal.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pidVal.Name = "pidVal";
             this.pidVal.ReadOnly = true;
@@ -177,7 +185,7 @@ namespace ASCOM.SympleAstroFocus
             // serialNumberVal
             // 
             this.serialNumberVal.AutoSize = true;
-            this.serialNumberVal.Location = new System.Drawing.Point(112, 154);
+            this.serialNumberVal.Location = new System.Drawing.Point(118, 154);
             this.serialNumberVal.Name = "serialNumberVal";
             this.serialNumberVal.Size = new System.Drawing.Size(98, 17);
             this.serialNumberVal.TabIndex = 13;
@@ -185,9 +193,9 @@ namespace ASCOM.SympleAstroFocus
             // 
             // moveButt
             // 
-            this.moveButt.Location = new System.Drawing.Point(116, 336);
+            this.moveButt.Location = new System.Drawing.Point(227, 281);
             this.moveButt.Name = "moveButt";
-            this.moveButt.Size = new System.Drawing.Size(75, 23);
+            this.moveButt.Size = new System.Drawing.Size(88, 23);
             this.moveButt.TabIndex = 14;
             this.moveButt.Text = "Move";
             this.moveButt.UseVisualStyleBackColor = true;
@@ -195,7 +203,7 @@ namespace ASCOM.SympleAstroFocus
             // 
             // MoveVal
             // 
-            this.MoveVal.Location = new System.Drawing.Point(10, 337);
+            this.MoveVal.Location = new System.Drawing.Point(121, 281);
             this.MoveVal.Name = "MoveVal";
             this.MoveVal.Size = new System.Drawing.Size(100, 22);
             this.MoveVal.TabIndex = 15;
@@ -203,9 +211,9 @@ namespace ASCOM.SympleAstroFocus
             // 
             // toggleDirection
             // 
-            this.toggleDirection.Location = new System.Drawing.Point(115, 187);
+            this.toggleDirection.Location = new System.Drawing.Point(227, 184);
             this.toggleDirection.Name = "toggleDirection";
-            this.toggleDirection.Size = new System.Drawing.Size(90, 23);
+            this.toggleDirection.Size = new System.Drawing.Size(90, 28);
             this.toggleDirection.TabIndex = 16;
             this.toggleDirection.Text = "Reverse Direction";
             this.toggleDirection.UseVisualStyleBackColor = true;
@@ -213,9 +221,9 @@ namespace ASCOM.SympleAstroFocus
             // 
             // haltButton
             // 
-            this.haltButton.Location = new System.Drawing.Point(197, 337);
+            this.haltButton.Location = new System.Drawing.Point(328, 281);
             this.haltButton.Name = "haltButton";
-            this.haltButton.Size = new System.Drawing.Size(75, 23);
+            this.haltButton.Size = new System.Drawing.Size(91, 23);
             this.haltButton.TabIndex = 17;
             this.haltButton.Text = "Halt";
             this.haltButton.UseVisualStyleBackColor = true;
@@ -242,19 +250,99 @@ namespace ASCOM.SympleAstroFocus
             // 
             // setZeroPosButton
             // 
-            this.setZeroPosButton.Location = new System.Drawing.Point(5, 216);
+            this.setZeroPosButton.Location = new System.Drawing.Point(227, 240);
             this.setZeroPosButton.Name = "setZeroPosButton";
-            this.setZeroPosButton.Size = new System.Drawing.Size(200, 27);
+            this.setZeroPosButton.Size = new System.Drawing.Size(192, 27);
             this.setZeroPosButton.TabIndex = 20;
             this.setZeroPosButton.Text = "Set current position as Zero";
             this.setZeroPosButton.UseVisualStyleBackColor = true;
             this.setZeroPosButton.Click += new System.EventHandler(this.setZeroPosButton_Click);
+            // 
+            // CurrentPosLabel
+            // 
+            this.CurrentPosLabel.AutoSize = true;
+            this.CurrentPosLabel.Location = new System.Drawing.Point(5, 250);
+            this.CurrentPosLabel.Name = "CurrentPosLabel";
+            this.CurrentPosLabel.Size = new System.Drawing.Size(113, 17);
+            this.CurrentPosLabel.TabIndex = 21;
+            this.CurrentPosLabel.Text = "Current Position:";
+            // 
+            // CurrentPositionValue
+            // 
+            this.CurrentPositionValue.AutoSize = true;
+            this.CurrentPositionValue.Location = new System.Drawing.Point(118, 250);
+            this.CurrentPositionValue.Name = "CurrentPositionValue";
+            this.CurrentPositionValue.Size = new System.Drawing.Size(27, 17);
+            this.CurrentPositionValue.TabIndex = 22;
+            this.CurrentPositionValue.Text = "NA";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(5, 284);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(87, 17);
+            this.label2.TabIndex = 23;
+            this.label2.Text = "Set Position:";
+            this.label2.Click += new System.EventHandler(this.label2_Click_3);
+            // 
+            // MaxPosition
+            // 
+            this.MaxPosition.AutoSize = true;
+            this.MaxPosition.Location = new System.Drawing.Point(5, 319);
+            this.MaxPosition.Name = "MaxPosition";
+            this.MaxPosition.Size = new System.Drawing.Size(91, 17);
+            this.MaxPosition.TabIndex = 24;
+            this.MaxPosition.Text = "Max Position:";
+            // 
+            // MaxPositionValue
+            // 
+            this.MaxPositionValue.AutoSize = true;
+            this.MaxPositionValue.Location = new System.Drawing.Point(118, 319);
+            this.MaxPositionValue.Name = "MaxPositionValue";
+            this.MaxPositionValue.Size = new System.Drawing.Size(27, 17);
+            this.MaxPositionValue.TabIndex = 25;
+            this.MaxPositionValue.Text = "NA";
+            // 
+            // newMaxPos
+            // 
+            this.newMaxPos.Location = new System.Drawing.Point(227, 319);
+            this.newMaxPos.Name = "newMaxPos";
+            this.newMaxPos.Size = new System.Drawing.Size(90, 22);
+            this.newMaxPos.TabIndex = 26;
+            // 
+            // updateMaxButton
+            // 
+            this.updateMaxButton.Location = new System.Drawing.Point(328, 316);
+            this.updateMaxButton.Name = "updateMaxButton";
+            this.updateMaxButton.Size = new System.Drawing.Size(91, 25);
+            this.updateMaxButton.TabIndex = 27;
+            this.updateMaxButton.Text = "Update Max";
+            this.updateMaxButton.UseVisualStyleBackColor = true;
+            this.updateMaxButton.Click += new System.EventHandler(this.updateMaxButton_Click);
+            // 
+            // reversedValLabel
+            // 
+            this.reversedValLabel.AutoSize = true;
+            this.reversedValLabel.Location = new System.Drawing.Point(118, 190);
+            this.reversedValLabel.Name = "reversedValLabel";
+            this.reversedValLabel.Size = new System.Drawing.Size(27, 17);
+            this.reversedValLabel.TabIndex = 28;
+            this.reversedValLabel.Text = "NA";
             // 
             // SetupDialogForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(607, 409);
+            this.Controls.Add(this.reversedValLabel);
+            this.Controls.Add(this.updateMaxButton);
+            this.Controls.Add(this.newMaxPos);
+            this.Controls.Add(this.MaxPositionValue);
+            this.Controls.Add(this.MaxPosition);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.CurrentPositionValue);
+            this.Controls.Add(this.CurrentPosLabel);
             this.Controls.Add(this.setZeroPosButton);
             this.Controls.Add(this.refreshUi);
             this.Controls.Add(this.reverseLabel);
@@ -310,5 +398,13 @@ namespace ASCOM.SympleAstroFocus
         private System.Windows.Forms.Label reverseLabel;
         private System.Windows.Forms.Button refreshUi;
         private System.Windows.Forms.Button setZeroPosButton;
+        private System.Windows.Forms.Label CurrentPosLabel;
+        private System.Windows.Forms.Label CurrentPositionValue;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label MaxPosition;
+        private System.Windows.Forms.Label MaxPositionValue;
+        private System.Windows.Forms.TextBox newMaxPos;
+        private System.Windows.Forms.Button updateMaxButton;
+        private System.Windows.Forms.Label reversedValLabel;
     }
 }

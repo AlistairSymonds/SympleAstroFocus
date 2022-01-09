@@ -22,6 +22,8 @@ namespace ASCOM.SympleAstroFocus
             // Save the provided trace logger for use within the setup dialogue
             tl = tlDriver;
             this.f = f;
+
+            this.f.UpdateRecievdFromDevice += f_DataFromDevice;
             // Initialise current values of user settings from the ASCOM Profile
             InitUI();
         }
@@ -66,6 +68,7 @@ namespace ASCOM.SympleAstroFocus
 
         }
 
+        //There has to be a better way of doing this besides maintaining two function?
         private void updateDisplayedValues()
         {
             serialNumberVal.Text = "";
@@ -76,8 +79,32 @@ namespace ASCOM.SympleAstroFocus
                 connectedState.Text = "CONNECTED";
                 serialNumberVal.Text = f.SerialNumber;
 
-                reverseLabel.Text = "Reversed: " + f.ReversedMotor;
             }
+        }
+
+        private void InvokeUpdateDisplayedValues()
+        {
+
+            Invoke(new Action(() => { serialNumberVal.Text = ""; }));
+
+            if (f.Connected == true)
+            {
+
+                Invoke(new Action(() => { connectedState.Text = "CONNECTED"; }));
+                Invoke(new Action(() => { serialNumberVal.Text = f.SerialNumber; }));
+
+
+                Invoke(new Action(() => { CurrentPositionValue.Text = f.Position.ToString(); }));
+
+                Invoke(new Action(() => { MaxPositionValue.Text = f.MaxStep.ToString(); }));
+
+                Invoke(new Action(() => { reversedValLabel.Text = f.ReversedMotor.ToString(); }));
+            }
+        }
+
+        void f_DataFromDevice(object sender, EventArgs e)
+        {
+            InvokeUpdateDisplayedValues();
         }
 
         private void label2_Click(object sender, EventArgs e)
@@ -148,6 +175,21 @@ namespace ASCOM.SympleAstroFocus
         private void haltButton_Click(object sender, EventArgs e)
         {
             f.Halt();
+        }
+
+        private void label2_Click_3(object sender, EventArgs e)
+        {
+
+        }
+
+        private void updateMaxButton_Click(object sender, EventArgs e)
+        {
+            int new_max;
+
+            if (Int32.TryParse(newMaxPos.Text, out new_max))
+            {
+                f.MaxIncrement = new_max;
+            }
         }
     }
 }

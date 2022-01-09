@@ -326,7 +326,6 @@ namespace ASCOM.SympleAstroFocus
             appSetPos = deviceSetPos;
             appCurrentPos = deviceCurrentPos;
         }
-    
         //
         // PUBLIC COM INTERFACE IFocuserV3 IMPLEMENTATION
         //
@@ -534,6 +533,12 @@ namespace ASCOM.SympleAstroFocus
             {
                 return Convert.ToInt32(deviceMaxPos); // Maximum change in one move
             }
+
+            set
+            {
+                appMaxPos = Convert.ToUInt32(value); // Set the focuser position
+                deviceNeedsUpdating = true;
+            }
         }
 
         public int MaxStep
@@ -549,10 +554,10 @@ namespace ASCOM.SympleAstroFocus
             tl.LogMessage("Move", Position.ToString());
             Console.WriteLine(Position.ToString());
 
-            usbMut.WaitOne();
+            //usbMut.WaitOne();
             appSetPos = Convert.ToUInt32(Position); // Set the focuser position
             deviceNeedsUpdating = true;
-            usbMut.ReleaseMutex();
+            //usbMut.ReleaseMutex();
         }
 
         public int Position
@@ -619,10 +624,10 @@ namespace ASCOM.SympleAstroFocus
         public void ToggleReverse()
         {
 
-            usbMut.WaitOne();
+            //usbMut.WaitOne();
             commands |= Constants.Command_Dword_Bits.TOGGLE_REVERSE_BIT;
             deviceNeedsUpdating = true;
-            usbMut.ReleaseMutex();
+            //usbMut.ReleaseMutex();
         }
 
         public bool ReversedMotor
@@ -635,10 +640,10 @@ namespace ASCOM.SympleAstroFocus
 
         public void SetZero()
         {
-            usbMut.WaitOne();
+            //usbMut.WaitOne();
             commands |= Constants.Command_Dword_Bits.SET_ZERO_BIT;
             deviceNeedsUpdating = true;
-            usbMut.ReleaseMutex();
+            //usbMut.ReleaseMutex();
             appSetPos = 0;
 
         }
