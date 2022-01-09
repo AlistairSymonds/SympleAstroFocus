@@ -78,7 +78,7 @@ namespace ASCOM.SympleAstroFocus
         /// <summary>
         /// Driver description that displays in the ASCOM Chooser.
         /// </summary>
-        private static string driverDescription = "ASCOM Focuser Driver for SympleAstroFocus.";
+        private static string driverDescription = "SympleAstroFocus";
 
         internal static string traceStateProfileName = "Trace Level";
         internal static string traceStateDefault = "false";
