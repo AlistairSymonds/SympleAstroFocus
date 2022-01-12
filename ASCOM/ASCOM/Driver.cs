@@ -498,10 +498,8 @@ namespace ASCOM.SympleAstroFocus
 
         public void Halt()
         {
-            usbMut.WaitOne();
             commands |= Constants.Command_Dword_Bits.HALT_MOTOR_BIT;
             deviceNeedsUpdating = true;
-            usbMut.ReleaseMutex();
         }
 
         public bool IsMoving
