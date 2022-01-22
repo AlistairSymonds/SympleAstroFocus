@@ -89,7 +89,7 @@ These are cleared once the sepcified operation is complete
 
 |Bit  | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
 | --- |--- |--- |--- |--- |--- |--- |--- |--- |
-|Name |    |    |  Home towards max enabled  | Home towards 0 enabled   |  Homing   |   Stalled |   Moving |  Reverse Step direction |
+|Name | Stepper Driver communication error   |  Stepper driver drror  |  Home towards max enabled  | Home towards 0 enabled   |  Homing   |   Stalled |   Moving |  Reverse step direction |
 
 ## Out of host
 This is how the host controls the device, a very similar scheme is taken to the In direction, where the Host gives back a stateword, and the device will update any of its writeable DWORD fields
