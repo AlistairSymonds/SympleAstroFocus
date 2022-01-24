@@ -19,8 +19,8 @@
 #define CURRENT_POSITION_DWORD 3
 #define SET_POSITION_DWORD 4
 #define MAX_POSITION_DWORD 5
-#define STEP_TIME 6
-#define STEP_MODE 7
+#define STEP_TIME_MICROSEC 6
+#define STEPPER_DRIVER_CONF 7
 
 
 #define COMMAND_TOGGLE_REVERSE_BIT  ( 1 << 0)
@@ -28,10 +28,15 @@
 #define COMMAND_HALT_BIT   			( 1 << 2)
 #define COMMAND_SAVE_TO_FLASH_BIT  	( 1 << 3)
 
-#define STATUS_REVERSE_BIT   ( 1 << 0)
-#define STATUS_IS_MOVING_BIT ( 1 << 1)
-#define STATUS_STALLED_BIT   ( 1 << 2)
-#define STATUS_HOMING_BIT    ( 1 << 3)
+#define STATUS_REVERSE_BIT   					( 1 << 0)
+#define STATUS_IS_MOVING_BIT 					( 1 << 1)
+#define STATUS_STALLED_BIT   					( 1 << 2)
+#define STATUS_HOMING_BIT    					( 1 << 3)
+#define STATUS_HOME_TOWARDS_ZERO_ENABLED    	( 1 << 4)
+#define STATUS_HOME_TOWARDS_MAX_ENABLED    		( 1 << 5)
+#define STATUS_STEPPER_DRIVER_ERROR_BIT    		( 1 << 6)
+#define STATUS_STEPPER_DRIVER_COMMS_ERROR_BIT   ( 1 << 7)
+#define STATUS_STEPPER_DRIVER_ENABLED_BIT    	( 1 << 8)
 
 
 
