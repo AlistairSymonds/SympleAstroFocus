@@ -106,6 +106,7 @@ uint32_t last_usb_ms = 0;
 uint32_t last_flash_ms = 0;
 uint32_t last_motor_ms = 0;
 uint32_t last_tmc_management_ms = 0;
+uint32_t last_tmc_read_attempt_ms = 0;
 
 typedef enum
 {
@@ -119,6 +120,9 @@ volatile edge_dir_t next_edge_dir = POSEDGE;
 void tmc2209_readWriteArray(uint8_t channel, uint8_t *data, size_t writeLength, size_t readLength)
 {
 
+	while (HAL_GetTick() - last_tmc_read_attempt_ms < 5){
+		//spin wait
+	}
 
 	HAL_UART_Transmit(&huart2, data, writeLength, HAL_MAX_DELAY);
 
@@ -126,7 +130,7 @@ void tmc2209_readWriteArray(uint8_t channel, uint8_t *data, size_t writeLength, 
 	//given we need to delay and wait for return after writing, only do that when a read is actually required
 	if (readLength) {
 		//+1 for the byte that will be there from the TX - the HW does no buffering by default
-		HAL_StatusTypeDef rx_status = HAL_UART_Receive(&huart2, buffer, readLength+1, 100); //capture the data we just wrote back in, clearing buffers etc
+		HAL_StatusTypeDef rx_status = HAL_UART_Receive(&huart2, buffer, readLength+1, 10); //capture the data we just wrote back in, clearing buffers etc
 
 
 		if (rx_status == HAL_TIMEOUT || rx_status == HAL_ERROR) {
@@ -135,8 +139,9 @@ void tmc2209_readWriteArray(uint8_t channel, uint8_t *data, size_t writeLength, 
 			//otherwise no error no worries
 			symple_state[STATE_ID_0][STATUS_DWORD] &= ~STATUS_STEPPER_DRIVER_COMMS_ERROR_BIT;
 		}
-
+		last_tmc_read_attempt_ms = HAL_GetTick();
 		memcpy(data, &(buffer[1]), readLength);
+
 	}
 }
 
@@ -207,7 +212,7 @@ int main(void)
 		  //make some dummy data and send repeatedly
 
 		  uint8_t usb_data[SYM_EP_SIZE];
-		  memcpy(usb_data, symple_state[STATE_ID_0], 32);
+		  memcpy(usb_data, symple_state[STATE_ID_0], 40);
 
 		  USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, (uint8_t*)usb_data, SYM_EP_SIZE);
 		  last_usb_ms = HAL_GetTick();
@@ -235,9 +240,12 @@ int main(void)
 		  //read the regs we care about, or set it to enabled if there aren't any errors, otherwise start the setup process
 		  if (TMC2209_config.state == CONFIG_READY){
 
-			  tmc2209_readInt(&TMC2209, TMC2209_GCONF);
+			  read_stepper_state();
+			  uint32_t ifcnt = tmc2209_readInt(&TMC2209, TMC2209_IFCNT);
 
-			  if ((symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_STEPPER_DRIVER_COMMS_ERROR_BIT) == 0){
+			  //it takes 15 dwords to setup the tmc, so if it hasn't written 15 it can't be properly programmed
+			  //this will lead to a few extra restores but that isn't the end of the world
+			  if ((symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_STEPPER_DRIVER_COMMS_ERROR_BIT) == 0 && ifcnt >= 14){
 				  //if no comms error and its configured we should enabled it
 				  symple_state[STATE_ID_0][STATUS_DWORD] |= STATUS_STEPPER_DRIVER_ENABLED_BIT;
 			  } else {
@@ -250,6 +258,7 @@ int main(void)
 
 	  	  } else {
 			  //happens in this loop to handle cases where the TMC loses motor power
+	  		symple_state[STATE_ID_0][STATUS_DWORD] &= ~STATUS_STEPPER_DRIVER_ENABLED_BIT;
 	  		tmc2209_restore(&TMC2209);
 
 		  }
@@ -657,27 +666,49 @@ static void MX_GPIO_Init(void)
 
 }
 
+
+void load_symple_state_into_tmc_config(void){
+
+	//mask then shift on the symnple state to get the value out of symple state, then shift/mask to set the
+	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] &= (~TMC2209_IRUN_MASK);
+	uint8_t irun = (symple_state[STATE_ID_0][STEPPER_DRIVER_CONF] & DRIVER_CONFIG_IRUN_MASK) >> DRIVER_CONFIG_IRUN_SHIFT;
+	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] |= (16 << TMC2209_IRUN_SHIFT)  & TMC2209_IRUN_MASK;
+
+	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] &= (~TMC2209_IHOLD_MASK);
+	uint8_t ihold = (symple_state[STATE_ID_0][STEPPER_DRIVER_CONF] & DRIVER_CONFIG_IHOLD_MASK) >> DRIVER_CONFIG_IHOLD_SHIFT;
+	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] |= (4 << TMC2209_IHOLD_SHIFT)  & TMC2209_IHOLD_MASK;
+
+}
+
 void STEPPER_Init(void)
 {
 	tmc_fillCRC8Table(0x07, true, 0);
+	//load whatever we've got from either boot into motor stat
+	load_symple_state_into_tmc_config();
 
-
-
-	TMC2209_config.shadowRegister[TMC2209_GCONF] |= TMC2209_INTERNAL_RSENSE_MASK;
+	//TMC2209_config.shadowRegister[TMC2209_GCONF] |= TMC2209_INTERNAL_RSENSE_MASK;
 	TMC2209_config.shadowRegister[TMC2209_GCONF] |= TMC2209_SHAFT_MASK;
 	TMC2209_config.shadowRegister[TMC2209_GCONF] |= TMC2209_PDN_DISABLE_MASK;
 	TMC2209_config.shadowRegister[TMC2209_GCONF] |= TMC2209_MSTEP_REG_SELECT_MASK;
 
-	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] = 0;
-	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] |= (8 << TMC2209_IRUN_SHIFT)  &  TMC2209_IRUN_MASK;
-	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] |= (1 << TMC2209_IHOLD_SHIFT) &  TMC2209_IHOLD_MASK;
 	TMC2209_config.shadowRegister[TMC2209_CHOPCONF] |= (0 << TMC2209_MRES_SHIFT) &  TMC2209_MRES_MASK;
 	tmc2209_init(&TMC2209, 0, 0, &TMC2209_config, &tmc2209_defaultRegisterResetState[0]);
 
-
-
-
 };
+
+void read_stepper_state(void) {
+
+
+
+
+	uint32_t gconf 	   = tmc2209_readInt(&TMC2209, TMC2209_GCONF);
+	uint32_t drvstatus = tmc2209_readInt(&TMC2209, TMC2209_DRVSTATUS);
+	uint32_t sg_result = tmc2209_readInt(&TMC2209, TMC2209_SG_RESULT);
+
+	symple_state[STATE_ID_0][STEPPER_DRIVER_STATUS] &= (~DRIVER_STATUS_SG_RESULT_MASK);
+	symple_state[STATE_ID_0][STEPPER_DRIVER_STATUS] |= sg_result;
+
+}
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None

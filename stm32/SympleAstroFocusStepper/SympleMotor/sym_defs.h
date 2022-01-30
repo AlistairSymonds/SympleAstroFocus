@@ -21,6 +21,7 @@
 #define MAX_POSITION_DWORD 5
 #define STEP_TIME_MICROSEC 6
 #define STEPPER_DRIVER_CONF 7
+#define STEPPER_DRIVER_STATUS 8
 
 
 #define COMMAND_TOGGLE_REVERSE_BIT  ( 1 << 0)
@@ -38,13 +39,19 @@
 #define STATUS_STEPPER_DRIVER_COMMS_ERROR_BIT   ( 1 << 7)
 #define STATUS_STEPPER_DRIVER_ENABLED_BIT    	( 1 << 8)
 
+#define DRIVER_CONFIG_IHOLD_MASK				( 0x1F)
+#define DRIVER_CONFIG_IHOLD_SHIFT				0
+#define DRIVER_CONFIG_IRUN_MASK					( 0x3E)
+#define DRIVER_CONFIG_IRUN_SHIFT                5
 
+#define DRIVER_STATUS_SG_RESULT_MASK 			( 0x3FF)
+#define DRIVER_STATUS_SG_RESULT_SHIFT			0
 
 typedef volatile uint32_t symple_state_t[NUM_STATE_INFOS][STATE_LENGTH_DWORDS-1];
 
 symple_state_t symple_state;
 static const uint16_t sym_state_writeable_dwords[NUM_STATE_INFOS]={
-		0xF2
+		0x0F2
 };
 
 void process_command_bits(symple_state_t ss);
