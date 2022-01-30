@@ -72,7 +72,7 @@ These are cleared once the sepcified operation is complete
 
 |Bit  | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
 | --- |--- |--- |--- |--- |--- |--- |--- |--- |
-|Name |    |  Trigger Home Towards Max  | Trigger Home Towards 0 | | Save state to Flash | Halt Motor  | Set Zero to current pos   |  Toggle Reverse Step direction |
+|Name |    |  Trigger Home Towards Max  | Trigger Home Towards 0 | Stall detection enabled | Save state to Flash | Halt Motor  | Set Zero to current pos   |  Toggle Reverse Step direction |
 
 ### Status Flags 
 |Bit  | 31 | 30 | 29 | 28 | 27 | 26 | 25 | 24 |
@@ -91,6 +91,22 @@ These are cleared once the sepcified operation is complete
 | --- |--- |--- |--- |--- |--- |--- |--- |--- |
 |Name | Stepper Driver communication error   |  Stepper driver drror  |  Home towards max enabled  | Home towards 0 enabled   |  Homing   |   Stalled |   Moving |  Reverse step direction |
 
+### Driver Config Options 
+|Bit  | 31 | 30 | 29 | 28 | 27 | 26 | 25 | 24 |
+| --- |--- |--- |--- |--- |--- |--- |--- |--- |
+|Name |    |    |    |    |    |    |    |    |
+
+|Bit  | 23 | 22 | 21 | 20 | 19 | 18 | 17 | 16 |
+| --- |--- |--- |--- |--- |--- |--- |--- |--- |
+|Name |    |    |    |    |    |    |    |    |
+
+|Bit  | 15 | 14 | 13 | 12 | 11 | 10 | 9 | 8 |
+| --- |--- |--- |--- |--- |--- |--- |--- |--- |
+|Name |    |    |  |    |    |    |  IRUN_MSB  |<--|
+
+|Bit  | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+| --- |--- |--- |--- |--- |--- |--- |--- |--- |
+|Name|---|-->|IRUN_LSB|IHOLD_MSB|<--|---|-->| IHOLD_LSB |
 
 ### Driver Status Flags 
 |Bit  | 31 | 30 | 29 | 28 | 27 | 26 | 25 | 24 |
