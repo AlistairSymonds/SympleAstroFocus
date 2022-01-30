@@ -53,7 +53,8 @@ Currently only the following statewords are defined, if other stepper drivers ar
 |4      | Set Position      | Constant, 32'h00| R, Write when enable cmd bit set |
 |5      | Max Position      | Constant, 32'h00| RW |
 |6      | Step Time  microsec       |                 |  RW  | 
-|7      | Driver Status         |                 | RW |
+|7      | Driver Config         |                 | RW |
+|8      | Driver Status         |                 | R |
 
 ### Command Bits
 These are cleared once the sepcified operation is complete
