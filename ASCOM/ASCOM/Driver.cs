@@ -340,11 +340,6 @@ namespace ASCOM.SympleAstroFocus
         /// </summary>
         public void SetupDialog()
         {
-            // consider only showing the setup dialog if not connected
-            // or call a different dialog if connected
-            if (IsConnected)
-                System.Windows.Forms.MessageBox.Show("Already connected, just press OK");
-
             using (SetupDialogForm F = new SetupDialogForm(this, tl))
             {
                 var result = F.ShowDialog();
