@@ -40,9 +40,8 @@ v                                                                               
 +---------------------------------------------------------------------------------++--------+
 ```
 ## State IDs
-Currently only two statewords are defined, if other stepper drivers are supported they will likely have their own state id
-+ GENERAL_STATE (32'h00) :
-+ TMC_STATE (32'h01)
+Currently only the following statewords are defined, if other stepper drivers are supported they will likely have their own state id
++ GENERAL_STATE (32'h00)
 
 ## State ID 0 fields
 | DWORD | Name | Encoding| Read/Write or Read Only |
@@ -54,7 +53,7 @@ Currently only two statewords are defined, if other stepper drivers are supporte
 |4      | Set Position      | Constant, 32'h00| R, Write when enable cmd bit set |
 |5      | Max Position      | Constant, 32'h00| RW |
 |6      | Step Time  microsec       |                 |  RW  | 
-|7      | Step Mode         |                 | RW |
+|7      | Driver Status         |                 | RW |
 
 ### Command Bits
 These are cleared once the sepcified operation is complete
@@ -90,6 +89,24 @@ These are cleared once the sepcified operation is complete
 |Bit  | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
 | --- |--- |--- |--- |--- |--- |--- |--- |--- |
 |Name | Stepper Driver communication error   |  Stepper driver drror  |  Home towards max enabled  | Home towards 0 enabled   |  Homing   |   Stalled |   Moving |  Reverse step direction |
+
+
+### Driver Status Flags 
+|Bit  | 31 | 30 | 29 | 28 | 27 | 26 | 25 | 24 |
+| --- |--- |--- |--- |--- |--- |--- |--- |--- |
+|Name | Standstill   |    |    |    |    |    |    |    |
+
+|Bit  | 23 | 22 | 21 | 20 | 19 | 18 | 17 | 16 |
+| --- |--- |--- |--- |--- |--- |--- |--- |--- |
+|Name |    |    |    |    |    |    |    |    |
+
+|Bit  | 15 | 14 | 13 | 12 | 11 | 10 | 9 | 8 |
+| --- |--- |--- |--- |--- |--- |--- |--- |--- |
+|Name | s2vsb   |  s2vsa  | s2gb | s2ga   |  Overtemp  | Overtemp warning   |  SG_RESULT_MSB  | <--|
+
+|Bit  | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+| --- |--- |--- |--- |--- |--- |--- |--- |--- |
+|---|---|---|---|---|---|---| --> |   SG_RESULT_LSB |
 
 ## Out of host
 This is how the host controls the device, a very similar scheme is taken to the In direction, where the Host gives back a stateword, and the device will update any of its writeable DWORD fields
