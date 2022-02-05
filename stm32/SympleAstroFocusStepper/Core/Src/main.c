@@ -689,7 +689,7 @@ void load_symple_state_into_tmc_config(void){
 
 	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] &= (~TMC2209_IHOLD_MASK);
 	uint8_t ihold = (symple_state[STATE_ID_0][STEPPER_DRIVER_CONF] & DRIVER_CONFIG_IHOLD_MASK) >> DRIVER_CONFIG_IHOLD_SHIFT;
-	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] |= (16 << TMC2209_IHOLD_SHIFT)  & TMC2209_IHOLD_MASK;
+	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] |= (7 << TMC2209_IHOLD_SHIFT)  & TMC2209_IHOLD_MASK;
 
 }
 
@@ -742,6 +742,10 @@ void read_stepper_state(void) {
 
 	symple_state[STATE_ID_0][STEPPER_DRIVER_STATUS] &= (~DRIVER_STATUS_SG_RESULT_MASK);
 	symple_state[STATE_ID_0][STEPPER_DRIVER_STATUS] |= sg_result;
+
+	symple_state[STATE_ID_0][STEPPER_DRIVER_STATUS] &= (~DRIVER_STATUS_CS_ACTUAL_MASK);
+	uint32_t cs_actual = (drvstatus & TMC2209_CS_ACTUAL_MASK) >> TMC2209_CS_ACTUAL_SHIFT;
+	symple_state[STATE_ID_0][STEPPER_DRIVER_STATUS] |= (cs_actual) << DRIVER_STATUS_CS_ACTUAL_SHIFT;
 
 }
 /**

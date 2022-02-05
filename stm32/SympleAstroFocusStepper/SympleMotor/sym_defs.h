@@ -47,6 +47,9 @@
 #define DRIVER_STATUS_SG_RESULT_MASK 			( 0x3FF)
 #define DRIVER_STATUS_SG_RESULT_SHIFT			0
 
+#define DRIVER_STATUS_CS_ACTUAL_MASK 			( 0x1F0000)
+#define DRIVER_STATUS_CS_ACTUAL_SHIFT			16
+
 typedef volatile uint32_t symple_state_t[NUM_STATE_INFOS][STATE_LENGTH_DWORDS-1];
 
 symple_state_t symple_state;
