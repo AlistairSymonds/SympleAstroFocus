@@ -645,14 +645,21 @@ namespace ASCOM.SympleAstroFocus
 
         }
 
-        public int MotorLoad
+        public int SG_RESULT
         {
             get
             {
-                return Convert.ToInt32((driverStatus >> Constants.DRIVER_STATUS_SG_RESULT_SHIFT) & Constants.DRIVER_STATUS_SG_RESULT_MASK);
+                return Convert.ToInt32((driverStatus & Constants.DRIVER_STATUS_SG_RESULT_MASK) >> Constants.DRIVER_STATUS_SG_RESULT_SHIFT);
             }
         }
 
+        public int CS_ACTUAL
+        {
+            get
+            {
+                return Convert.ToInt32((driverStatus & Constants.DRIVER_STATUS_CS_ACTUAL_MASK) >> Constants.DRIVER_STATUS_CS_ACTUAL_SHIFT);
+            }
+        }
         #endregion
 
         #region Private properties and methods

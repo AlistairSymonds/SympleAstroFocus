@@ -37,7 +37,8 @@ public class Constants
     public const int DRIVER_STATUS_SG_RESULT_MASK = 0x3FF;
     public const int DRIVER_STATUS_SG_RESULT_SHIFT = 0;
 
-
+    public const int DRIVER_STATUS_CS_ACTUAL_MASK = 0x1F0000;
+    public const int DRIVER_STATUS_CS_ACTUAL_SHIFT = 16;
 
 
 }

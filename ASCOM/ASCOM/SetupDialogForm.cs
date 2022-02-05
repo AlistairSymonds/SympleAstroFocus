@@ -32,7 +32,7 @@ namespace ASCOM.SympleAstroFocus
         {
             // Place any validation constraint checks here
             // Update the state variables with results from the dialogue
-            tl.Enabled = chkTrace.Checked;
+
         }
 
         private void cmdCancel_Click(object sender, EventArgs e) // Cancel button event handler
@@ -59,7 +59,6 @@ namespace ASCOM.SympleAstroFocus
 
         private void InitUI()
         {
-            chkTrace.Checked = tl.Enabled;
 
 
 
@@ -100,7 +99,9 @@ namespace ASCOM.SympleAstroFocus
 
                 Invoke(new Action(() => { reversedValLabel.Text = f.ReversedMotor.ToString(); }));
 
-                Invoke(new Action(() => { motorLoadVal.Text = f.MotorLoad.ToString(); }));
+                Invoke(new Action(() => { motorLoadVal.Text = f.SG_RESULT.ToString(); }));
+
+                Invoke(new Action(() => { csActualVal.Text = f.CS_ACTUAL.ToString(); }));
             }
         }
 
@@ -192,6 +193,22 @@ namespace ASCOM.SympleAstroFocus
             {
                 f.MaxIncrement = new_max;
             }
+        }
+
+        private void toggleConfigVisibilitybutton_Click(object sender, EventArgs e)
+        {
+
+            configPanel.Visible = !configPanel.Visible;
+        }
+
+        private void toggleDebugVisibilitybutton_Click(object sender, EventArgs e)
+        {
+            debugPanel.Visible = !debugPanel.Visible;
+        }
+
+        private void debugPanel_Paint(object sender, PaintEventArgs e)
+        {
+
         }
     }
 }
