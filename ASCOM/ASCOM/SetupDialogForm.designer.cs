@@ -55,6 +55,8 @@ namespace ASCOM.SympleAstroFocus
             this.newMaxPos = new System.Windows.Forms.TextBox();
             this.updateMaxButton = new System.Windows.Forms.Button();
             this.reversedValLabel = new System.Windows.Forms.Label();
+            this.motorLoadLabel = new System.Windows.Forms.Label();
+            this.motorLoadVal = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picASCOM)).BeginInit();
             this.SuspendLayout();
             // 
@@ -330,11 +332,31 @@ namespace ASCOM.SympleAstroFocus
             this.reversedValLabel.TabIndex = 28;
             this.reversedValLabel.Text = "NA";
             // 
+            // motorLoadLabel
+            // 
+            this.motorLoadLabel.AutoSize = true;
+            this.motorLoadLabel.Location = new System.Drawing.Point(5, 354);
+            this.motorLoadLabel.Name = "motorLoadLabel";
+            this.motorLoadLabel.Size = new System.Drawing.Size(84, 17);
+            this.motorLoadLabel.TabIndex = 29;
+            this.motorLoadLabel.Text = "Motor Load:";
+            // 
+            // motorLoadVal
+            // 
+            this.motorLoadVal.AutoSize = true;
+            this.motorLoadVal.Location = new System.Drawing.Point(118, 354);
+            this.motorLoadVal.Name = "motorLoadVal";
+            this.motorLoadVal.Size = new System.Drawing.Size(27, 17);
+            this.motorLoadVal.TabIndex = 30;
+            this.motorLoadVal.Text = "NA";
+            // 
             // SetupDialogForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(607, 409);
+            this.Controls.Add(this.motorLoadVal);
+            this.Controls.Add(this.motorLoadLabel);
             this.Controls.Add(this.reversedValLabel);
             this.Controls.Add(this.updateMaxButton);
             this.Controls.Add(this.newMaxPos);
@@ -406,5 +428,7 @@ namespace ASCOM.SympleAstroFocus
         private System.Windows.Forms.TextBox newMaxPos;
         private System.Windows.Forms.Button updateMaxButton;
         private System.Windows.Forms.Label reversedValLabel;
+        private System.Windows.Forms.Label motorLoadLabel;
+        private System.Windows.Forms.Label motorLoadVal;
     }
 }

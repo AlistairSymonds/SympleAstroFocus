@@ -124,6 +124,7 @@ namespace ASCOM.SympleAstroFocus
         private uint deviceMaxPos = 0;
         private Constants.Status_Dword_Bits status_flags;
         private Constants.Command_Dword_Bits commands;
+        private uint driverStatus = 0;
         #endregion
 
         /// <summary>
@@ -140,6 +141,8 @@ namespace ASCOM.SympleAstroFocus
             connectedState = false; // Initialise connected to false
             utilities = new Util(); //Initialise util object
             astroUtilities = new AstroUtils(); // Initialise astro-utilities object
+
+
 
 
             devices = new FilteredDeviceList();
@@ -232,7 +235,7 @@ namespace ASCOM.SympleAstroFocus
             {
 
                 byte[] bytes;
-                bytes = new byte[64];
+                bytes = new byte[65];
 
                 UInt32[] dwords_from_dev;
                 dwords_from_dev = new UInt32[16];
@@ -275,6 +278,7 @@ namespace ASCOM.SympleAstroFocus
             deviceSetPos       = state_words[Constants.SET_POSITION_DWORD];
 
             status_flags = (Constants.Status_Dword_Bits)state_words[Constants.STATUS_DWORD];
+            driverStatus = state_words[Constants.DRIVER_STATUS_DWORD];
         }
 
         private void updateDeviceFromHost()
@@ -639,6 +643,14 @@ namespace ASCOM.SympleAstroFocus
             //usbMut.ReleaseMutex();
             appSetPos = 0;
 
+        }
+
+        public int MotorLoad
+        {
+            get
+            {
+                return Convert.ToInt32((driverStatus >> Constants.DRIVER_STATUS_SG_RESULT_SHIFT) & Constants.DRIVER_STATUS_SG_RESULT_MASK);
+            }
         }
 
         #endregion

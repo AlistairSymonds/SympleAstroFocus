@@ -99,6 +99,8 @@ namespace ASCOM.SympleAstroFocus
                 Invoke(new Action(() => { MaxPositionValue.Text = f.MaxStep.ToString(); }));
 
                 Invoke(new Action(() => { reversedValLabel.Text = f.ReversedMotor.ToString(); }));
+
+                Invoke(new Action(() => { motorLoadVal.Text = f.MotorLoad.ToString(); }));
             }
         }
 

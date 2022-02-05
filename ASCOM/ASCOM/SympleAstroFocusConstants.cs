@@ -13,7 +13,8 @@ public class Constants
     public const int SET_POSITION_DWORD = 4;
     public const int MAX_POSITION_DWORD = 5;
     public const int STEP_TIME_MS_DWORD = 6;
-    public const int STEP_MODE_DENOM_DWORD = 7;
+    public const int DRIVER_CONFIG_DWORD = 7;
+    public const int DRIVER_STATUS_DWORD = 8;
 
     [Flags]
     public enum Command_Dword_Bits : uint
@@ -32,4 +33,11 @@ public class Constants
         STATUS_STALLED_BIT   = 1 << 2,
         STATUS_HOMING_BIT    = 1 << 3
     }
+
+    public const int DRIVER_STATUS_SG_RESULT_MASK = 0x3FF;
+    public const int DRIVER_STATUS_SG_RESULT_SHIFT = 0;
+
+
+
+
 }
