@@ -62,6 +62,7 @@ static void MX_USART3_UART_Init(void);
 static void MX_TIM3_Init(void);
 static void STEPPER_Init(void);
 static void FLASH_init(void);
+static void read_stepper_state(void);
 static void load_state_from_flash(symple_state_t ss);
 static void write_state_to_flash(symple_state_t ss);
 /* USER CODE BEGIN PFP */
@@ -99,7 +100,7 @@ static TMC2209TypeDef TMC2209;
 volatile static ConfigurationTypeDef TMC2209_config;
 // Helper macro - index is always 1 here (channel 1 <-> index 0, channel 2 <-> index 1)
 //#define TMC2209_CRC(data, length) tmc_CRC8(data, length, 1)
-#define TMC2209_UART_BAUDRATE 40000
+#define TMC2209_UART_BAUDRATE 100000
 volatile int flash_save_needed = 0;
 
 uint32_t last_usb_ms = 0;
@@ -164,6 +165,11 @@ uint8_t tmc2209_CRC8(uint8_t *data, size_t length)
 	}
 
 	return crc; //tmc_CRC8(data, length, 0);
+}
+
+void stall_handler() {
+
+
 }
 /**
   * @brief  The application entry point.
@@ -240,14 +246,16 @@ int main(void)
 		  //read the regs we care about, or set it to enabled if there aren't any errors, otherwise start the setup process
 		  if (TMC2209_config.state == CONFIG_READY){
 
-			  read_stepper_state();
+
 			  uint32_t ifcnt = tmc2209_readInt(&TMC2209, TMC2209_IFCNT);
 
 			  //it takes 15 dwords to setup the tmc, so if it hasn't written 15 it can't be properly programmed
 			  //this will lead to a few extra restores but that isn't the end of the world
-			  if ((symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_STEPPER_DRIVER_COMMS_ERROR_BIT) == 0 && ifcnt >= 14){
+			  if ((symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_STEPPER_DRIVER_COMMS_ERROR_BIT) == 0 && ifcnt > 15){
 				  //if no comms error and its configured we should enabled it
 				  symple_state[STATE_ID_0][STATUS_DWORD] |= STATUS_STEPPER_DRIVER_ENABLED_BIT;
+				  read_stepper_state();
+
 			  } else {
 				  //something has gone wrong, disable and restore it
 
@@ -266,10 +274,15 @@ int main(void)
 		  last_tmc_management_ms = HAL_GetTick();
 	  }
 
-	  tmc2209_periodicJob(&TMC2209, HAL_GetTick());
 
+	  if (HAL_GPIO_ReadPin(GPIOA, DIAG_Pin)){
+		  stall_handler();
+	  }
+
+	  tmc2209_periodicJob(&TMC2209, HAL_GetTick());
 	  //only enable the driver if its setup and verified that the regs have been loaded
 	  //otherwise use the ENN pin to stop the driver and hopefully prevent damage
+
 	  if(symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_STEPPER_DRIVER_ENABLED_BIT)
 	  {
 		  HAL_GPIO_WritePin(GPIOA, ENN_Pin, GPIO_PIN_RESET);
@@ -530,7 +543,7 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 0;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 65535;
+  htim3.Init.Period = (65535/32);
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -676,7 +689,7 @@ void load_symple_state_into_tmc_config(void){
 
 	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] &= (~TMC2209_IHOLD_MASK);
 	uint8_t ihold = (symple_state[STATE_ID_0][STEPPER_DRIVER_CONF] & DRIVER_CONFIG_IHOLD_MASK) >> DRIVER_CONFIG_IHOLD_SHIFT;
-	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] |= (4 << TMC2209_IHOLD_SHIFT)  & TMC2209_IHOLD_MASK;
+	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] |= (16 << TMC2209_IHOLD_SHIFT)  & TMC2209_IHOLD_MASK;
 
 }
 
@@ -684,15 +697,37 @@ void STEPPER_Init(void)
 {
 	tmc_fillCRC8Table(0x07, true, 0);
 	//load whatever we've got from either boot into motor stat
+
+
+	tmc2209_init(&TMC2209, 0, 0, &TMC2209_config, &tmc2209_defaultRegisterResetState[0]);
+
+	TMC2209_config.shadowRegister[TMC2209_GCONF] = 0x00000040;
+	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] = 0x00071703;
+	TMC2209_config.shadowRegister[TMC2209_TPOWERDOWN] = 0x00000014;
+	TMC2209_config.shadowRegister[TMC2209_CHOPCONF] = 0x10000053;
+	TMC2209_config.shadowRegister[TMC2209_PWMCONF] = 0xC10D0024;
+
 	load_symple_state_into_tmc_config();
 
-	//TMC2209_config.shadowRegister[TMC2209_GCONF] |= TMC2209_INTERNAL_RSENSE_MASK;
-	TMC2209_config.shadowRegister[TMC2209_GCONF] |= TMC2209_SHAFT_MASK;
+
+
+
+	TMC2209_config.shadowRegister[TMC2209_GCONF] &= (~TMC2209_I_SCALE_ANALOG_MASK);
 	TMC2209_config.shadowRegister[TMC2209_GCONF] |= TMC2209_PDN_DISABLE_MASK;
 	TMC2209_config.shadowRegister[TMC2209_GCONF] |= TMC2209_MSTEP_REG_SELECT_MASK;
+	TMC2209_config.shadowRegister[TMC2209_GCONF] |= TMC2209_SHAFT_MASK;
 
+	TMC2209_config.shadowRegister[TMC2209_CHOPCONF] &= (~TMC2209_MRES_MASK);
 	TMC2209_config.shadowRegister[TMC2209_CHOPCONF] |= (0 << TMC2209_MRES_SHIFT) &  TMC2209_MRES_MASK;
-	tmc2209_init(&TMC2209, 0, 0, &TMC2209_config, &tmc2209_defaultRegisterResetState[0]);
+	TMC2209_config.shadowRegister[TMC2209_CHOPCONF] |= (0xF << TMC2209_TOFF_SHIFT) &  TMC2209_TOFF_MASK;
+
+/*
+	TMC2209_config.shadowRegister[TMC2209_COOLCONF] = 0;
+	TMC2209_config.shadowRegister[TMC2209_COOLCONF] |= (0x4 << TMC2209_SEMIN_SHIFT) &  TMC2209_SEMIN_MASK;
+*/
+	TMC2209_config.shadowRegister[TMC2209_SGTHRS] = 4;
+
+
 
 };
 
