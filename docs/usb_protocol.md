@@ -115,15 +115,15 @@ These are cleared once the sepcified operation is complete
 
 |Bit  | 23 | 22 | 21 | 20 | 19 | 18 | 17 | 16 |
 | --- |--- |--- |--- |--- |--- |--- |--- |--- |
-|Name |    |    |    |    |    |    |    |    |
+|Name |    |    |    | CS_ACTUAL MSB  |  <--  |  ---  |  -->  | CS_ACTUAL LSB   |
 
 |Bit  | 15 | 14 | 13 | 12 | 11 | 10 | 9 | 8 |
 | --- |--- |--- |--- |--- |--- |--- |--- |--- |
-|Name | s2vsb   |  s2vsa  | s2gb | s2ga   |  Overtemp  | Overtemp warning   |  SG_RESULT_MSB  | <--|
+|Name | s2vsb   |  s2vsa  | s2gb | s2ga   |  Overtemp  | Overtemp warning   |  SG_RESULT MSB  | <--|
 
 |Bit  | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
 | --- |--- |--- |--- |--- |--- |--- |--- |--- |
-|---|---|---|---|---|---|---| --> |   SG_RESULT_LSB |
+|---|---|---|---|---|---|---| --> |   SG_RESULT LSB |
 
 ## Out of host
 This is how the host controls the device, a very similar scheme is taken to the In direction, where the Host gives back a stateword, and the device will update any of its writeable DWORD fields
