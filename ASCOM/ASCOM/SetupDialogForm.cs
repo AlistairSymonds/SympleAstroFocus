@@ -248,5 +248,10 @@ namespace ASCOM.SympleAstroFocus
         {
             f.IHOLD = Decimal.ToUInt32(iholdSetVal.Value);
         }
+
+        private void triggerHomingButton_Click(object sender, EventArgs e)
+        {
+            f.TriggerHoming();
+        }
     }
 }

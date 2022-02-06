@@ -79,6 +79,7 @@ namespace ASCOM.SympleAstroFocus
             this.toggleConfigVisibilitybutton = new System.Windows.Forms.Button();
             this.irunSetVal = new System.Windows.Forms.NumericUpDown();
             this.iholdSetVal = new System.Windows.Forms.NumericUpDown();
+            this.triggerHomingButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.picASCOM)).BeginInit();
             this.controlPanel.SuspendLayout();
             this.configPanel.SuspendLayout();
@@ -326,6 +327,7 @@ namespace ASCOM.SympleAstroFocus
             // controlPanel
             // 
             this.controlPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.controlPanel.Controls.Add(this.triggerHomingButton);
             this.controlPanel.Controls.Add(this.reversedValLabel);
             this.controlPanel.Controls.Add(this.updateMaxButton);
             this.controlPanel.Controls.Add(this.moveButt);
@@ -686,6 +688,16 @@ namespace ASCOM.SympleAstroFocus
             this.iholdSetVal.Size = new System.Drawing.Size(281, 22);
             this.iholdSetVal.TabIndex = 37;
             // 
+            // triggerHomingButton
+            // 
+            this.triggerHomingButton.Location = new System.Drawing.Point(677, 74);
+            this.triggerHomingButton.Name = "triggerHomingButton";
+            this.triggerHomingButton.Size = new System.Drawing.Size(75, 23);
+            this.triggerHomingButton.TabIndex = 29;
+            this.triggerHomingButton.Text = "Trigger Homing";
+            this.triggerHomingButton.UseVisualStyleBackColor = true;
+            this.triggerHomingButton.Click += new System.EventHandler(this.triggerHomingButton_Click);
+            // 
             // SetupDialogForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
@@ -778,5 +790,6 @@ namespace ASCOM.SympleAstroFocus
         private System.Windows.Forms.Button updateHomingDirs;
         private System.Windows.Forms.NumericUpDown irunSetVal;
         private System.Windows.Forms.NumericUpDown iholdSetVal;
+        private System.Windows.Forms.Button triggerHomingButton;
     }
 }

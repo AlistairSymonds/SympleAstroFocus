@@ -732,6 +732,13 @@ namespace ASCOM.SympleAstroFocus
                 return status_flags.HasFlag(Constants.Status_Dword_Bits.STATUS_HOMING_TOWARDS_MAX_ENABLED);
             }
         }
+
+        public void TriggerHoming()
+        {
+            commands |= Constants.Command_Dword_Bits.TRIGGER_HOMING;
+            deviceNeedsUpdating = true;
+        }
+
         #endregion
 
         #region Private properties and methods
