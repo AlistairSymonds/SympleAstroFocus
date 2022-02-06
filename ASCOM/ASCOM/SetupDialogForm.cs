@@ -63,7 +63,8 @@ namespace ASCOM.SympleAstroFocus
 
 
             updateDisplayedValues();
-
+            debugPanel.Visible = false;
+            configPanel.Visible = false;
 
         }
 
@@ -102,6 +103,17 @@ namespace ASCOM.SympleAstroFocus
                 Invoke(new Action(() => { motorLoadVal.Text = f.SG_RESULT.ToString(); }));
 
                 Invoke(new Action(() => { csActualVal.Text = f.CS_ACTUAL.ToString(); }));
+
+
+                Invoke(new Action(() => { homingDirectionsCurrVals.SetItemChecked(0, f.HomingTowardsZeroEnabled); }));
+
+                Invoke(new Action(() => { homingDirectionsCurrVals.SetItemChecked(1, f.HomingTowardsMaxEnabled); }));
+
+
+                Invoke(new Action(() => { irunCurrentVal.Text = f.IRUN.ToString(); }));
+
+
+                Invoke(new Action(() => { iholdCurrentVal.Text = f.IHOLD.ToString(); }));
             }
         }
 
@@ -195,9 +207,19 @@ namespace ASCOM.SympleAstroFocus
             }
         }
 
-        private void toggleConfigVisibilitybutton_Click(object sender, EventArgs e)
+
+        private void debugPanel_Paint(object sender, PaintEventArgs e)
         {
 
+        }
+
+        private void visibilityButtonsTable_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void toggleConfigVisibilitybutton_Click_1(object sender, EventArgs e)
+        {
             configPanel.Visible = !configPanel.Visible;
         }
 
@@ -206,9 +228,25 @@ namespace ASCOM.SympleAstroFocus
             debugPanel.Visible = !debugPanel.Visible;
         }
 
-        private void debugPanel_Paint(object sender, PaintEventArgs e)
+        private void homingDirectionsCurrVals_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void updateHomingDirs_Click(object sender, EventArgs e)
+        {
+            f.HomingTowardsZeroEnabled = homingDirectionsSetVals.GetItemChecked(0);
+            f.HomingTowardsMaxEnabled = homingDirectionsSetVals.GetItemChecked(1);
+        }
+
+        private void updateIrunButton_Click(object sender, EventArgs e)
+        {
+            f.IRUN = Decimal.ToUInt32(irunSetVal.Value);
+        }
+
+        private void updateIholdButton_Click(object sender, EventArgs e)
+        {
+            f.IHOLD = Decimal.ToUInt32(iholdSetVal.Value);
         }
     }
 }
