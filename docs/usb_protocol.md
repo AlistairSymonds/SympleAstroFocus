@@ -68,7 +68,7 @@ These are cleared once the sepcified operation is complete
 
 |Bit  | 15 | 14 | 13 | 12 | 11 | 10 | 9 | 8 |
 | --- |--- |--- |--- |--- |--- |--- |--- |--- |
-|Name |    |    |    |    |    |    |    |    |
+|Name |    |    |    |    |    |    |    | Update Set Pos  |
 
 |Bit  | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
 | --- |--- |--- |--- |--- |--- |--- |--- |--- |
