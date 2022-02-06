@@ -21,6 +21,14 @@ void process_command_bits(symple_state_t ss){
 		ss[STATE_ID_0][COMMAND_DWORD] &= ~COMMAND_HALT_BIT;
 	}
 
+	if (ss[STATE_ID_0][COMMAND_DWORD] & COMMAND_TOGGLE_HOME_TOWARDS_ZERO_BIT){
+		ss[STATE_ID_0][STATUS_DWORD] ^= STATUS_HOME_TOWARDS_ZERO_ENABLED;
+	}
+
+	if (ss[STATE_ID_0][COMMAND_DWORD] & COMMAND_TOGGLE_HOME_TOWARDS_MAX_BIT){
+		ss[STATE_ID_0][STATUS_DWORD] ^= STATUS_HOME_TOWARDS_MAX_ENABLED;
+	}
+
 
 }
 
@@ -29,6 +37,11 @@ void save_recieved_state(uint32_t* state_in , symple_state_t ss){
 	  state_id = state_in[STATE_ID_DWORD];
 	  for (int i = 1; i < STATE_LENGTH_DWORDS; i++){
 		  int is_writable_dword = sym_state_writeable_dwords[state_id] & (1 << i);
+
+		  if (i == SET_POSITION_DWORD){
+			  is_writable_dword = state_in[COMMAND_DWORD] & COMMAND_UPDATE_SET_POS_BIT;
+		  }
+
 		  if (is_writable_dword){
 			  uint32_t data = state_in[i];
 			  ss[state_id][i] = data;

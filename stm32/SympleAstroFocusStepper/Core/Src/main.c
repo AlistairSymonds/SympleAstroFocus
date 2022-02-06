@@ -451,7 +451,10 @@ void load_state_from_flash(symple_state_t ss){
 		symple_state[STATE_ID_0][SET_POSITION_DWORD] = 0;
 		symple_state[STATE_ID_0][MAX_POSITION_DWORD] = 60000;
 		symple_state[STATE_ID_0][STEP_TIME_MICROSEC] = 50;
+
 		symple_state[STATE_ID_0][STEPPER_DRIVER_CONF] = 0;
+		symple_state[STATE_ID_0][STEPPER_DRIVER_CONF] |= (24 << DRIVER_CONFIG_IRUN_SHIFT) & DRIVER_CONFIG_IRUN_MASK;
+		symple_state[STATE_ID_0][STEPPER_DRIVER_CONF] |= (8 << DRIVER_CONFIG_IHOLD_SHIFT) & DRIVER_CONFIG_IHOLD_MASK;
 	}
 }
 
@@ -685,11 +688,11 @@ void load_symple_state_into_tmc_config(void){
 	//mask then shift on the symnple state to get the value out of symple state, then shift/mask to set the
 	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] &= (~TMC2209_IRUN_MASK);
 	uint8_t irun = (symple_state[STATE_ID_0][STEPPER_DRIVER_CONF] & DRIVER_CONFIG_IRUN_MASK) >> DRIVER_CONFIG_IRUN_SHIFT;
-	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] |= (16 << TMC2209_IRUN_SHIFT)  & TMC2209_IRUN_MASK;
+	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] |= (irun << TMC2209_IRUN_SHIFT)  & TMC2209_IRUN_MASK;
 
 	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] &= (~TMC2209_IHOLD_MASK);
 	uint8_t ihold = (symple_state[STATE_ID_0][STEPPER_DRIVER_CONF] & DRIVER_CONFIG_IHOLD_MASK) >> DRIVER_CONFIG_IHOLD_SHIFT;
-	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] |= (7 << TMC2209_IHOLD_SHIFT)  & TMC2209_IHOLD_MASK;
+	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] |= (ihold << TMC2209_IHOLD_SHIFT)  & TMC2209_IHOLD_MASK;
 
 }
 
@@ -725,7 +728,7 @@ void STEPPER_Init(void)
 	TMC2209_config.shadowRegister[TMC2209_COOLCONF] = 0;
 	TMC2209_config.shadowRegister[TMC2209_COOLCONF] |= (0x4 << TMC2209_SEMIN_SHIFT) &  TMC2209_SEMIN_MASK;
 */
-	TMC2209_config.shadowRegister[TMC2209_SGTHRS] = 4;
+	TMC2209_config.shadowRegister[TMC2209_SGTHRS] = 0;
 
 
 

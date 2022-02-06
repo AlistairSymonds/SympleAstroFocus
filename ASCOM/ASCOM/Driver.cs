@@ -125,6 +125,8 @@ namespace ASCOM.SympleAstroFocus
         private Constants.Status_Dword_Bits status_flags;
         private Constants.Command_Dword_Bits commands;
         private uint driverStatus = 0;
+        private uint deviceDriverConfig = 0;
+        private uint appDriverConfig = 0;
         #endregion
 
         /// <summary>
@@ -279,6 +281,7 @@ namespace ASCOM.SympleAstroFocus
 
             status_flags = (Constants.Status_Dword_Bits)state_words[Constants.STATUS_DWORD];
             driverStatus = state_words[Constants.DRIVER_STATUS_DWORD];
+            deviceDriverConfig = state_words[Constants.DRIVER_CONFIG_DWORD];
         }
 
         private void updateDeviceFromHost()
@@ -304,6 +307,7 @@ namespace ASCOM.SympleAstroFocus
                     dwords_to_dev[Constants.SET_POSITION_DWORD] = appSetPos;
                     dwords_to_dev[Constants.MAX_POSITION_DWORD] = appMaxPos;
                     dwords_to_dev[Constants.COMMAND_DWORD] = (uint)commands;
+                    dwords_to_dev[Constants.DRIVER_CONFIG_DWORD] = appDriverConfig;
                     for (int i = 0; i < dwords_to_dev.Length; i++)
                     {
                         byte[] dword_as_bytes;
@@ -329,6 +333,7 @@ namespace ASCOM.SympleAstroFocus
             appMaxPos = deviceMaxPos;
             appSetPos = deviceSetPos;
             appCurrentPos = deviceCurrentPos;
+            appDriverConfig = deviceDriverConfig;
         }
         //
         // PUBLIC COM INTERFACE IFocuserV3 IMPLEMENTATION
@@ -553,6 +558,7 @@ namespace ASCOM.SympleAstroFocus
 
             //usbMut.WaitOne();
             appSetPos = Convert.ToUInt32(Position); // Set the focuser position
+            commands |= Constants.Command_Dword_Bits.UPDATE_SET_POS;
             deviceNeedsUpdating = true;
             //usbMut.ReleaseMutex();
         }
@@ -658,6 +664,72 @@ namespace ASCOM.SympleAstroFocus
             get
             {
                 return Convert.ToInt32((driverStatus & Constants.DRIVER_STATUS_CS_ACTUAL_MASK) >> Constants.DRIVER_STATUS_CS_ACTUAL_SHIFT);
+            }
+        }
+
+        public uint IRUN
+        {
+            set
+            {
+                appDriverConfig &= ~Constants.DRIVER_CONFIG_IRUN_MASK;
+                appDriverConfig |= value << Constants.DRIVER_CONFIG_IRUN_SHIFT;
+                deviceNeedsUpdating = true;
+
+            }
+            get
+            {
+                return (deviceDriverConfig & Constants.DRIVER_CONFIG_IRUN_MASK) >> Constants.DRIVER_CONFIG_IRUN_SHIFT;
+            }
+        }
+
+        public uint IHOLD
+        {
+
+            set
+            {
+                appDriverConfig &= ~Constants.DRIVER_CONFIG_IHOLD_MASK;
+                appDriverConfig |= value << Constants.DRIVER_CONFIG_IHOLD_SHIFT;
+                deviceNeedsUpdating = true;
+
+            }
+            get
+            {
+                return (deviceDriverConfig & Constants.DRIVER_CONFIG_IHOLD_MASK) >> Constants.DRIVER_CONFIG_IHOLD_SHIFT;
+            }
+        }
+
+        public bool HomingTowardsZeroEnabled
+        {
+            set
+            {
+                if (Convert.ToBoolean(status_flags & Constants.Status_Dword_Bits.STATUS_HOMING_TOWARDS_ZERO_ENABLED) != value)
+                {
+                    commands |= Constants.Command_Dword_Bits.TOGGLE_HOME_TOWARDS_ZERO;
+                    deviceNeedsUpdating = true;
+                }
+            }
+
+            get
+            {
+                return status_flags.HasFlag(Constants.Status_Dword_Bits.STATUS_HOMING_TOWARDS_ZERO_ENABLED);
+            }
+        }
+
+
+        public bool HomingTowardsMaxEnabled
+        {
+            set
+            {
+                if (Convert.ToBoolean(status_flags & Constants.Status_Dword_Bits.STATUS_HOMING_TOWARDS_MAX_ENABLED) != value)
+                {
+                    commands |= Constants.Command_Dword_Bits.TOGGLE_HOME_TOWARDS_MAX;
+                    deviceNeedsUpdating = true;
+                }
+            }
+
+            get
+            {
+                return status_flags.HasFlag(Constants.Status_Dword_Bits.STATUS_HOMING_TOWARDS_MAX_ENABLED);
             }
         }
         #endregion

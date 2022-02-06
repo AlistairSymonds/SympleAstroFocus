@@ -28,6 +28,11 @@
 #define COMMAND_SET_ZERO_BIT   		( 1 << 1)
 #define COMMAND_HALT_BIT   			( 1 << 2)
 #define COMMAND_SAVE_TO_FLASH_BIT  	( 1 << 3)
+#define COMMAND_TRIGGER_HOMING_BIT	( 1 << 5)
+
+#define COMMAND_TOGGLE_HOME_TOWARDS_ZERO_BIT  	( 1 << 6)
+#define COMMAND_TOGGLE_HOME_TOWARDS_MAX_BIT  	( 1 << 7)
+#define COMMAND_UPDATE_SET_POS_BIT			  	( 1 << 8)
 
 #define STATUS_REVERSE_BIT   					( 1 << 0)
 #define STATUS_IS_MOVING_BIT 					( 1 << 1)
@@ -41,7 +46,7 @@
 
 #define DRIVER_CONFIG_IHOLD_MASK				( 0x1F)
 #define DRIVER_CONFIG_IHOLD_SHIFT				0
-#define DRIVER_CONFIG_IRUN_MASK					( 0x3E)
+#define DRIVER_CONFIG_IRUN_MASK					( 0x3E0)
 #define DRIVER_CONFIG_IRUN_SHIFT                5
 
 #define DRIVER_STATUS_SG_RESULT_MASK 			( 0x3FF)
@@ -54,7 +59,7 @@ typedef volatile uint32_t symple_state_t[NUM_STATE_INFOS][STATE_LENGTH_DWORDS-1]
 
 symple_state_t symple_state;
 static const uint16_t sym_state_writeable_dwords[NUM_STATE_INFOS]={
-		0x0F2
+		0x0E2
 };
 
 void process_command_bits(symple_state_t ss);

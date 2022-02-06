@@ -22,7 +22,11 @@ public class Constants
         TOGGLE_REVERSE_BIT  = 1 << 0,
         SET_ZERO_BIT        = 1 << 1,
         HALT_MOTOR_BIT      = 1 << 2,
-        SAVE_TO_FLASH_BIT   = 1 << 3
+        SAVE_TO_FLASH_BIT   = 1 << 3,
+        TRIGGER_HOMING      = 1 << 5,
+        TOGGLE_HOME_TOWARDS_ZERO = 1 << 6,
+        TOGGLE_HOME_TOWARDS_MAX  = 1 << 7,
+        UPDATE_SET_POS      = 1 << 8
     }
 
     [Flags]
@@ -31,13 +35,22 @@ public class Constants
         STATUS_REVERSE_BIT   = 1 << 0,
         STATUS_IS_MOVING_BIT = 1 << 1,
         STATUS_STALLED_BIT   = 1 << 2,
-        STATUS_HOMING_BIT    = 1 << 3
+        STATUS_HOMING_BIT    = 1 << 3,
+        STATUS_HOMING_TOWARDS_ZERO_ENABLED = 1 << 4,
+        STATUS_HOMING_TOWARDS_MAX_ENABLED  = 1 << 5
     }
 
-    public const int DRIVER_STATUS_SG_RESULT_MASK = 0x3FF;
+    public const uint DRIVER_CONFIG_IHOLD_MASK = 0x1F;
+    public const int DRIVER_CONFIG_IHOLD_SHIFT = 0;
+
+    public const uint DRIVER_CONFIG_IRUN_MASK = 0x3E0;
+    public const int DRIVER_CONFIG_IRUN_SHIFT = 5;
+
+
+    public const uint DRIVER_STATUS_SG_RESULT_MASK = 0x3FF;
     public const int DRIVER_STATUS_SG_RESULT_SHIFT = 0;
 
-    public const int DRIVER_STATUS_CS_ACTUAL_MASK = 0x1F0000;
+    public const uint DRIVER_STATUS_CS_ACTUAL_MASK = 0x1F0000;
     public const int DRIVER_STATUS_CS_ACTUAL_SHIFT = 16;
 
 
