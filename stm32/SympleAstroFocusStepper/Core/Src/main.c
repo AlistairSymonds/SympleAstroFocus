@@ -60,13 +60,13 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_TIM3_Init(void);
+
+/* USER CODE BEGIN PFP */
 static void STEPPER_Init(void);
 static void FLASH_init(void);
 static void read_stepper_state(void);
 static void load_state_from_flash(symple_state_t ss);
 static void write_state_to_flash(symple_state_t ss);
-/* USER CODE BEGIN PFP */
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -108,13 +108,22 @@ uint32_t last_flash_ms = 0;
 uint32_t last_motor_ms = 0;
 uint32_t last_tmc_management_ms = 0;
 uint32_t last_tmc_read_attempt_ms = 0;
+uint32_t last_stall_handler_ms = 0;
 
 typedef enum
 {
   POSEDGE,
   NEGEDGE
 } edge_dir_t;
+
+typedef enum
+{
+  TOWARDS_ZERO,
+  TOWARDS_MAX
+} homing_dir_t;
+
 volatile edge_dir_t next_edge_dir = POSEDGE;
+homing_dir_t current_homing_dir = TOWARDS_ZERO;
 
 /* USER CODE END 0 */
 
@@ -168,7 +177,35 @@ uint8_t tmc2209_CRC8(uint8_t *data, size_t length)
 }
 
 void stall_handler() {
+	if (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOMING_BIT){
+		symple_state[STATE_ID_0][SET_POSITION_DWORD] = symple_state[STATE_ID_0][CURRENT_POSITION_DWORD];
 
+		if (current_homing_dir == TOWARDS_ZERO && symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOME_TOWARDS_ZERO_ENABLED){
+			symple_state[STATE_ID_0][SET_POSITION_DWORD] = 0;
+			symple_state[STATE_ID_0][CURRENT_POSITION_DWORD] = 0;
+			current_homing_dir = TOWARDS_MAX;
+
+			if (!(symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOME_TOWARDS_MAX_ENABLED)){
+				symple_state[STATE_ID_0][STATUS_DWORD] &= ~STATUS_HOMING_BIT;
+				current_homing_dir = TOWARDS_ZERO;
+			}
+			return;
+		}
+
+
+		if ((current_homing_dir == TOWARDS_MAX && (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOME_TOWARDS_MAX_ENABLED)) ||
+				(
+				current_homing_dir == TOWARDS_ZERO && (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOME_TOWARDS_MAX_ENABLED) &&
+				!symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOME_TOWARDS_ZERO_ENABLED
+				)
+		){
+			symple_state[STATE_ID_0][MAX_POSITION_DWORD] = symple_state[STATE_ID_0][CURRENT_POSITION_DWORD];
+
+			current_homing_dir = TOWARDS_ZERO;
+			symple_state[STATE_ID_0][STATUS_DWORD] &= ~STATUS_HOMING_BIT;
+			return;
+		}
+	}
 
 }
 /**
@@ -186,24 +223,26 @@ int main(void)
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
 
   /* Configure the system clock */
   SystemClock_Config();
 
+  /* USER CODE BEGIN Init */
   FLASH_init();
   //setup internal values before doing any sort of IO
   SympleState_Init();
+  /* USER CODE END Init */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   MX_USB_DEVICE_Init();
+
+  /* USER CODE BEGIN Init */
   STEPPER_Init();
   tmc2209_restore(&TMC2209);
+  /* USER CODE END Init */
 
   MX_TIM3_Init();
   HAL_TIM_Base_Start_IT(&htim3);
@@ -213,7 +252,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
 	  if (HAL_GetTick() - last_usb_ms > 16){
 		  //make some dummy data and send repeatedly
 
@@ -223,11 +261,6 @@ int main(void)
 		  USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, (uint8_t*)usb_data, SYM_EP_SIZE);
 		  last_usb_ms = HAL_GetTick();
 	  }
-
-
-
-
-
 
 	  if (HAL_GetTick() - last_flash_ms > 5000){
 
@@ -275,8 +308,18 @@ int main(void)
 	  }
 
 
-	  if (HAL_GPIO_ReadPin(GPIOA, DIAG_Pin)){
-		  stall_handler();
+	  if (
+			  ((symple_state[STATE_ID_0][STEPPER_DRIVER_STATUS] &  DRIVER_STATUS_SG_RESULT_MASK) >> DRIVER_STATUS_SG_RESULT_SHIFT) < 40 &&
+			  (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_IS_MOVING_BIT))
+	  {
+		  if (HAL_GetTick() - last_stall_handler_ms > 500){
+			  stall_handler();
+			  last_stall_handler_ms = HAL_GetTick();
+		  }
+	  }
+
+	  if (!symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOMING_BIT){
+		  current_homing_dir = TOWARDS_ZERO;
 	  }
 
 	  tmc2209_periodicJob(&TMC2209, HAL_GetTick());
@@ -291,6 +334,8 @@ int main(void)
 	  }
 
   }
+  /* USER CODE END WHILE */
+
   /* USER CODE END 3 */
 }
 
@@ -310,13 +355,26 @@ void do_step(){
 
 void update_motor_pos()
 {
-  if (symple_state[STATE_ID_0][CURRENT_POSITION_DWORD] != symple_state[STATE_ID_0][SET_POSITION_DWORD]
-		   && (TMC2209_config.state == CONFIG_READY)) //do a step
+  if (((symple_state[STATE_ID_0][CURRENT_POSITION_DWORD] != symple_state[STATE_ID_0][SET_POSITION_DWORD]) ||
+		  (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOMING_BIT))
+		  &&
+		  symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_STEPPER_DRIVER_ENABLED_BIT) //do a step
   {
 
 	GPIO_PinState shaft_dir =
 			symple_state[STATE_ID_0][CURRENT_POSITION_DWORD] < symple_state[STATE_ID_0][SET_POSITION_DWORD] ?
 					GPIO_PIN_SET : GPIO_PIN_RESET;
+
+
+
+	//overwrite direction if we're in homing mode as set/current pos are meaningless
+	if (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOMING_BIT){
+		if (current_homing_dir == TOWARDS_ZERO){
+			shaft_dir = 0;
+		} else {
+			shaft_dir = 1;
+		}
+	}
 
 	int counting_dir = shaft_dir;
     if (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_REVERSE_BIT){
@@ -327,11 +385,15 @@ void update_motor_pos()
     do_step();
     if (counting_dir)
     {
-    	symple_state[STATE_ID_0][CURRENT_POSITION_DWORD]++;
+    	if (symple_state[STATE_ID_0][CURRENT_POSITION_DWORD] != 0xFFFFFFFF){
+        	symple_state[STATE_ID_0][CURRENT_POSITION_DWORD]++;
+    	}
     }
     else
     {
-    	symple_state[STATE_ID_0][CURRENT_POSITION_DWORD]--;
+    	if (symple_state[STATE_ID_0][CURRENT_POSITION_DWORD] != 0x00000000){
+    		symple_state[STATE_ID_0][CURRENT_POSITION_DWORD]--;
+    	}
     }
     //if we've moved set the bit, and signal a save will be needed
     symple_state[STATE_ID_0][STATUS_DWORD] |= STATUS_IS_MOVING_BIT;
@@ -738,8 +800,6 @@ void read_stepper_state(void) {
 
 
 
-
-	uint32_t gconf 	   = tmc2209_readInt(&TMC2209, TMC2209_GCONF);
 	uint32_t drvstatus = tmc2209_readInt(&TMC2209, TMC2209_DRVSTATUS);
 	uint32_t sg_result = tmc2209_readInt(&TMC2209, TMC2209_SG_RESULT);
 
