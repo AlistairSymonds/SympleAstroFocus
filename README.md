@@ -1,9 +1,11 @@
 # SympleAstroFocus
 A symple AF DIY way to control a stepper motor from a PC for astronomy
 
-Still very work in progress - but will spin a motor and report back to ASCOM. So not useful to the community yet, but possibly useful for other devs at least.
+The aims of the project is simple setup and hardware creation
 
+Still a work in progress - but core functionality is working and tested within NINA using custom PCB on both a moonlite stepper on an RC8 and a generic Nema17 stepper belt driving a Rokinion 135 lens.
 
+Also aiming to have prebuilt modules available for sale in future once supply chain shortages ease. 
 
 # Licensing
 By default the project is licensed under CC BY-NC 3.0, this does NOT allow for commercial use. If you would like to use the project in a commerical manner or 
