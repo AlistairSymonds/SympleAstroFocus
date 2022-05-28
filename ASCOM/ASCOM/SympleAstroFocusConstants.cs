@@ -2,19 +2,20 @@
 public class Constants
 {
 
-    public const int STATE_ID_DWORD = 0;
-    public const int STATE_ID_0 = 0;
+    public const uint STATE_ID_DWORD = 0;
+    public const uint STATE_ID_0 = 0;
+    public const uint STATE_ID_HW_DEFS = 0xFFFFFFFF;
 
 
 
-    public const int COMMAND_DWORD = 1;
-    public const int STATUS_DWORD = 2;
-    public const int CURRENT_POSITION_DWORD = 3;
-    public const int SET_POSITION_DWORD = 4;
-    public const int MAX_POSITION_DWORD = 5;
-    public const int STEP_TIME_MS_DWORD = 6;
-    public const int DRIVER_CONFIG_DWORD = 7;
-    public const int DRIVER_STATUS_DWORD = 8;
+    public const uint COMMAND_DWORD = 1;
+    public const uint STATUS_DWORD = 2;
+    public const uint CURRENT_POSITION_DWORD = 3;
+    public const uint SET_POSITION_DWORD = 4;
+    public const uint MAX_POSITION_DWORD = 5;
+    public const uint STEP_TIME_US_DWORD = 6;
+    public const uint DRIVER_CONFIG_DWORD = 7;
+    public const uint DRIVER_STATUS_DWORD = 8;
 
     [Flags]
     public enum Command_Dword_Bits : uint
@@ -53,5 +54,17 @@ public class Constants
     public const uint DRIVER_STATUS_CS_ACTUAL_MASK = 0x1F0000;
     public const int DRIVER_STATUS_CS_ACTUAL_SHIFT = 16;
 
+    public enum mcu_t : uint
+    {
+        UNDEFINED = 0,
+        MCU_TYPE_STM32F103C8T6 = 1,
+        MCU_TYPE_STM32F103T8U6 = 2
+    }
+
+    public enum stepper_driver_t : uint
+    {
+        UNDEFINED = 0,
+        TMC2209 = 1
+    }
 
 }

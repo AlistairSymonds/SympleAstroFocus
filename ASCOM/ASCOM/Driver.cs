@@ -209,6 +209,7 @@ namespace ASCOM.SympleAstroFocus
         private void bgThread(object sender,
             DoWorkEventArgs e)
         {   
+
             while (true)
             {
                 usbMut.WaitOne();

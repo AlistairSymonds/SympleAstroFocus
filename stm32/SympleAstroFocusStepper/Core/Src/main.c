@@ -21,12 +21,14 @@
 #include "main.h"
 #include "usb_device.h"
 
+
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
 #include "tmc/ic/TMC2209/TMC2209.h"
 
 #include "sym_defs.h"
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-
+#include "hw_defs.h"
+#include "hw_defs_manager.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -125,7 +127,6 @@ typedef enum
 volatile edge_dir_t next_edge_dir = POSEDGE;
 homing_dir_t current_homing_dir = TOWARDS_ZERO;
 
-/* USER CODE END 0 */
 
 void tmc2209_readWriteArray(uint8_t channel, uint8_t *data, size_t writeLength, size_t readLength)
 {
@@ -196,7 +197,7 @@ void stall_handler() {
 		if ((current_homing_dir == TOWARDS_MAX && (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOME_TOWARDS_MAX_ENABLED)) ||
 				(
 				current_homing_dir == TOWARDS_ZERO && (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOME_TOWARDS_MAX_ENABLED) &&
-				!symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOME_TOWARDS_ZERO_ENABLED
+				!(symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOME_TOWARDS_ZERO_ENABLED)
 				)
 		){
 			symple_state[STATE_ID_0][MAX_POSITION_DWORD] = symple_state[STATE_ID_0][CURRENT_POSITION_DWORD];
@@ -208,6 +209,10 @@ void stall_handler() {
 	}
 
 }
+
+
+/* USER CODE END 0 */
+
 /**
   * @brief  The application entry point.
   * @retval int
@@ -253,7 +258,18 @@ int main(void)
   while (1)
   {
 	  if (HAL_GetTick() - last_usb_ms > 16){
-		  //make some dummy data and send repeatedly
+		  if (is_requested_hw_defs()){
+			  uint8_t defs_usb_data[SYM_EP_SIZE];
+			  uint32_t hw_defs_state[4];
+			  hw_defs_state[0] = hw_defs.fw_git_commit;
+			  hw_defs_state[1] = hw_defs.mcu_type;
+			  hw_defs_state[2] = hw_defs.stepper_driver_type;
+			  hw_defs_state[3] = hw_defs.release_type;
+			  memcpy(defs_usb_data, symple_state[STATE_ID_0], 40);
+
+			  USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, (uint8_t*)defs_usb_data, SYM_EP_SIZE);
+
+		  }
 
 		  uint8_t usb_data[SYM_EP_SIZE];
 		  memcpy(usb_data, symple_state[STATE_ID_0], 40);
@@ -608,7 +624,7 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 0;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = (65535/32);
+  htim3.Init.Period = 2048;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)

@@ -1,5 +1,5 @@
 #include "sym_defs.h"
-
+#include "hw_defs.h"
 void process_command_bits(symple_state_t ss){
 
 	//is the bit in the command dword set?
@@ -43,16 +43,20 @@ void process_command_bits(symple_state_t ss){
 void save_recieved_state(uint32_t* state_in , symple_state_t ss){
 	uint32_t state_id;
 	  state_id = state_in[STATE_ID_DWORD];
-	  for (int i = 1; i < STATE_LENGTH_DWORDS; i++){
-		  int is_writable_dword = sym_state_writeable_dwords[state_id] & (1 << i);
+	  if (state_id == STATE_ID_HW_INFO) {
 
-		  if (i == SET_POSITION_DWORD){
-			  is_writable_dword = state_in[COMMAND_DWORD] & COMMAND_UPDATE_SET_POS_BIT;
-		  }
+	  } else {
+		  for (int i = 1; i < STATE_LENGTH_DWORDS; i++){
+		  			  int is_writable_dword = sym_state_writeable_dwords[state_id] & (1 << i);
 
-		  if (is_writable_dword){
-			  uint32_t data = state_in[i];
-			  ss[state_id][i] = data;
-		  }
+		  			  if (i == SET_POSITION_DWORD){
+		  				  is_writable_dword = state_in[COMMAND_DWORD] & COMMAND_UPDATE_SET_POS_BIT;
+		  			  }
+
+		  			  if (is_writable_dword){
+		  				  uint32_t data = state_in[i];
+		  				  ss[state_id][i] = data;
+		  			  }
+		  		  }
 	  }
 }

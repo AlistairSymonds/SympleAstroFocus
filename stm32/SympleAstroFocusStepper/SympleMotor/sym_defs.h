@@ -11,6 +11,8 @@
 
 #define STATE_ID_DWORD 0
 #define STATE_ID_0 0x0000
+#define STATE_ID_HW_INFO 0xFFFFFFFF
+
 
 
 //definitions for fields in state ID 0
