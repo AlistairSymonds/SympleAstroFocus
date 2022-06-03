@@ -66,6 +66,7 @@ static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 static void STEPPER_Init(void);
 static void FLASH_init(void);
+static void set_stepper_period_us(int us);
 static void read_stepper_state(void);
 static void load_state_from_flash(symple_state_t ss);
 static void write_state_to_flash(symple_state_t ss);
@@ -95,6 +96,8 @@ int NUM_STATE_WRITES_PER_USER_FLASH;
 
 
 /* USER CODE BEGIN 0 */
+#define CCLK_FREQ 48000000
+
 extern USBD_HandleTypeDef hUsbDeviceFS;
 TIM_HandleTypeDef htim3;
 
@@ -111,6 +114,7 @@ uint32_t last_motor_ms = 0;
 uint32_t last_tmc_management_ms = 0;
 uint32_t last_tmc_read_attempt_ms = 0;
 uint32_t last_stall_handler_ms = 0;
+uint32_t last_timer_set_period_us = 0;
 
 typedef enum
 {
@@ -247,16 +251,23 @@ int main(void)
   /* USER CODE BEGIN Init */
   STEPPER_Init();
   tmc2209_restore(&TMC2209);
+
+  set_stepper_period_us(symple_state[STATE_ID_0][STEP_TIME_MICROSEC]);
+  HAL_TIM_Base_Start_IT(&htim3);
   /* USER CODE END Init */
 
-  MX_TIM3_Init();
-  HAL_TIM_Base_Start_IT(&htim3);
 
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  if (last_timer_set_period_us != symple_state[STATE_ID_0][STEP_TIME_MICROSEC]){
+		  HAL_TIM_Base_Stop_IT(&htim3);
+		  set_stepper_period_us(symple_state[STATE_ID_0][STEP_TIME_MICROSEC]);
+		  HAL_TIM_Base_Start_IT(&htim3);
+	  }
+
 	  if (HAL_GetTick() - last_usb_ms > 16){
 		  if (is_requested_hw_defs()){
 			  uint8_t defs_usb_data[SYM_EP_SIZE];
@@ -502,7 +513,6 @@ int get_last_saved_chunk(){
 		}
 	}
 
-
 	return cur_chunk;
 }
 
@@ -603,50 +613,39 @@ void SympleState_Init(){
 
 }
 
-/**
-  * @brief TIM3 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_TIM3_Init(void)
-{
 
-  /* USER CODE BEGIN TIM3_Init 0 */
+static void set_stepper_period_us(int us){
 
-  /* USER CODE END TIM3_Init 0 */
+	int period = us;
 
-  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
-  TIM_MasterConfigTypeDef sMasterConfig = {0};
+	TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+	TIM_MasterConfigTypeDef sMasterConfig = {0};
 
-  /* USER CODE BEGIN TIM3_Init 1 */
+	htim3.Instance = TIM3;
+	htim3.Init.Prescaler = (CCLK_FREQ/1000000); //1MHz timer clock,
+	htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim3.Init.Period = period;
+	htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+	if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+	{
+		Error_Handler();
+	}
+	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+	if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+	{
+		Error_Handler();
+	}
+	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+	if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+	{
+		Error_Handler();
+	}
 
-  /* USER CODE END TIM3_Init 1 */
-  htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 0;
-  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 2048;
-  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN TIM3_Init 2 */
-
-  /* USER CODE END TIM3_Init 2 */
-
+	last_timer_set_period_us = us;
 }
+
 
 /**
   * @brief USART2 Initialization Function

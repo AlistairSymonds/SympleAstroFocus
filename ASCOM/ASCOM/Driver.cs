@@ -127,6 +127,9 @@ namespace ASCOM.SympleAstroFocus
         private uint driverStatus = 0;
         private uint deviceDriverConfig = 0;
         private uint appDriverConfig = 0;
+
+        private uint appStepPeriodUs= 0;
+        private uint devStepPeriodUs = 0;
         #endregion
 
         /// <summary>
@@ -279,6 +282,7 @@ namespace ASCOM.SympleAstroFocus
             deviceCurrentPos   = state_words[Constants.CURRENT_POSITION_DWORD];
             deviceMaxPos       = state_words[Constants.MAX_POSITION_DWORD];
             deviceSetPos       = state_words[Constants.SET_POSITION_DWORD];
+            devStepPeriodUs    = state_words[Constants.STEP_TIME_US_DWORD];
 
             status_flags = (Constants.Status_Dword_Bits)state_words[Constants.STATUS_DWORD];
             driverStatus = state_words[Constants.DRIVER_STATUS_DWORD];
@@ -309,6 +313,7 @@ namespace ASCOM.SympleAstroFocus
                     dwords_to_dev[Constants.MAX_POSITION_DWORD] = appMaxPos;
                     dwords_to_dev[Constants.COMMAND_DWORD] = (uint)commands;
                     dwords_to_dev[Constants.DRIVER_CONFIG_DWORD] = appDriverConfig;
+                    dwords_to_dev[Constants.STEP_TIME_US_DWORD] = appStepPeriodUs;
                     for (int i = 0; i < dwords_to_dev.Length; i++)
                     {
                         byte[] dword_as_bytes;
@@ -335,6 +340,7 @@ namespace ASCOM.SympleAstroFocus
             appSetPos = deviceSetPos;
             appCurrentPos = deviceCurrentPos;
             appDriverConfig = deviceDriverConfig;
+            appStepPeriodUs= devStepPeriodUs;
         }
         //
         // PUBLIC COM INTERFACE IFocuserV3 IMPLEMENTATION
@@ -698,6 +704,22 @@ namespace ASCOM.SympleAstroFocus
                 return (deviceDriverConfig & Constants.DRIVER_CONFIG_IHOLD_MASK) >> Constants.DRIVER_CONFIG_IHOLD_SHIFT;
             }
         }
+
+        public uint stepperPeriodUs
+        {
+
+            set
+            {
+                appStepPeriodUs = value;
+                deviceNeedsUpdating = true;
+
+            }
+            get
+            {
+                return devStepPeriodUs;
+            }
+        }
+
 
         public bool HomingTowardsZeroEnabled
         {

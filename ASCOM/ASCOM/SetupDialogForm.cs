@@ -114,6 +114,9 @@ namespace ASCOM.SympleAstroFocus
 
 
                 Invoke(new Action(() => { iholdCurrentVal.Text = f.IHOLD.ToString(); }));
+
+
+                Invoke(new Action(() => { motorSpeedVal.Text = f.stepperPeriodUs.ToString(); }));
             }
         }
 
@@ -252,6 +255,11 @@ namespace ASCOM.SympleAstroFocus
         private void triggerHomingButton_Click(object sender, EventArgs e)
         {
             f.TriggerHoming();
+        }
+
+        private void updateStepSpeedButton_Click(object sender, EventArgs e)
+        {
+            f.stepperPeriodUs = Decimal.ToUInt32(motorSpeedSetVal.Value);
         }
     }
 }
