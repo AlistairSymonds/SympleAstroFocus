@@ -58,8 +58,6 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define LED_Pin GPIO_PIN_13
-#define LED_GPIO_Port GPIOC
 #define STEP_Pin GPIO_PIN_4
 #define STEP_GPIO_Port GPIOA
 #define DIR_Pin GPIO_PIN_5
@@ -77,5 +75,3 @@ void Error_Handler(void);
 #endif
 
 #endif /* __MAIN_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
