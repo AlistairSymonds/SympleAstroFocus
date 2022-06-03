@@ -563,7 +563,16 @@ namespace ASCOM.SympleAstroFocus
             tl.LogMessage("Move", Position.ToString());
             Console.WriteLine(Position.ToString());
 
-            //usbMut.WaitOne();
+            if (Position < 0)
+            {
+                Position = 0;
+            }
+
+            if (Position > deviceMaxPos)
+            {
+                Position = Convert.ToInt32(deviceMaxPos);
+            }
+
             appSetPos = Convert.ToUInt32(Position); // Set the focuser position
             commands |= Constants.Command_Dword_Bits.UPDATE_SET_POS;
             deviceNeedsUpdating = true;
