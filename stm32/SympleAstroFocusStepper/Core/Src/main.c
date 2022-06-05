@@ -90,7 +90,7 @@ then the management will store in the next word
 int USER_FLASH_SIZE;
 const int FLASH_JOURNAL_HEADER_SIZE_DWORDS = 8;
 int USER_FLASH_JOURNAL_BYTES;
-int NUM_STATE_WRITES_PER_USER_FLASH;
+uint32_t NUM_STATE_WRITES_PER_USER_FLASH;
 
 
 /* USER CODE BEGIN 0 */
@@ -103,7 +103,7 @@ static TMC2209TypeDef TMC2209;
 volatile static ConfigurationTypeDef TMC2209_config;
 // Helper macro - index is always 1 here (channel 1 <-> index 0, channel 2 <-> index 1)
 //#define TMC2209_CRC(data, length) tmc_CRC8(data, length, 1)
-#define TMC2209_UART_BAUDRATE 100000
+#define TMC2209_UART_BAUDRATE 200000
 volatile int flash_save_needed = 0;
 
 uint32_t last_usb_ms = 0;
@@ -114,11 +114,7 @@ uint32_t last_tmc_read_attempt_ms = 0;
 uint32_t last_stall_handler_ms = 0;
 uint32_t last_timer_set_period_us = 0;
 
-typedef enum
-{
-  POSEDGE,
-  NEGEDGE
-} edge_dir_t;
+
 
 typedef enum
 {
@@ -126,7 +122,6 @@ typedef enum
   TOWARDS_MAX
 } homing_dir_t;
 
-volatile edge_dir_t next_edge_dir = POSEDGE;
 homing_dir_t current_homing_dir = TOWARDS_ZERO;
 
 
@@ -304,7 +299,7 @@ int main(void)
 		  last_flash_ms = HAL_GetTick();
 	  }
 
-	  if (HAL_GetTick() - last_tmc_management_ms > 50){
+	  if (HAL_GetTick() - last_tmc_management_ms > 100){
 		  //read the regs we care about, or set it to enabled if there aren't any errors, otherwise start the setup process
 		  if (TMC2209_config.state == CONFIG_READY){
 
@@ -376,16 +371,7 @@ int main(void)
 
 
 void do_step(){
-	if (next_edge_dir == POSEDGE)
-	  {
-	    HAL_GPIO_WritePin(GPIOA, STEP_Pin, GPIO_PIN_SET);
-	    next_edge_dir = NEGEDGE;
-	  }
-	  else
-	  {
-		HAL_GPIO_WritePin(GPIOA, STEP_Pin, GPIO_PIN_RESET);
-	    next_edge_dir = POSEDGE;
-	  }
+	HAL_GPIO_TogglePin(GPIOA, STEP_Pin);
 }
 
 void update_motor_pos()
@@ -791,10 +777,12 @@ void STEPPER_Init(void)
 	TMC2209_config.shadowRegister[TMC2209_GCONF] |= TMC2209_PDN_DISABLE_MASK;
 	TMC2209_config.shadowRegister[TMC2209_GCONF] |= TMC2209_MSTEP_REG_SELECT_MASK;
 	TMC2209_config.shadowRegister[TMC2209_GCONF] |= TMC2209_SHAFT_MASK;
+	TMC2209_config.shadowRegister[TMC2209_GCONF] &= (~TMC2209_MULTISTEP_FILT_MASK);
 
 	TMC2209_config.shadowRegister[TMC2209_CHOPCONF] &= (~TMC2209_MRES_MASK);
 	TMC2209_config.shadowRegister[TMC2209_CHOPCONF] |= (0 << TMC2209_MRES_SHIFT) &  TMC2209_MRES_MASK;
 	TMC2209_config.shadowRegister[TMC2209_CHOPCONF] |= (0xF << TMC2209_TOFF_SHIFT) &  TMC2209_TOFF_MASK;
+	TMC2209_config.shadowRegister[TMC2209_CHOPCONF] |= TMC2209_DEDGE_MASK;
 
 /*
 	TMC2209_config.shadowRegister[TMC2209_COOLCONF] = 0;
