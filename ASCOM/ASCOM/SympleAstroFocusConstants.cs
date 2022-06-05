@@ -50,7 +50,7 @@ public class Constants
     public const uint DRIVER_CONFIG_IRUN_MASK = 0x3E0;
     public const int DRIVER_CONFIG_IRUN_SHIFT = 5;
 
-    public const uint DRIVER_CONFIG_SGTHRS_MASK = 0xFFC0;
+    public const uint DRIVER_CONFIG_SGTHRS_MASK = 0xFFC00;
     public const int DRIVER_CONFIG_SGTHRS_SHIFT = 10;
 
 

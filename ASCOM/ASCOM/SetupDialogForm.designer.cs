@@ -830,12 +830,18 @@ namespace ASCOM.SympleAstroFocus
             this.updateStallThresh.TabIndex = 37;
             this.updateStallThresh.Text = "Update";
             this.updateStallThresh.UseVisualStyleBackColor = true;
+            this.updateStallThresh.Click += new System.EventHandler(this.updateStallThresh_Click);
             // 
             // stallThreshVal
             // 
             this.stallThreshVal.AutoSize = true;
             this.stallThreshVal.Dock = System.Windows.Forms.DockStyle.Fill;
             this.stallThreshVal.Location = new System.Drawing.Point(584, 175);
+            this.stallThreshVal.Maximum = new decimal(new int[] {
+            1023,
+            0,
+            0,
+            0});
             this.stallThreshVal.Name = "stallThreshVal";
             this.stallThreshVal.Size = new System.Drawing.Size(281, 22);
             this.stallThreshVal.TabIndex = 49;

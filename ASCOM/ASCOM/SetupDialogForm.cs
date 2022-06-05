@@ -112,6 +112,7 @@ namespace ASCOM.SympleAstroFocus
 
 
                 Invoke(new Action(() => { iholdCurrentVal.Text = f.IHOLD.ToString(); }));
+                Invoke(new Action(() => { stallThreshCurrentVal.Text = f.StallThresh.ToString(); }));
 
 
                 Invoke(new Action(() => { motorSpeedVal.Text = f.stepperPeriodUs.ToString(); }));
@@ -267,6 +268,12 @@ namespace ASCOM.SympleAstroFocus
 
         private void label7_Click(object sender, EventArgs e)
         {
+
+        }
+
+        private void updateStallThresh_Click(object sender, EventArgs e)
+        {
+            f.StallThresh = Decimal.ToUInt32(stallThreshVal.Value);
 
         }
     }

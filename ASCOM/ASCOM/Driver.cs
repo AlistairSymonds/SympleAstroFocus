@@ -719,6 +719,22 @@ namespace ASCOM.SympleAstroFocus
             }
         }
 
+        public uint StallThresh
+        {
+
+            set
+            {
+                appDriverConfig &= ~Constants.DRIVER_CONFIG_SGTHRS_MASK;
+                appDriverConfig |= value << Constants.DRIVER_CONFIG_SGTHRS_SHIFT;
+                deviceNeedsUpdating = true;
+
+            }
+            get
+            {
+                return (deviceDriverConfig & Constants.DRIVER_CONFIG_SGTHRS_MASK) >> Constants.DRIVER_CONFIG_SGTHRS_SHIFT;
+            }
+        }
+
         public uint stepperPeriodUs
         {
 
