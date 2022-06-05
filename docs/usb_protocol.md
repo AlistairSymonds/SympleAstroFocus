@@ -98,11 +98,11 @@ These are cleared once the sepcified operation is complete
 
 |Bit  | 23 | 22 | 21 | 20 | 19 | 18 | 17 | 16 |
 | --- |--- |--- |--- |--- |--- |--- |--- |--- |
-|Name |    |    |    |    |    |    |    |    |
+|Name |    |    |    |    |SGTHRS_MSB|<--|---|---|
 
 |Bit  | 15 | 14 | 13 | 12 | 11 | 10 | 9 | 8 |
 | --- |--- |--- |--- |--- |--- |--- |--- |--- |
-|Name |    |    |  |    |    |    |  IRUN_MSB  |<--|
+|Name |---|---|---|---|-->|SGTHRS_LSB|  IRUN_MSB  |<--|
 
 |Bit  | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
 | --- |--- |--- |--- |--- |--- |--- |--- |--- |
@@ -123,7 +123,7 @@ These are cleared once the sepcified operation is complete
 
 |Bit  | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
 | --- |--- |--- |--- |--- |--- |--- |--- |--- |
-|---|---|---|---|---|---|---| --> |   SG_RESULT LSB |
+|Name|---|---|---|---|---|---| --> |   SG_RESULT LSB |
 
 ## Out of host
 This is how the host controls the device, a very similar scheme is taken to the In direction, where the Host gives back a stateword, and the device will update any of its writeable DWORD fields
