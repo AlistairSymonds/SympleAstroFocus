@@ -130,6 +130,10 @@ namespace ASCOM.SympleAstroFocus
 
         private uint appStepPeriodUs= 0;
         private uint devStepPeriodUs = 0;
+
+
+        private uint timeSinceLastUSBRx = 0;
+        private uint timeSinceLastUSBTx = 0;
         #endregion
 
         /// <summary>
@@ -273,6 +277,7 @@ namespace ASCOM.SympleAstroFocus
                 }
 
             }
+            //timeSinceLastUSBRx = 
             UpdateRecievdFromDevice?.Invoke(this, EventArgs.Empty);
             return bytes_read;
         }
@@ -762,6 +767,30 @@ namespace ASCOM.SympleAstroFocus
             get
             {
                 return status_flags.HasFlag(Constants.Status_Dword_Bits.STATUS_HOMING_TOWARDS_MAX_ENABLED);
+            }
+        }
+
+        public bool StepperDriverError
+        {
+            get
+            {
+                return status_flags.HasFlag(Constants.Status_Dword_Bits.STATUS_STEPPER_DRIVER_ERROR_BIT);
+            }
+        }
+
+        public bool StepperDriverCommsError
+        {
+            get
+            {
+                return status_flags.HasFlag(Constants.Status_Dword_Bits.STATUS_STEPPER_DRIVER_COMMS_ERROR_BIT);
+            }
+        }
+
+        public bool StepperDriverEnabled
+        {
+            get
+            {
+                return status_flags.HasFlag(Constants.Status_Dword_Bits.STATUS_STEPPER_DRIVER_ENABLED_BIT);
             }
         }
 

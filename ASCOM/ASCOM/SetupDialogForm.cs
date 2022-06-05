@@ -85,8 +85,6 @@ namespace ASCOM.SympleAstroFocus
         private void InvokeUpdateDisplayedValues()
         {
 
-            Invoke(new Action(() => { serialNumberVal.Text = ""; }));
-
             if (f.Connected == true)
             {
 
@@ -117,6 +115,11 @@ namespace ASCOM.SympleAstroFocus
 
 
                 Invoke(new Action(() => { motorSpeedVal.Text = f.stepperPeriodUs.ToString(); }));
+
+
+                Invoke(new Action(() => { stepperDriverCommsErrrorVal.Text = f.StepperDriverCommsError.ToString(); }));
+                Invoke(new Action(() => { stepperDriverEnabledVal.Text = f.StepperDriverEnabled.ToString(); }));
+                Invoke(new Action(() => { stepperDriverErrorVal.Text = f.StepperDriverError.ToString(); }));
             }
         }
 
@@ -260,6 +263,11 @@ namespace ASCOM.SympleAstroFocus
         private void updateStepSpeedButton_Click(object sender, EventArgs e)
         {
             f.stepperPeriodUs = Decimal.ToUInt32(motorSpeedSetVal.Value);
+        }
+
+        private void label7_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -37,8 +37,11 @@ public class Constants
         STATUS_IS_MOVING_BIT = 1 << 1,
         STATUS_STALLED_BIT   = 1 << 2,
         STATUS_HOMING_BIT    = 1 << 3,
-        STATUS_HOMING_TOWARDS_ZERO_ENABLED = 1 << 4,
-        STATUS_HOMING_TOWARDS_MAX_ENABLED  = 1 << 5
+        STATUS_HOMING_TOWARDS_ZERO_ENABLED      = 1 << 4,
+        STATUS_HOMING_TOWARDS_MAX_ENABLED       = 1 << 5,
+        STATUS_STEPPER_DRIVER_ERROR_BIT         = 1 << 6,
+        STATUS_STEPPER_DRIVER_COMMS_ERROR_BIT   = 1 << 7,
+        STATUS_STEPPER_DRIVER_ENABLED_BIT       = 1 << 8
     }
 
     public const uint DRIVER_CONFIG_IHOLD_MASK = 0x1F;
