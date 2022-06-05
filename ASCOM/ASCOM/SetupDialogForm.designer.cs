@@ -105,7 +105,7 @@ namespace ASCOM.SympleAstroFocus
             // 
             this.picASCOM.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picASCOM.Image = global::ASCOM.SympleAstroFocus.Properties.Resources.ASCOM;
-            this.picASCOM.Location = new System.Drawing.Point(854, 7);
+            this.picASCOM.Location = new System.Drawing.Point(801, 7);
             this.picASCOM.Margin = new System.Windows.Forms.Padding(4);
             this.picASCOM.Name = "picASCOM";
             this.picASCOM.Size = new System.Drawing.Size(48, 56);
@@ -360,9 +360,9 @@ namespace ASCOM.SympleAstroFocus
             // 
             // triggerHomingButton
             // 
-            this.triggerHomingButton.Location = new System.Drawing.Point(677, 74);
+            this.triggerHomingButton.Location = new System.Drawing.Point(513, 16);
             this.triggerHomingButton.Name = "triggerHomingButton";
-            this.triggerHomingButton.Size = new System.Drawing.Size(75, 23);
+            this.triggerHomingButton.Size = new System.Drawing.Size(123, 61);
             this.triggerHomingButton.TabIndex = 29;
             this.triggerHomingButton.Text = "Trigger Homing";
             this.triggerHomingButton.UseVisualStyleBackColor = true;
