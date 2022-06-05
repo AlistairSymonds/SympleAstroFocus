@@ -75,19 +75,23 @@ namespace ASCOM.SympleAstroFocus
             this.motorSpeedLabel = new System.Windows.Forms.Label();
             this.motorSpeedSetVal = new System.Windows.Forms.NumericUpDown();
             this.debugPanel = new System.Windows.Forms.Panel();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.csActualVal = new System.Windows.Forms.Label();
             this.csActualLabel = new System.Windows.Forms.Label();
-            this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.visibilityButtonsTable = new System.Windows.Forms.TableLayoutPanel();
-            this.toggleDebugVisibilitybutton = new System.Windows.Forms.Button();
-            this.toggleConfigVisibilitybutton = new System.Windows.Forms.Button();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.stepperDriverErrorLabel = new System.Windows.Forms.Label();
             this.stepperDriverErrorVal = new System.Windows.Forms.Label();
             this.StepperCommsErrorLabel = new System.Windows.Forms.Label();
             this.stepperDriverCommsErrrorVal = new System.Windows.Forms.Label();
             this.stepperDriverEnabledLabel = new System.Windows.Forms.Label();
             this.stepperDriverEnabledVal = new System.Windows.Forms.Label();
+            this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.visibilityButtonsTable = new System.Windows.Forms.TableLayoutPanel();
+            this.toggleDebugVisibilitybutton = new System.Windows.Forms.Button();
+            this.toggleConfigVisibilitybutton = new System.Windows.Forms.Button();
+            this.updateStallThresh = new System.Windows.Forms.Button();
+            this.stallThreshVal = new System.Windows.Forms.NumericUpDown();
+            this.stallThreshCurrentVal = new System.Windows.Forms.Label();
+            this.stallThreshLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picASCOM)).BeginInit();
             this.controlPanel.SuspendLayout();
             this.configPanel.SuspendLayout();
@@ -96,9 +100,10 @@ namespace ASCOM.SympleAstroFocus
             ((System.ComponentModel.ISupportInitialize)(this.irunSetVal)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.motorSpeedSetVal)).BeginInit();
             this.debugPanel.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel.SuspendLayout();
             this.visibilityButtonsTable.SuspendLayout();
-            this.tableLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.stallThreshVal)).BeginInit();
             this.SuspendLayout();
             // 
             // picASCOM
@@ -319,7 +324,7 @@ namespace ASCOM.SympleAstroFocus
             // motorLoadLabel
             // 
             this.motorLoadLabel.AutoSize = true;
-            this.motorLoadLabel.Location = new System.Drawing.Point(4, 76);
+            this.motorLoadLabel.Location = new System.Drawing.Point(4, 73);
             this.motorLoadLabel.Name = "motorLoadLabel";
             this.motorLoadLabel.Size = new System.Drawing.Size(95, 17);
             this.motorLoadLabel.TabIndex = 29;
@@ -328,7 +333,7 @@ namespace ASCOM.SympleAstroFocus
             // motorLoadVal
             // 
             this.motorLoadVal.AutoSize = true;
-            this.motorLoadVal.Location = new System.Drawing.Point(259, 76);
+            this.motorLoadVal.Location = new System.Drawing.Point(259, 73);
             this.motorLoadVal.Name = "motorLoadVal";
             this.motorLoadVal.Size = new System.Drawing.Size(27, 17);
             this.motorLoadVal.TabIndex = 30;
@@ -370,13 +375,14 @@ namespace ASCOM.SympleAstroFocus
             // 
             // configPanel
             // 
+            this.configPanel.AutoSize = true;
             this.configPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.configPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.configPanel.Controls.Add(this.configTableLayout);
             this.configPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.configPanel.Location = new System.Drawing.Point(3, 246);
             this.configPanel.Name = "configPanel";
-            this.configPanel.Size = new System.Drawing.Size(1023, 192);
+            this.configPanel.Size = new System.Drawing.Size(1023, 208);
             this.configPanel.TabIndex = 32;
             // 
             // configTableLayout
@@ -388,7 +394,8 @@ namespace ASCOM.SympleAstroFocus
             this.configTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.configTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.configTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 287F));
-            this.configTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 149F));
+            this.configTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 151F));
+            this.configTableLayout.Controls.Add(this.updateStallThresh, 3, 5);
             this.configTableLayout.Controls.Add(this.iholdSetVal, 2, 2);
             this.configTableLayout.Controls.Add(this.updateIrunButton, 3, 1);
             this.configTableLayout.Controls.Add(this.moveCurrentLabel, 0, 1);
@@ -407,24 +414,27 @@ namespace ASCOM.SympleAstroFocus
             this.configTableLayout.Controls.Add(this.motorSpeedVal, 1, 3);
             this.configTableLayout.Controls.Add(this.motorSpeedLabel, 0, 3);
             this.configTableLayout.Controls.Add(this.motorSpeedSetVal, 2, 3);
+            this.configTableLayout.Controls.Add(this.stallThreshVal, 2, 5);
+            this.configTableLayout.Controls.Add(this.stallThreshCurrentVal, 1, 5);
+            this.configTableLayout.Controls.Add(this.stallThreshLabel, 0, 5);
             this.configTableLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.configTableLayout.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
             this.configTableLayout.Location = new System.Drawing.Point(0, 0);
             this.configTableLayout.Name = "configTableLayout";
-            this.configTableLayout.RowCount = 5;
+            this.configTableLayout.RowCount = 6;
             this.configTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.configTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.configTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.configTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.configTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.configTableLayout.Size = new System.Drawing.Size(1021, 190);
+            this.configTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.configTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.configTableLayout.Size = new System.Drawing.Size(1021, 206);
             this.configTableLayout.TabIndex = 0;
             // 
             // iholdSetVal
             // 
             this.iholdSetVal.AutoSize = true;
             this.iholdSetVal.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.iholdSetVal.Location = new System.Drawing.Point(586, 56);
+            this.iholdSetVal.Location = new System.Drawing.Point(584, 56);
             this.iholdSetVal.Maximum = new decimal(new int[] {
             32,
             0,
@@ -439,9 +449,9 @@ namespace ASCOM.SympleAstroFocus
             this.updateIrunButton.AutoSize = true;
             this.updateIrunButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.updateIrunButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.updateIrunButton.Location = new System.Drawing.Point(874, 22);
+            this.updateIrunButton.Location = new System.Drawing.Point(872, 22);
             this.updateIrunButton.Name = "updateIrunButton";
-            this.updateIrunButton.Size = new System.Drawing.Size(143, 27);
+            this.updateIrunButton.Size = new System.Drawing.Size(145, 27);
             this.updateIrunButton.TabIndex = 37;
             this.updateIrunButton.Text = "Update";
             this.updateIrunButton.UseVisualStyleBackColor = true;
@@ -468,7 +478,7 @@ namespace ASCOM.SympleAstroFocus
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(141, 1);
+            this.label3.Location = new System.Drawing.Point(154, 1);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(95, 17);
             this.label3.TabIndex = 3;
@@ -477,7 +487,7 @@ namespace ASCOM.SympleAstroFocus
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(586, 1);
+            this.label4.Location = new System.Drawing.Point(584, 1);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(75, 17);
             this.label4.TabIndex = 4;
@@ -486,7 +496,7 @@ namespace ASCOM.SympleAstroFocus
             // irunCurrentVal
             // 
             this.irunCurrentVal.AutoSize = true;
-            this.irunCurrentVal.Location = new System.Drawing.Point(141, 19);
+            this.irunCurrentVal.Location = new System.Drawing.Point(154, 19);
             this.irunCurrentVal.Name = "irunCurrentVal";
             this.irunCurrentVal.Size = new System.Drawing.Size(27, 17);
             this.irunCurrentVal.TabIndex = 38;
@@ -495,7 +505,7 @@ namespace ASCOM.SympleAstroFocus
             // iholdCurrentVal
             // 
             this.iholdCurrentVal.AutoSize = true;
-            this.iholdCurrentVal.Location = new System.Drawing.Point(141, 53);
+            this.iholdCurrentVal.Location = new System.Drawing.Point(154, 53);
             this.iholdCurrentVal.Name = "iholdCurrentVal";
             this.iholdCurrentVal.Size = new System.Drawing.Size(27, 17);
             this.iholdCurrentVal.TabIndex = 39;
@@ -506,9 +516,9 @@ namespace ASCOM.SympleAstroFocus
             this.updateIholdButton.AutoSize = true;
             this.updateIholdButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.updateIholdButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.updateIholdButton.Location = new System.Drawing.Point(874, 56);
+            this.updateIholdButton.Location = new System.Drawing.Point(872, 56);
             this.updateIholdButton.Name = "updateIholdButton";
-            this.updateIholdButton.Size = new System.Drawing.Size(143, 27);
+            this.updateIholdButton.Size = new System.Drawing.Size(145, 27);
             this.updateIholdButton.TabIndex = 40;
             this.updateIholdButton.Text = "Update";
             this.updateIholdButton.UseVisualStyleBackColor = true;
@@ -519,9 +529,9 @@ namespace ASCOM.SympleAstroFocus
             this.updateStepSpeedButton.AutoSize = true;
             this.updateStepSpeedButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.updateStepSpeedButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.updateStepSpeedButton.Location = new System.Drawing.Point(874, 90);
+            this.updateStepSpeedButton.Location = new System.Drawing.Point(872, 90);
             this.updateStepSpeedButton.Name = "updateStepSpeedButton";
-            this.updateStepSpeedButton.Size = new System.Drawing.Size(143, 27);
+            this.updateStepSpeedButton.Size = new System.Drawing.Size(145, 27);
             this.updateStepSpeedButton.TabIndex = 41;
             this.updateStepSpeedButton.Text = "Update";
             this.updateStepSpeedButton.UseVisualStyleBackColor = true;
@@ -543,10 +553,10 @@ namespace ASCOM.SympleAstroFocus
             this.homingDirectionsCurrVals.Items.AddRange(new object[] {
             "Towards Zero",
             "Towards Max"});
-            this.homingDirectionsCurrVals.Location = new System.Drawing.Point(141, 124);
+            this.homingDirectionsCurrVals.Location = new System.Drawing.Point(154, 124);
             this.homingDirectionsCurrVals.Name = "homingDirectionsCurrVals";
             this.homingDirectionsCurrVals.SelectionMode = System.Windows.Forms.SelectionMode.None;
-            this.homingDirectionsCurrVals.Size = new System.Drawing.Size(438, 62);
+            this.homingDirectionsCurrVals.Size = new System.Drawing.Size(423, 44);
             this.homingDirectionsCurrVals.TabIndex = 44;
             this.homingDirectionsCurrVals.SelectedIndexChanged += new System.EventHandler(this.homingDirectionsCurrVals_SelectedIndexChanged);
             // 
@@ -557,9 +567,9 @@ namespace ASCOM.SympleAstroFocus
             this.homingDirectionsSetVals.Items.AddRange(new object[] {
             "Towards Zero",
             "Towards Max"});
-            this.homingDirectionsSetVals.Location = new System.Drawing.Point(586, 124);
+            this.homingDirectionsSetVals.Location = new System.Drawing.Point(584, 124);
             this.homingDirectionsSetVals.Name = "homingDirectionsSetVals";
-            this.homingDirectionsSetVals.Size = new System.Drawing.Size(281, 62);
+            this.homingDirectionsSetVals.Size = new System.Drawing.Size(281, 44);
             this.homingDirectionsSetVals.TabIndex = 45;
             // 
             // updateHomingDirs
@@ -567,9 +577,9 @@ namespace ASCOM.SympleAstroFocus
             this.updateHomingDirs.AutoSize = true;
             this.updateHomingDirs.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.updateHomingDirs.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.updateHomingDirs.Location = new System.Drawing.Point(874, 124);
+            this.updateHomingDirs.Location = new System.Drawing.Point(872, 124);
             this.updateHomingDirs.Name = "updateHomingDirs";
-            this.updateHomingDirs.Size = new System.Drawing.Size(143, 62);
+            this.updateHomingDirs.Size = new System.Drawing.Size(145, 44);
             this.updateHomingDirs.TabIndex = 46;
             this.updateHomingDirs.Text = "Update";
             this.updateHomingDirs.UseVisualStyleBackColor = true;
@@ -579,7 +589,7 @@ namespace ASCOM.SympleAstroFocus
             // 
             this.irunSetVal.AutoSize = true;
             this.irunSetVal.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.irunSetVal.Location = new System.Drawing.Point(586, 22);
+            this.irunSetVal.Location = new System.Drawing.Point(584, 22);
             this.irunSetVal.Maximum = new decimal(new int[] {
             32,
             0,
@@ -592,7 +602,7 @@ namespace ASCOM.SympleAstroFocus
             // motorSpeedVal
             // 
             this.motorSpeedVal.AutoSize = true;
-            this.motorSpeedVal.Location = new System.Drawing.Point(141, 87);
+            this.motorSpeedVal.Location = new System.Drawing.Point(154, 87);
             this.motorSpeedVal.Name = "motorSpeedVal";
             this.motorSpeedVal.Size = new System.Drawing.Size(27, 17);
             this.motorSpeedVal.TabIndex = 42;
@@ -611,7 +621,7 @@ namespace ASCOM.SympleAstroFocus
             // 
             this.motorSpeedSetVal.AutoSize = true;
             this.motorSpeedSetVal.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.motorSpeedSetVal.Location = new System.Drawing.Point(586, 90);
+            this.motorSpeedSetVal.Location = new System.Drawing.Point(584, 90);
             this.motorSpeedSetVal.Name = "motorSpeedSetVal";
             this.motorSpeedSetVal.Size = new System.Drawing.Size(281, 22);
             this.motorSpeedSetVal.TabIndex = 48;
@@ -623,16 +633,58 @@ namespace ASCOM.SympleAstroFocus
             this.debugPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.debugPanel.Controls.Add(this.tableLayoutPanel1);
             this.debugPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.debugPanel.Location = new System.Drawing.Point(3, 444);
+            this.debugPanel.Location = new System.Drawing.Point(3, 460);
             this.debugPanel.Name = "debugPanel";
-            this.debugPanel.Size = new System.Drawing.Size(1023, 183);
+            this.debugPanel.Size = new System.Drawing.Size(1023, 165);
             this.debugPanel.TabIndex = 33;
             this.debugPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.debugPanel_Paint);
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.AutoSize = true;
+            this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.tableLayoutPanel1.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Single;
+            this.tableLayoutPanel1.ColumnCount = 4;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tableLayoutPanel1.Controls.Add(this.vidVal, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.csActualVal, 1, 4);
+            this.tableLayoutPanel1.Controls.Add(this.vidLabel, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.csActualLabel, 0, 4);
+            this.tableLayoutPanel1.Controls.Add(this.pidLabel, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.motorLoadVal, 1, 3);
+            this.tableLayoutPanel1.Controls.Add(this.pidVal, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.motorLoadLabel, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.serialNumberLabel, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.serialNumberVal, 1, 2);
+            this.tableLayoutPanel1.Controls.Add(this.stepperDriverErrorLabel, 0, 5);
+            this.tableLayoutPanel1.Controls.Add(this.stepperDriverErrorVal, 1, 5);
+            this.tableLayoutPanel1.Controls.Add(this.StepperCommsErrorLabel, 0, 6);
+            this.tableLayoutPanel1.Controls.Add(this.stepperDriverCommsErrrorVal, 1, 6);
+            this.tableLayoutPanel1.Controls.Add(this.stepperDriverEnabledLabel, 0, 7);
+            this.tableLayoutPanel1.Controls.Add(this.stepperDriverEnabledVal, 1, 7);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 8;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1021, 163);
+            this.tableLayoutPanel1.TabIndex = 33;
             // 
             // csActualVal
             // 
             this.csActualVal.AutoSize = true;
-            this.csActualVal.Location = new System.Drawing.Point(259, 97);
+            this.csActualVal.Location = new System.Drawing.Point(259, 91);
             this.csActualVal.Name = "csActualVal";
             this.csActualVal.Size = new System.Drawing.Size(27, 17);
             this.csActualVal.TabIndex = 32;
@@ -641,11 +693,66 @@ namespace ASCOM.SympleAstroFocus
             // csActualLabel
             // 
             this.csActualLabel.AutoSize = true;
-            this.csActualLabel.Location = new System.Drawing.Point(4, 97);
+            this.csActualLabel.Location = new System.Drawing.Point(4, 91);
             this.csActualLabel.Name = "csActualLabel";
             this.csActualLabel.Size = new System.Drawing.Size(92, 17);
             this.csActualLabel.TabIndex = 31;
             this.csActualLabel.Text = "CS_ACTUAL:";
+            // 
+            // stepperDriverErrorLabel
+            // 
+            this.stepperDriverErrorLabel.AutoSize = true;
+            this.stepperDriverErrorLabel.Location = new System.Drawing.Point(4, 109);
+            this.stepperDriverErrorLabel.Name = "stepperDriverErrorLabel";
+            this.stepperDriverErrorLabel.Size = new System.Drawing.Size(189, 17);
+            this.stepperDriverErrorLabel.TabIndex = 33;
+            this.stepperDriverErrorLabel.Text = "STEPPER_DRIVER_ERROR";
+            // 
+            // stepperDriverErrorVal
+            // 
+            this.stepperDriverErrorVal.AutoSize = true;
+            this.stepperDriverErrorVal.Location = new System.Drawing.Point(259, 109);
+            this.stepperDriverErrorVal.Name = "stepperDriverErrorVal";
+            this.stepperDriverErrorVal.Size = new System.Drawing.Size(27, 17);
+            this.stepperDriverErrorVal.TabIndex = 34;
+            this.stepperDriverErrorVal.Text = "NA";
+            this.stepperDriverErrorVal.Click += new System.EventHandler(this.label7_Click);
+            // 
+            // StepperCommsErrorLabel
+            // 
+            this.StepperCommsErrorLabel.AutoSize = true;
+            this.StepperCommsErrorLabel.Location = new System.Drawing.Point(4, 127);
+            this.StepperCommsErrorLabel.Name = "StepperCommsErrorLabel";
+            this.StepperCommsErrorLabel.Size = new System.Drawing.Size(248, 17);
+            this.StepperCommsErrorLabel.TabIndex = 35;
+            this.StepperCommsErrorLabel.Text = "STEPPER_DRIVER_COMMS_ERROR";
+            // 
+            // stepperDriverCommsErrrorVal
+            // 
+            this.stepperDriverCommsErrrorVal.AutoSize = true;
+            this.stepperDriverCommsErrrorVal.Location = new System.Drawing.Point(259, 127);
+            this.stepperDriverCommsErrrorVal.Name = "stepperDriverCommsErrrorVal";
+            this.stepperDriverCommsErrrorVal.Size = new System.Drawing.Size(27, 17);
+            this.stepperDriverCommsErrrorVal.TabIndex = 36;
+            this.stepperDriverCommsErrrorVal.Text = "NA";
+            // 
+            // stepperDriverEnabledLabel
+            // 
+            this.stepperDriverEnabledLabel.AutoSize = true;
+            this.stepperDriverEnabledLabel.Location = new System.Drawing.Point(4, 145);
+            this.stepperDriverEnabledLabel.Name = "stepperDriverEnabledLabel";
+            this.stepperDriverEnabledLabel.Size = new System.Drawing.Size(203, 17);
+            this.stepperDriverEnabledLabel.TabIndex = 37;
+            this.stepperDriverEnabledLabel.Text = "STEPPER_DRIVER_ENABLED";
+            // 
+            // stepperDriverEnabledVal
+            // 
+            this.stepperDriverEnabledVal.AutoSize = true;
+            this.stepperDriverEnabledVal.Location = new System.Drawing.Point(259, 145);
+            this.stepperDriverEnabledVal.Name = "stepperDriverEnabledVal";
+            this.stepperDriverEnabledVal.Size = new System.Drawing.Size(27, 17);
+            this.stepperDriverEnabledVal.TabIndex = 38;
+            this.stepperDriverEnabledVal.Text = "NA";
             // 
             // tableLayoutPanel
             // 
@@ -664,7 +771,7 @@ namespace ASCOM.SympleAstroFocus
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel.Size = new System.Drawing.Size(1029, 630);
+            this.tableLayoutPanel.Size = new System.Drawing.Size(1029, 628);
             this.tableLayoutPanel.TabIndex = 36;
             // 
             // visibilityButtonsTable
@@ -710,102 +817,45 @@ namespace ASCOM.SympleAstroFocus
             this.toggleConfigVisibilitybutton.UseVisualStyleBackColor = true;
             this.toggleConfigVisibilitybutton.Click += new System.EventHandler(this.toggleConfigVisibilitybutton_Click_1);
             // 
-            // tableLayoutPanel1
+            // updateStallThresh
             // 
-            this.tableLayoutPanel1.AutoSize = true;
-            this.tableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tableLayoutPanel1.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Single;
-            this.tableLayoutPanel1.ColumnCount = 4;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel1.Controls.Add(this.vidVal, 1, 0);
-            this.tableLayoutPanel1.Controls.Add(this.csActualVal, 1, 4);
-            this.tableLayoutPanel1.Controls.Add(this.vidLabel, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.csActualLabel, 0, 4);
-            this.tableLayoutPanel1.Controls.Add(this.pidLabel, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.motorLoadVal, 1, 3);
-            this.tableLayoutPanel1.Controls.Add(this.pidVal, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.motorLoadLabel, 0, 3);
-            this.tableLayoutPanel1.Controls.Add(this.serialNumberLabel, 0, 2);
-            this.tableLayoutPanel1.Controls.Add(this.serialNumberVal, 1, 2);
-            this.tableLayoutPanel1.Controls.Add(this.stepperDriverErrorLabel, 0, 5);
-            this.tableLayoutPanel1.Controls.Add(this.stepperDriverErrorVal, 1, 5);
-            this.tableLayoutPanel1.Controls.Add(this.StepperCommsErrorLabel, 0, 6);
-            this.tableLayoutPanel1.Controls.Add(this.stepperDriverCommsErrrorVal, 1, 6);
-            this.tableLayoutPanel1.Controls.Add(this.stepperDriverEnabledLabel, 0, 7);
-            this.tableLayoutPanel1.Controls.Add(this.stepperDriverEnabledVal, 1, 7);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel1.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 8;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1021, 181);
-            this.tableLayoutPanel1.TabIndex = 33;
+            this.updateStallThresh.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.updateStallThresh.AutoSize = true;
+            this.updateStallThresh.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.updateStallThresh.Location = new System.Drawing.Point(872, 175);
+            this.updateStallThresh.Name = "updateStallThresh";
+            this.updateStallThresh.Size = new System.Drawing.Size(145, 27);
+            this.updateStallThresh.TabIndex = 37;
+            this.updateStallThresh.Text = "Update";
+            this.updateStallThresh.UseVisualStyleBackColor = true;
             // 
-            // stepperDriverErrorLabel
+            // stallThreshVal
             // 
-            this.stepperDriverErrorLabel.AutoSize = true;
-            this.stepperDriverErrorLabel.Location = new System.Drawing.Point(4, 118);
-            this.stepperDriverErrorLabel.Name = "stepperDriverErrorLabel";
-            this.stepperDriverErrorLabel.Size = new System.Drawing.Size(189, 17);
-            this.stepperDriverErrorLabel.TabIndex = 33;
-            this.stepperDriverErrorLabel.Text = "STEPPER_DRIVER_ERROR";
+            this.stallThreshVal.AutoSize = true;
+            this.stallThreshVal.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.stallThreshVal.Location = new System.Drawing.Point(584, 175);
+            this.stallThreshVal.Name = "stallThreshVal";
+            this.stallThreshVal.Size = new System.Drawing.Size(281, 22);
+            this.stallThreshVal.TabIndex = 49;
             // 
-            // stepperDriverErrorVal
+            // stallThreshCurrentVal
             // 
-            this.stepperDriverErrorVal.AutoSize = true;
-            this.stepperDriverErrorVal.Location = new System.Drawing.Point(259, 118);
-            this.stepperDriverErrorVal.Name = "stepperDriverErrorVal";
-            this.stepperDriverErrorVal.Size = new System.Drawing.Size(27, 17);
-            this.stepperDriverErrorVal.TabIndex = 34;
-            this.stepperDriverErrorVal.Text = "NA";
-            this.stepperDriverErrorVal.Click += new System.EventHandler(this.label7_Click);
+            this.stallThreshCurrentVal.AutoSize = true;
+            this.stallThreshCurrentVal.Location = new System.Drawing.Point(154, 172);
+            this.stallThreshCurrentVal.Name = "stallThreshCurrentVal";
+            this.stallThreshCurrentVal.Size = new System.Drawing.Size(27, 17);
+            this.stallThreshCurrentVal.TabIndex = 50;
+            this.stallThreshCurrentVal.Text = "NA";
             // 
-            // StepperCommsErrorLabel
+            // stallThreshLabel
             // 
-            this.StepperCommsErrorLabel.AutoSize = true;
-            this.StepperCommsErrorLabel.Location = new System.Drawing.Point(4, 139);
-            this.StepperCommsErrorLabel.Name = "StepperCommsErrorLabel";
-            this.StepperCommsErrorLabel.Size = new System.Drawing.Size(248, 17);
-            this.StepperCommsErrorLabel.TabIndex = 35;
-            this.StepperCommsErrorLabel.Text = "STEPPER_DRIVER_COMMS_ERROR";
-            // 
-            // stepperDriverCommsErrrorVal
-            // 
-            this.stepperDriverCommsErrrorVal.AutoSize = true;
-            this.stepperDriverCommsErrrorVal.Location = new System.Drawing.Point(259, 139);
-            this.stepperDriverCommsErrrorVal.Name = "stepperDriverCommsErrrorVal";
-            this.stepperDriverCommsErrrorVal.Size = new System.Drawing.Size(27, 17);
-            this.stepperDriverCommsErrrorVal.TabIndex = 36;
-            this.stepperDriverCommsErrrorVal.Text = "NA";
-            // 
-            // stepperDriverEnabledLabel
-            // 
-            this.stepperDriverEnabledLabel.AutoSize = true;
-            this.stepperDriverEnabledLabel.Location = new System.Drawing.Point(4, 160);
-            this.stepperDriverEnabledLabel.Name = "stepperDriverEnabledLabel";
-            this.stepperDriverEnabledLabel.Size = new System.Drawing.Size(203, 17);
-            this.stepperDriverEnabledLabel.TabIndex = 37;
-            this.stepperDriverEnabledLabel.Text = "STEPPER_DRIVER_ENABLED";
-            // 
-            // stepperDriverEnabledVal
-            // 
-            this.stepperDriverEnabledVal.AutoSize = true;
-            this.stepperDriverEnabledVal.Location = new System.Drawing.Point(259, 160);
-            this.stepperDriverEnabledVal.Name = "stepperDriverEnabledVal";
-            this.stepperDriverEnabledVal.Size = new System.Drawing.Size(27, 17);
-            this.stepperDriverEnabledVal.TabIndex = 38;
-            this.stepperDriverEnabledVal.Text = "NA";
+            this.stallThreshLabel.Location = new System.Drawing.Point(4, 172);
+            this.stallThreshLabel.Name = "stallThreshLabel";
+            this.stallThreshLabel.Size = new System.Drawing.Size(143, 30);
+            this.stallThreshLabel.TabIndex = 51;
+            this.stallThreshLabel.Text = "Stall Threshold\r\n(Lower values are more sensitive)\r\n";
             // 
             // SetupDialogForm
             // 
@@ -839,12 +889,13 @@ namespace ASCOM.SympleAstroFocus
             ((System.ComponentModel.ISupportInitialize)(this.motorSpeedSetVal)).EndInit();
             this.debugPanel.ResumeLayout(false);
             this.debugPanel.PerformLayout();
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
             this.tableLayoutPanel.ResumeLayout(false);
             this.tableLayoutPanel.PerformLayout();
             this.visibilityButtonsTable.ResumeLayout(false);
             this.visibilityButtonsTable.PerformLayout();
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.tableLayoutPanel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.stallThreshVal)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -911,5 +962,9 @@ namespace ASCOM.SympleAstroFocus
         private System.Windows.Forms.Label stepperDriverCommsErrrorVal;
         private System.Windows.Forms.Label stepperDriverEnabledLabel;
         private System.Windows.Forms.Label stepperDriverEnabledVal;
+        private System.Windows.Forms.Button updateStallThresh;
+        private System.Windows.Forms.NumericUpDown stallThreshVal;
+        private System.Windows.Forms.Label stallThreshCurrentVal;
+        private System.Windows.Forms.Label stallThreshLabel;
     }
 }
