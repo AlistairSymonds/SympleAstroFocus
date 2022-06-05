@@ -304,7 +304,7 @@ int main(void)
 		  last_flash_ms = HAL_GetTick();
 	  }
 
-	  if (HAL_GetTick() - last_tmc_management_ms > 100){
+	  if (HAL_GetTick() - last_tmc_management_ms > 50){
 		  //read the regs we care about, or set it to enabled if there aren't any errors, otherwise start the setup process
 		  if (TMC2209_config.state == CONFIG_READY){
 
@@ -337,9 +337,13 @@ int main(void)
 	  }
 
 
-	  if (
-			  ((symple_state[STATE_ID_0][STEPPER_DRIVER_STATUS] &  DRIVER_STATUS_SG_RESULT_MASK) >> DRIVER_STATUS_SG_RESULT_SHIFT) < 40 &&
-			  (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_IS_MOVING_BIT))
+	  uint32_t motor_resistance = (symple_state[STATE_ID_0][STEPPER_DRIVER_STATUS] &  DRIVER_STATUS_SG_RESULT_MASK) >> DRIVER_STATUS_SG_RESULT_SHIFT;
+	  uint32_t stall_threshold  = (symple_state[STATE_ID_0][STEPPER_DRIVER_CONF]   &  DRIVER_CONFIG_SGTHRS_MASK   ) >> DRIVER_CONFIG_SGTHRS_SHIFT;
+	  if ( // is current stall guard value lower than the set threshold and are we moving?
+			  (motor_resistance < stall_threshold)
+			   &&
+			  (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_IS_MOVING_BIT)
+	  )
 	  {
 		  if (HAL_GetTick() - last_stall_handler_ms > 500){
 			  stall_handler();
@@ -347,7 +351,7 @@ int main(void)
 		  }
 	  }
 
-	  if (!symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOMING_BIT){
+	  if (!(symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOMING_BIT)){
 		  current_homing_dir = TOWARDS_ZERO;
 	  }
 
@@ -620,7 +624,9 @@ void SympleState_Init(){
 static void set_stepper_period_us(int us){
 
 	int period = us;
-
+	if (period < 10){
+		period = 10;
+	}
 	TIM_ClockConfigTypeDef sClockSourceConfig = {0};
 	TIM_MasterConfigTypeDef sMasterConfig = {0};
 
