@@ -121,6 +121,8 @@ namespace ASCOM.SympleAstroFocus
                 Invoke(new Action(() => { stepperDriverCommsErrrorVal.Text = f.StepperDriverCommsError.ToString(); }));
                 Invoke(new Action(() => { stepperDriverEnabledVal.Text = f.StepperDriverEnabled.ToString(); }));
                 Invoke(new Action(() => { stepperDriverErrorVal.Text = f.StepperDriverError.ToString(); }));
+
+                Invoke(new Action(() => { homingVal.Text = f.Homing.ToString(); }));
             }
         }
 

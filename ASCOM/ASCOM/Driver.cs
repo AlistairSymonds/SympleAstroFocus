@@ -666,9 +666,9 @@ namespace ASCOM.SympleAstroFocus
         {
             //usbMut.WaitOne();
             commands |= Constants.Command_Dword_Bits.SET_ZERO_BIT;
+            appSetPos = 0;
             deviceNeedsUpdating = true;
             //usbMut.ReleaseMutex();
-            appSetPos = 0;
 
         }
 
@@ -783,6 +783,15 @@ namespace ASCOM.SympleAstroFocus
             get
             {
                 return status_flags.HasFlag(Constants.Status_Dword_Bits.STATUS_HOMING_TOWARDS_MAX_ENABLED);
+            }
+        }
+
+        public bool Homing
+        {
+
+            get
+            {
+                return status_flags.HasFlag(Constants.Status_Dword_Bits.STATUS_HOMING_BIT);
             }
         }
 
