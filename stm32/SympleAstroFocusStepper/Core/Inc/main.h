@@ -66,6 +66,7 @@ void Error_Handler(void);
 #define ENN_GPIO_Port GPIOA
 #define DIAG_Pin GPIO_PIN_7
 #define DIAG_GPIO_Port GPIOA
+#define DIAG_EXTI_IRQn EXTI9_5_IRQn
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
