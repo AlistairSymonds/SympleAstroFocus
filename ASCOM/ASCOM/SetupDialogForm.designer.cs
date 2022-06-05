@@ -92,6 +92,8 @@ namespace ASCOM.SympleAstroFocus
             this.stallThreshVal = new System.Windows.Forms.NumericUpDown();
             this.stallThreshCurrentVal = new System.Windows.Forms.Label();
             this.stallThreshLabel = new System.Windows.Forms.Label();
+            this.homingLabel = new System.Windows.Forms.Label();
+            this.homingVal = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picASCOM)).BeginInit();
             this.controlPanel.SuspendLayout();
             this.configPanel.SuspendLayout();
@@ -665,6 +667,8 @@ namespace ASCOM.SympleAstroFocus
             this.tableLayoutPanel1.Controls.Add(this.stepperDriverCommsErrrorVal, 1, 6);
             this.tableLayoutPanel1.Controls.Add(this.stepperDriverEnabledLabel, 0, 7);
             this.tableLayoutPanel1.Controls.Add(this.stepperDriverEnabledVal, 1, 7);
+            this.tableLayoutPanel1.Controls.Add(this.homingLabel, 2, 0);
+            this.tableLayoutPanel1.Controls.Add(this.homingVal, 3, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
@@ -863,6 +867,24 @@ namespace ASCOM.SympleAstroFocus
             this.stallThreshLabel.TabIndex = 51;
             this.stallThreshLabel.Text = "Stall Threshold\r\n(Lower values are more sensitive)\r\n";
             // 
+            // homingLabel
+            // 
+            this.homingLabel.AutoSize = true;
+            this.homingLabel.Location = new System.Drawing.Point(514, 1);
+            this.homingLabel.Name = "homingLabel";
+            this.homingLabel.Size = new System.Drawing.Size(60, 17);
+            this.homingLabel.TabIndex = 39;
+            this.homingLabel.Text = "Homing:";
+            // 
+            // homingVal
+            // 
+            this.homingVal.AutoSize = true;
+            this.homingVal.Location = new System.Drawing.Point(769, 1);
+            this.homingVal.Name = "homingVal";
+            this.homingVal.Size = new System.Drawing.Size(27, 17);
+            this.homingVal.TabIndex = 40;
+            this.homingVal.Text = "NA";
+            // 
             // SetupDialogForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
@@ -972,5 +994,7 @@ namespace ASCOM.SympleAstroFocus
         private System.Windows.Forms.NumericUpDown stallThreshVal;
         private System.Windows.Forms.Label stallThreshCurrentVal;
         private System.Windows.Forms.Label stallThreshLabel;
+        private System.Windows.Forms.Label homingLabel;
+        private System.Windows.Forms.Label homingVal;
     }
 }
