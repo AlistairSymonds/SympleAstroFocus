@@ -225,14 +225,16 @@ int main(void)
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
+
+  /* Configure the system clock */
+  SystemClock_Config();
+
   /* USER CODE BEGIN Init */
   FLASH_init();
   //setup internal values before doing any sort of IO
   SympleState_Init();
   /* USER CODE END Init */
 
-  /* Configure the system clock */
-  SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
 
@@ -331,7 +333,7 @@ int main(void)
 		  last_tmc_management_ms = HAL_GetTick();
 	  }
 
-
+/*
 	  uint32_t motor_resistance = (symple_state[STATE_ID_0][STEPPER_DRIVER_STATUS] &  DRIVER_STATUS_SG_RESULT_MASK) >> DRIVER_STATUS_SG_RESULT_SHIFT;
 	  uint32_t stall_threshold  = (symple_state[STATE_ID_0][STEPPER_DRIVER_CONF]   &  DRIVER_CONFIG_SGTHRS_MASK   ) >> DRIVER_CONFIG_SGTHRS_SHIFT;
 	  if ( // is current stall guard value lower than the set threshold and are we moving?
@@ -340,12 +342,9 @@ int main(void)
 			  (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_IS_MOVING_BIT)
 	  )
 	  {
-		  if (HAL_GetTick() - last_stall_handler_ms > 500){
-			  stall_handler();
-			  last_stall_handler_ms = HAL_GetTick();
-		  }
-	  }
 
+	  }
+*/
 	  if (!(symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOMING_BIT)){
 		  current_homing_dir = TOWARDS_ZERO;
 	  }
@@ -433,6 +432,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 	update_motor_pos();
 }
 
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	if(symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_STEPPER_DRIVER_ENABLED_BIT){
+		if (HAL_GetTick() - last_stall_handler_ms > 500){
+			stall_handler();
+			last_stall_handler_ms = HAL_GetTick();
+		}
+	}
+}
+
 
 
 /**
@@ -515,7 +524,7 @@ void load_state_from_flash(symple_state_t ss){
 	state_loc = (uint32_t*)&__USER_FLASH_SECTION_START;
 	uint32_t chunk_to_read = get_last_saved_chunk();
 	for (int i = 0; i < NUM_STATE_INFOS; i++){
-		for(int j = 0; j < STATE_LENGTH_DWORDS; j++){
+		for(int j = 0; j < STATE_LENGTH_DWORDS-1; j++){
 			int raddr_offset = (i*STATE_LENGTH_DWORDS) + j;
 			raddr_offset = raddr_offset + (chunk_to_read * STATE_LENGTH_DWORDS * NUM_STATE_INFOS) + FLASH_JOURNAL_HEADER_SIZE_DWORDS;
 			ss[i][j] = state_loc[raddr_offset];
@@ -579,7 +588,7 @@ void write_state_to_flash(symple_state_t ss){
 
 
 	for (int i = 0; i < NUM_STATE_INFOS; i++){
-		for(int j = 0; j < STATE_LENGTH_DWORDS; j++){
+		for(int j = 0; j < STATE_LENGTH_DWORDS-1; j++){
 			uint32_t wdata = ss[i][j];
 			uint32_t wchunk_offset = (STATE_LENGTH_DWORDS * NUM_STATE_INFOS * chunk_to_write) + FLASH_JOURNAL_HEADER_SIZE_DWORDS;
 			uint32_t waddar_offset_dwords = (i*STATE_LENGTH_DWORDS) + j;
@@ -790,9 +799,9 @@ void STEPPER_Init(void)
 
 /*
 	TMC2209_config.shadowRegister[TMC2209_COOLCONF] = 0;
-	TMC2209_config.shadowRegister[TMC2209_COOLCONF] |= (0x4 << TMC2209_SEMIN_SHIFT) &  TMC2209_SEMIN_MASK;
-*/
-	TMC2209_config.shadowRegister[TMC2209_SGTHRS] = 0;
+	TMC2209_config.shadowRegister[TMC2209_TCOOLTHRS] = 0xFFFFFFFF;
+
+	TMC2209_config.shadowRegister[TMC2209_SGTHRS] = 30;
 
 
 
