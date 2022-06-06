@@ -797,7 +797,7 @@ void STEPPER_Init(void)
 	TMC2209_config.shadowRegister[TMC2209_CHOPCONF] |= (0xF << TMC2209_TOFF_SHIFT) &  TMC2209_TOFF_MASK;
 	TMC2209_config.shadowRegister[TMC2209_CHOPCONF] |= TMC2209_DEDGE_MASK;
 
-/*
+
 	TMC2209_config.shadowRegister[TMC2209_COOLCONF] = 0;
 	TMC2209_config.shadowRegister[TMC2209_TCOOLTHRS] = 0xFFFFFFFF;
 
