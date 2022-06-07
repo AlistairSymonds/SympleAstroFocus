@@ -333,18 +333,6 @@ int main(void)
 		  last_tmc_management_ms = HAL_GetTick();
 	  }
 
-/*
-	  uint32_t motor_resistance = (symple_state[STATE_ID_0][STEPPER_DRIVER_STATUS] &  DRIVER_STATUS_SG_RESULT_MASK) >> DRIVER_STATUS_SG_RESULT_SHIFT;
-	  uint32_t stall_threshold  = (symple_state[STATE_ID_0][STEPPER_DRIVER_CONF]   &  DRIVER_CONFIG_SGTHRS_MASK   ) >> DRIVER_CONFIG_SGTHRS_SHIFT;
-	  if ( // is current stall guard value lower than the set threshold and are we moving?
-			  (motor_resistance < stall_threshold)
-			   &&
-			  (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_IS_MOVING_BIT)
-	  )
-	  {
-
-	  }
-*/
 	  if (!(symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOMING_BIT)){
 		  current_homing_dir = TOWARDS_ZERO;
 	  }
@@ -765,6 +753,8 @@ void load_symple_state_into_tmc_config(void){
 	uint8_t ihold = (symple_state[STATE_ID_0][STEPPER_DRIVER_CONF] & DRIVER_CONFIG_IHOLD_MASK) >> DRIVER_CONFIG_IHOLD_SHIFT;
 	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] |= (ihold << TMC2209_IHOLD_SHIFT)  & TMC2209_IHOLD_MASK;
 
+	uint32_t stall_threshold  = (symple_state[STATE_ID_0][STEPPER_DRIVER_CONF]   &  DRIVER_CONFIG_SGTHRS_MASK   ) >> DRIVER_CONFIG_SGTHRS_SHIFT;
+	TMC2209_config.shadowRegister[TMC2209_SGTHRS] = stall_threshold/2;
 }
 
 void STEPPER_Init(void)
@@ -801,7 +791,7 @@ void STEPPER_Init(void)
 	TMC2209_config.shadowRegister[TMC2209_COOLCONF] = 0;
 	TMC2209_config.shadowRegister[TMC2209_TCOOLTHRS] = 0xFFFFFFFF;
 
-	TMC2209_config.shadowRegister[TMC2209_SGTHRS] = 30;
+
 
 
 
