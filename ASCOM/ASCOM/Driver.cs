@@ -116,6 +116,7 @@ namespace ASCOM.SympleAstroFocus
         //TODO: figure out out the most "C#" way of maintaining these variables
         //small class, tuple, array per var?
         private bool deviceNeedsUpdating;
+        private bool overwriteMaxPos; //hack for homing
         private uint appCurrentPos = 0; 
         private uint deviceCurrentPos = 0;
         private uint appSetPos = 0;
@@ -315,6 +316,13 @@ namespace ASCOM.SympleAstroFocus
 
                     dwords_to_dev[Constants.STATE_ID_DWORD] = Constants.STATE_ID_0;
                     dwords_to_dev[Constants.SET_POSITION_DWORD] = appSetPos;
+                    //bit of a hack to get around autohoming max pos being overwritten
+                    if (appMaxPos != deviceMaxPos && overwriteMaxPos == false)
+                    {
+                        appMaxPos = deviceMaxPos;
+                    } 
+                    overwriteMaxPos = false;
+                    
                     dwords_to_dev[Constants.MAX_POSITION_DWORD] = appMaxPos;
                     dwords_to_dev[Constants.COMMAND_DWORD] = (uint)commands;
                     dwords_to_dev[Constants.DRIVER_CONFIG_DWORD] = appDriverConfig;
@@ -551,6 +559,7 @@ namespace ASCOM.SympleAstroFocus
             set
             {
                 appMaxPos = Convert.ToUInt32(value); // Set the focuser position
+                overwriteMaxPos = true;
                 deviceNeedsUpdating = true;
             }
         }
