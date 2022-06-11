@@ -142,10 +142,10 @@ void tmc2209_readWriteArray(uint8_t channel, uint8_t *data, size_t writeLength, 
 
 
 		if (rx_status == HAL_TIMEOUT || rx_status == HAL_ERROR) {
-			symple_state[STATE_ID_0][STATUS_DWORD] |= STATUS_STEPPER_DRIVER_COMMS_ERROR_BIT;
+			symple_state[STATUS_DWORD] |= STATUS_STEPPER_DRIVER_COMMS_ERROR_BIT;
 		} else {
 			//otherwise no error no worries
-			symple_state[STATE_ID_0][STATUS_DWORD] &= ~STATUS_STEPPER_DRIVER_COMMS_ERROR_BIT;
+			symple_state[STATUS_DWORD] &= ~STATUS_STEPPER_DRIVER_COMMS_ERROR_BIT;
 		}
 		last_tmc_read_attempt_ms = HAL_GetTick();
 		memcpy(data, &(buffer[1]), readLength);
@@ -175,32 +175,32 @@ uint8_t tmc2209_CRC8(uint8_t *data, size_t length)
 }
 
 void stall_handler() {
-	if (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOMING_BIT){
-		symple_state[STATE_ID_0][SET_POSITION_DWORD] = symple_state[STATE_ID_0][CURRENT_POSITION_DWORD];
+	if (symple_state[STATUS_DWORD] & STATUS_HOMING_BIT){
+		symple_state[SET_POSITION_DWORD] = symple_state[CURRENT_POSITION_DWORD];
 
-		if (current_homing_dir == TOWARDS_ZERO && symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOME_TOWARDS_ZERO_ENABLED){
-			symple_state[STATE_ID_0][SET_POSITION_DWORD] = 0;
-			symple_state[STATE_ID_0][CURRENT_POSITION_DWORD] = 0;
+		if (current_homing_dir == TOWARDS_ZERO && symple_state[STATUS_DWORD] & STATUS_HOME_TOWARDS_ZERO_ENABLED){
+			symple_state[SET_POSITION_DWORD] = 0;
+			symple_state[CURRENT_POSITION_DWORD] = 0;
 			current_homing_dir = TOWARDS_MAX;
 
-			if (!(symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOME_TOWARDS_MAX_ENABLED)){
-				symple_state[STATE_ID_0][STATUS_DWORD] &= ~STATUS_HOMING_BIT;
+			if (!(symple_state[STATUS_DWORD] & STATUS_HOME_TOWARDS_MAX_ENABLED)){
+				symple_state[STATUS_DWORD] &= ~STATUS_HOMING_BIT;
 				current_homing_dir = TOWARDS_ZERO;
 			}
 			return;
 		}
 
 
-		if ((current_homing_dir == TOWARDS_MAX && (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOME_TOWARDS_MAX_ENABLED)) ||
+		if ((current_homing_dir == TOWARDS_MAX && (symple_state[STATUS_DWORD] & STATUS_HOME_TOWARDS_MAX_ENABLED)) ||
 				(
-				current_homing_dir == TOWARDS_ZERO && (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOME_TOWARDS_MAX_ENABLED) &&
-				!(symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOME_TOWARDS_ZERO_ENABLED)
+				current_homing_dir == TOWARDS_ZERO && (symple_state[STATUS_DWORD] & STATUS_HOME_TOWARDS_MAX_ENABLED) &&
+				!(symple_state[STATUS_DWORD] & STATUS_HOME_TOWARDS_ZERO_ENABLED)
 				)
 		){
-			symple_state[STATE_ID_0][MAX_POSITION_DWORD] = symple_state[STATE_ID_0][CURRENT_POSITION_DWORD];
+			symple_state[MAX_POSITION_DWORD] = symple_state[CURRENT_POSITION_DWORD];
 
 			current_homing_dir = TOWARDS_ZERO;
-			symple_state[STATE_ID_0][STATUS_DWORD] &= ~STATUS_HOMING_BIT;
+			symple_state[STATUS_DWORD] &= ~STATUS_HOMING_BIT;
 			return;
 		}
 	}
@@ -251,7 +251,7 @@ int main(void)
   STEPPER_Init();
   tmc2209_restore(&TMC2209);
 
-  set_stepper_period_us(symple_state[STATE_ID_0][STEP_TIME_MICROSEC]);
+  set_stepper_period_us(symple_state[STEP_TIME_MICROSEC]);
   HAL_TIM_Base_Start_IT(&htim3);
   /* USER CODE END Init */
 
@@ -261,9 +261,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if (last_timer_set_period_us != symple_state[STATE_ID_0][STEP_TIME_MICROSEC]){
+	  if (last_timer_set_period_us != symple_state[STEP_TIME_MICROSEC]){
 		  HAL_TIM_Base_Stop_IT(&htim3);
-		  set_stepper_period_us(symple_state[STATE_ID_0][STEP_TIME_MICROSEC]);
+		  set_stepper_period_us(symple_state[STEP_TIME_MICROSEC]);
 		  HAL_TIM_Base_Start_IT(&htim3);
 	  }
 
@@ -275,14 +275,19 @@ int main(void)
 			  hw_defs_state[1] = hw_defs.mcu_type;
 			  hw_defs_state[2] = hw_defs.stepper_driver_type;
 			  hw_defs_state[3] = hw_defs.release_type;
-			  memcpy(defs_usb_data, symple_state[STATE_ID_0], 40);
+			  memcpy(defs_usb_data, symple_state, 40);
 
 			  USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, (uint8_t*)defs_usb_data, SYM_EP_SIZE);
 
 		  }
 
 		  uint8_t usb_data[SYM_EP_SIZE];
-		  memcpy(usb_data, symple_state[STATE_ID_0], 40);
+		  uint32_t usb_data_dwords[SYM_EP_SIZE_DWORDS];
+		  for (int i = 0; i < 8; i++){
+			  usb_data_dwords[i*2] = i+1;
+			  usb_data_dwords[(i*2)+1] = symple_state[i+1];
+		  }
+		  memcpy(usb_data, usb_data_dwords, SYM_EP_SIZE);
 
 		  USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, (uint8_t*)usb_data, SYM_EP_SIZE);
 		  last_usb_ms = HAL_GetTick();
@@ -290,10 +295,10 @@ int main(void)
 
 	  if (HAL_GetTick() - last_flash_ms > 5000){
 
-		  if((symple_state[STATE_ID_0][COMMAND_DWORD] & COMMAND_SAVE_TO_FLASH_BIT) || flash_save_needed){
+		  if((symple_state[COMMAND_DWORD] & COMMAND_SAVE_TO_FLASH_BIT) || flash_save_needed){
 			  //write to flash
 			  //clear the cmd bit before it occurs, otherwise we'll save a command that has ocurred every time
-			  symple_state[STATE_ID_0][COMMAND_DWORD] &= ~COMMAND_SAVE_TO_FLASH_BIT;
+			  symple_state[COMMAND_DWORD] &= ~COMMAND_SAVE_TO_FLASH_BIT;
 			  flash_save_needed = 0;
 			  write_state_to_flash(symple_state);
 
@@ -310,22 +315,22 @@ int main(void)
 
 			  //it takes 15 dwords to setup the tmc, so if it hasn't written 15 it can't be properly programmed
 			  //this will lead to a few extra restores but that isn't the end of the world
-			  if ((symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_STEPPER_DRIVER_COMMS_ERROR_BIT) == 0 && ifcnt > 15){
+			  if ((symple_state[STATUS_DWORD] & STATUS_STEPPER_DRIVER_COMMS_ERROR_BIT) == 0 && ifcnt > 15){
 				  //if no comms error and its configured we should enabled it
-				  symple_state[STATE_ID_0][STATUS_DWORD] |= STATUS_STEPPER_DRIVER_ENABLED_BIT;
+				  symple_state[STATUS_DWORD] |= STATUS_STEPPER_DRIVER_ENABLED_BIT;
 				  read_stepper_state();
 
 			  } else {
 				  //something has gone wrong, disable and restore it
 
-				  symple_state[STATE_ID_0][STATUS_DWORD] &= ~STATUS_STEPPER_DRIVER_ENABLED_BIT;
+				  symple_state[STATUS_DWORD] &= ~STATUS_STEPPER_DRIVER_ENABLED_BIT;
 				  tmc2209_restore(&TMC2209);
 			  }
 
 
 	  	  } else {
 			  //happens in this loop to handle cases where the TMC loses motor power
-	  		symple_state[STATE_ID_0][STATUS_DWORD] &= ~STATUS_STEPPER_DRIVER_ENABLED_BIT;
+	  		symple_state[STATUS_DWORD] &= ~STATUS_STEPPER_DRIVER_ENABLED_BIT;
 	  		tmc2209_restore(&TMC2209);
 
 		  }
@@ -333,7 +338,7 @@ int main(void)
 		  last_tmc_management_ms = HAL_GetTick();
 	  }
 
-	  if (!(symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOMING_BIT)){
+	  if (!(symple_state[STATUS_DWORD] & STATUS_HOMING_BIT)){
 		  current_homing_dir = TOWARDS_ZERO;
 	  }
 
@@ -341,7 +346,7 @@ int main(void)
 	  //only enable the driver if its setup and verified that the regs have been loaded
 	  //otherwise use the ENN pin to stop the driver and hopefully prevent damage
 
-	  if(symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_STEPPER_DRIVER_ENABLED_BIT)
+	  if(symple_state[STATUS_DWORD] & STATUS_STEPPER_DRIVER_ENABLED_BIT)
 	  {
 		  HAL_GPIO_WritePin(GPIOA, ENN_Pin, GPIO_PIN_RESET);
 	  } else {
@@ -363,20 +368,20 @@ void do_step(){
 
 void update_motor_pos()
 {
-  if (((symple_state[STATE_ID_0][CURRENT_POSITION_DWORD] != symple_state[STATE_ID_0][SET_POSITION_DWORD]) ||
-		  (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOMING_BIT))
+  if (((symple_state[CURRENT_POSITION_DWORD] != symple_state[SET_POSITION_DWORD]) ||
+		  (symple_state[STATUS_DWORD] & STATUS_HOMING_BIT))
 		  &&
-		  symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_STEPPER_DRIVER_ENABLED_BIT) //do a step
+		  symple_state[STATUS_DWORD] & STATUS_STEPPER_DRIVER_ENABLED_BIT) //do a step
   {
 
 	GPIO_PinState shaft_dir =
-			symple_state[STATE_ID_0][CURRENT_POSITION_DWORD] < symple_state[STATE_ID_0][SET_POSITION_DWORD] ?
+			symple_state[CURRENT_POSITION_DWORD] < symple_state[SET_POSITION_DWORD] ?
 					GPIO_PIN_SET : GPIO_PIN_RESET;
 
 
 
 	//overwrite direction if we're in homing mode as set/current pos are meaningless
-	if (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_HOMING_BIT){
+	if (symple_state[STATUS_DWORD] & STATUS_HOMING_BIT){
 		if (current_homing_dir == TOWARDS_ZERO){
 			shaft_dir = 0;
 		} else {
@@ -385,7 +390,7 @@ void update_motor_pos()
 	}
 
 	int counting_dir = shaft_dir;
-    if (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_REVERSE_BIT){
+    if (symple_state[STATUS_DWORD] & STATUS_REVERSE_BIT){
     	shaft_dir = !shaft_dir;
     }
 
@@ -393,25 +398,25 @@ void update_motor_pos()
     do_step();
     if (counting_dir)
     {
-    	if (symple_state[STATE_ID_0][CURRENT_POSITION_DWORD] != 0xFFFFFFFF){
-        	symple_state[STATE_ID_0][CURRENT_POSITION_DWORD]++;
+    	if (symple_state[CURRENT_POSITION_DWORD] != 0xFFFFFFFF){
+        	symple_state[CURRENT_POSITION_DWORD]++;
     	}
     }
     else
     {
-    	if (symple_state[STATE_ID_0][CURRENT_POSITION_DWORD] != 0x00000000){
-    		symple_state[STATE_ID_0][CURRENT_POSITION_DWORD]--;
+    	if (symple_state[CURRENT_POSITION_DWORD] != 0x00000000){
+    		symple_state[CURRENT_POSITION_DWORD]--;
     	}
     }
     //if we've moved set the bit, and signal a save will be needed
-    symple_state[STATE_ID_0][STATUS_DWORD] |= STATUS_IS_MOVING_BIT;
+    symple_state[STATUS_DWORD] |= STATUS_IS_MOVING_BIT;
     flash_save_needed = 1;
   } else {
 	  //we've just finished a move - make sure its saved!
-	  if (symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_IS_MOVING_BIT){
+	  if (symple_state[STATUS_DWORD] & STATUS_IS_MOVING_BIT){
 		  flash_save_needed = 1;
 	  }
-	  symple_state[STATE_ID_0][STATUS_DWORD] &=~ STATUS_IS_MOVING_BIT;
+	  symple_state[STATUS_DWORD] &=~ STATUS_IS_MOVING_BIT;
   }
 }
 
@@ -422,7 +427,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	if(symple_state[STATE_ID_0][STATUS_DWORD] & STATUS_STEPPER_DRIVER_ENABLED_BIT){
+	if(symple_state[STATUS_DWORD] & STATUS_STEPPER_DRIVER_ENABLED_BIT){
 		if (HAL_GetTick() - last_stall_handler_ms > 500){
 			stall_handler();
 			last_stall_handler_ms = HAL_GetTick();
@@ -511,28 +516,25 @@ void load_state_from_flash(symple_state_t ss){
 	uint32_t* state_loc;
 	state_loc = (uint32_t*)&__USER_FLASH_SECTION_START;
 	uint32_t chunk_to_read = get_last_saved_chunk();
-	for (int i = 0; i < NUM_STATE_INFOS; i++){
-		for(int j = 0; j < STATE_LENGTH_DWORDS-1; j++){
-			int raddr_offset = (i*STATE_LENGTH_DWORDS) + j;
-			raddr_offset = raddr_offset + (chunk_to_read * STATE_LENGTH_DWORDS * NUM_STATE_INFOS) + FLASH_JOURNAL_HEADER_SIZE_DWORDS;
-			ss[i][j] = state_loc[raddr_offset];
-		}
+	for (int i = 0; i < NUM_STATE_DWORDS; i++){
+		int raddr_offset = i;
+		raddr_offset = raddr_offset + (chunk_to_read * NUM_STATE_DWORDS) + FLASH_JOURNAL_HEADER_SIZE_DWORDS;
+		ss[i] = state_loc[raddr_offset];
 	}
 	//if we think its from 0 chunk and the zero hasn't be written - either its first boot or
 	// the power got removed after an erase but before a write
 	if ((chunk_to_read == 0) && (*state_loc & 0x0000FFFF == 0x0000FFFF)){
 
-		symple_state[STATE_ID_0][STATE_ID_DWORD] = STATE_ID_0;
-		symple_state[STATE_ID_0][COMMAND_DWORD] = 0;
-		symple_state[STATE_ID_0][STATUS_DWORD] = 0;
-		symple_state[STATE_ID_0][CURRENT_POSITION_DWORD] = 0;
-		symple_state[STATE_ID_0][SET_POSITION_DWORD] = 0;
-		symple_state[STATE_ID_0][MAX_POSITION_DWORD] = 60000;
-		symple_state[STATE_ID_0][STEP_TIME_MICROSEC] = 50;
+		symple_state[COMMAND_DWORD] = 0;
+		symple_state[STATUS_DWORD] = 0;
+		symple_state[CURRENT_POSITION_DWORD] = 0;
+		symple_state[SET_POSITION_DWORD] = 0;
+		symple_state[MAX_POSITION_DWORD] = 60000;
+		symple_state[STEP_TIME_MICROSEC] = 50;
 
-		symple_state[STATE_ID_0][STEPPER_DRIVER_CONF] = 0;
-		symple_state[STATE_ID_0][STEPPER_DRIVER_CONF] |= (24 << DRIVER_CONFIG_IRUN_SHIFT) & DRIVER_CONFIG_IRUN_MASK;
-		symple_state[STATE_ID_0][STEPPER_DRIVER_CONF] |= (8 << DRIVER_CONFIG_IHOLD_SHIFT) & DRIVER_CONFIG_IHOLD_MASK;
+		symple_state[STEPPER_DRIVER_CONF] = 0;
+		symple_state[STEPPER_DRIVER_CONF] |= (24 << DRIVER_CONFIG_IRUN_SHIFT) & DRIVER_CONFIG_IRUN_MASK;
+		symple_state[STEPPER_DRIVER_CONF] |= (8 << DRIVER_CONFIG_IHOLD_SHIFT) & DRIVER_CONFIG_IHOLD_MASK;
 	}
 }
 
@@ -575,13 +577,12 @@ void write_state_to_flash(symple_state_t ss){
 
 
 
-	for (int i = 0; i < NUM_STATE_INFOS; i++){
-		for(int j = 0; j < STATE_LENGTH_DWORDS-1; j++){
-			uint32_t wdata = ss[i][j];
-			uint32_t wchunk_offset = (STATE_LENGTH_DWORDS * NUM_STATE_INFOS * chunk_to_write) + FLASH_JOURNAL_HEADER_SIZE_DWORDS;
-			uint32_t waddar_offset_dwords = (i*STATE_LENGTH_DWORDS) + j;
-			HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, state_loc + wchunk_offset + waddar_offset_dwords, wdata);
-		}
+	for (int i = 0; i < NUM_STATE_DWORDS; i++){
+		uint32_t wdata = ss[i];
+		uint32_t wchunk_offset = (NUM_STATE_DWORDS * chunk_to_write) + FLASH_JOURNAL_HEADER_SIZE_DWORDS;
+		uint32_t waddar_offset_dwords = i;
+		HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, state_loc + wchunk_offset + waddar_offset_dwords, wdata);
+
 	}
 
 
@@ -595,11 +596,9 @@ void SympleState_Init(){
 
 	load_state_from_flash(symple_state);
 	//sanity assignment to stop motor from being driven on power up
-	symple_state[STATE_ID_0][SET_POSITION_DWORD] = symple_state[STATE_ID_0][CURRENT_POSITION_DWORD];
+	symple_state[SET_POSITION_DWORD] = symple_state[CURRENT_POSITION_DWORD];
 	//make sure we don't trick ourselves into thinking everything is configured from last time
-	symple_state[STATE_ID_0][STATUS_DWORD] = symple_state[STATE_ID_0][STATUS_DWORD] & (~STATUS_STEPPER_DRIVER_ENABLED_BIT);
-	//ensure header is set correctly otherwise host will never understand
-	symple_state[STATE_ID_0][STATE_ID_DWORD] = STATE_ID_0;
+	symple_state[STATUS_DWORD] = symple_state[STATUS_DWORD] & (~STATUS_STEPPER_DRIVER_ENABLED_BIT);
 
 }
 
@@ -746,14 +745,14 @@ void load_symple_state_into_tmc_config(void){
 
 	//mask then shift on the symnple state to get the value out of symple state, then shift/mask to set the
 	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] &= (~TMC2209_IRUN_MASK);
-	uint8_t irun = (symple_state[STATE_ID_0][STEPPER_DRIVER_CONF] & DRIVER_CONFIG_IRUN_MASK) >> DRIVER_CONFIG_IRUN_SHIFT;
+	uint8_t irun = (symple_state[STEPPER_DRIVER_CONF] & DRIVER_CONFIG_IRUN_MASK) >> DRIVER_CONFIG_IRUN_SHIFT;
 	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] |= (irun << TMC2209_IRUN_SHIFT)  & TMC2209_IRUN_MASK;
 
 	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] &= (~TMC2209_IHOLD_MASK);
-	uint8_t ihold = (symple_state[STATE_ID_0][STEPPER_DRIVER_CONF] & DRIVER_CONFIG_IHOLD_MASK) >> DRIVER_CONFIG_IHOLD_SHIFT;
+	uint8_t ihold = (symple_state[STEPPER_DRIVER_CONF] & DRIVER_CONFIG_IHOLD_MASK) >> DRIVER_CONFIG_IHOLD_SHIFT;
 	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] |= (ihold << TMC2209_IHOLD_SHIFT)  & TMC2209_IHOLD_MASK;
 
-	uint32_t stall_threshold  = (symple_state[STATE_ID_0][STEPPER_DRIVER_CONF]   &  DRIVER_CONFIG_SGTHRS_MASK   ) >> DRIVER_CONFIG_SGTHRS_SHIFT;
+	uint32_t stall_threshold  = (symple_state[STEPPER_DRIVER_CONF]   &  DRIVER_CONFIG_SGTHRS_MASK   ) >> DRIVER_CONFIG_SGTHRS_SHIFT;
 	TMC2209_config.shadowRegister[TMC2209_SGTHRS] = stall_threshold/2;
 }
 
@@ -804,12 +803,12 @@ void read_stepper_state(void) {
 	uint32_t drvstatus = tmc2209_readInt(&TMC2209, TMC2209_DRVSTATUS);
 	uint32_t sg_result = tmc2209_readInt(&TMC2209, TMC2209_SG_RESULT);
 
-	symple_state[STATE_ID_0][STEPPER_DRIVER_STATUS] &= (~DRIVER_STATUS_SG_RESULT_MASK);
-	symple_state[STATE_ID_0][STEPPER_DRIVER_STATUS] |= sg_result;
+	symple_state[STEPPER_DRIVER_STATUS] &= (~DRIVER_STATUS_SG_RESULT_MASK);
+	symple_state[STEPPER_DRIVER_STATUS] |= sg_result;
 
-	symple_state[STATE_ID_0][STEPPER_DRIVER_STATUS] &= (~DRIVER_STATUS_CS_ACTUAL_MASK);
+	symple_state[STEPPER_DRIVER_STATUS] &= (~DRIVER_STATUS_CS_ACTUAL_MASK);
 	uint32_t cs_actual = (drvstatus & TMC2209_CS_ACTUAL_MASK) >> TMC2209_CS_ACTUAL_SHIFT;
-	symple_state[STATE_ID_0][STEPPER_DRIVER_STATUS] |= (cs_actual) << DRIVER_STATUS_CS_ACTUAL_SHIFT;
+	symple_state[STEPPER_DRIVER_STATUS] |= (cs_actual) << DRIVER_STATUS_CS_ACTUAL_SHIFT;
 
 }
 /**

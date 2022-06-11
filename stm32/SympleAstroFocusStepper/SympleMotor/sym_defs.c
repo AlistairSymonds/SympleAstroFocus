@@ -4,60 +4,65 @@ void process_command_bits(symple_state_t ss){
 
 	//is the bit in the command dword set?
 	//if so go into the state, do the op, and clear the command bit
-	if (ss[STATE_ID_0][COMMAND_DWORD] & COMMAND_TOGGLE_REVERSE_BIT){
-		ss[STATE_ID_0][STATUS_DWORD] ^= STATUS_REVERSE_BIT;
-		ss[STATE_ID_0][COMMAND_DWORD] &= ~COMMAND_TOGGLE_REVERSE_BIT;
+	if (ss[COMMAND_DWORD] & COMMAND_TOGGLE_REVERSE_BIT){
+		ss[STATUS_DWORD] ^= STATUS_REVERSE_BIT;
+		ss[COMMAND_DWORD] &= ~COMMAND_TOGGLE_REVERSE_BIT;
 		//this is persistent state, so trigger a save
-		ss[STATE_ID_0][COMMAND_DWORD] |= COMMAND_SAVE_TO_FLASH_BIT;
+		ss[COMMAND_DWORD] |= COMMAND_SAVE_TO_FLASH_BIT;
 	}
 
-	if (ss[STATE_ID_0][COMMAND_DWORD] & COMMAND_SET_ZERO_BIT){
-		ss[STATE_ID_0][CURRENT_POSITION_DWORD] = 0;
-		ss[STATE_ID_0][SET_POSITION_DWORD] = 0;
-		ss[STATE_ID_0][COMMAND_DWORD] &= ~COMMAND_SET_ZERO_BIT;
+	if (ss[COMMAND_DWORD] & COMMAND_SET_ZERO_BIT){
+		ss[CURRENT_POSITION_DWORD] = 0;
+		ss[SET_POSITION_DWORD] = 0;
+		ss[COMMAND_DWORD] &= ~COMMAND_SET_ZERO_BIT;
 	}
 
-	if (ss[STATE_ID_0][COMMAND_DWORD] & COMMAND_HALT_BIT){
-		ss[STATE_ID_0][SET_POSITION_DWORD] = ss[STATE_ID_0][CURRENT_POSITION_DWORD];
-		ss[STATE_ID_0][STATUS_DWORD]  &= ~STATUS_HOMING_BIT;
-		ss[STATE_ID_0][COMMAND_DWORD] &= ~COMMAND_HALT_BIT;
+	if (ss[COMMAND_DWORD] & COMMAND_HALT_BIT){
+		ss[SET_POSITION_DWORD] = ss[CURRENT_POSITION_DWORD];
+		ss[STATUS_DWORD]  &= ~STATUS_HOMING_BIT;
+		ss[COMMAND_DWORD] &= ~COMMAND_HALT_BIT;
 	}
 
-	if (ss[STATE_ID_0][COMMAND_DWORD] & COMMAND_TOGGLE_HOME_TOWARDS_ZERO_BIT){
-		ss[STATE_ID_0][STATUS_DWORD] ^= STATUS_HOME_TOWARDS_ZERO_ENABLED;
+	if (ss[COMMAND_DWORD] & COMMAND_TOGGLE_HOME_TOWARDS_ZERO_BIT){
+		ss[STATUS_DWORD] ^= STATUS_HOME_TOWARDS_ZERO_ENABLED;
+		ss[COMMAND_DWORD] &= ~COMMAND_TOGGLE_HOME_TOWARDS_ZERO_BIT;
 	}
 
-	if (ss[STATE_ID_0][COMMAND_DWORD] & COMMAND_TOGGLE_HOME_TOWARDS_MAX_BIT){
-		ss[STATE_ID_0][STATUS_DWORD] ^= STATUS_HOME_TOWARDS_MAX_ENABLED;
+	if (ss[COMMAND_DWORD] & COMMAND_TOGGLE_HOME_TOWARDS_MAX_BIT){
+		ss[STATUS_DWORD] ^= STATUS_HOME_TOWARDS_MAX_ENABLED;
+		ss[COMMAND_DWORD] &= ~COMMAND_TOGGLE_HOME_TOWARDS_MAX_BIT;
 	}
 
 	//only actually do homing if either are enabled
-	if (ss[STATE_ID_0][COMMAND_DWORD] & COMMAND_TRIGGER_HOMING_BIT &&
-			ss[STATE_ID_0][STATUS_DWORD] & (STATUS_HOME_TOWARDS_MAX_ENABLED | STATUS_HOME_TOWARDS_ZERO_ENABLED)
+	if (ss[COMMAND_DWORD] & COMMAND_TRIGGER_HOMING_BIT &&
+		ss[STATUS_DWORD] & (STATUS_HOME_TOWARDS_MAX_ENABLED | STATUS_HOME_TOWARDS_ZERO_ENABLED)
 	){
-		ss[STATE_ID_0][STATUS_DWORD] |= STATUS_HOMING_BIT;
+		ss[STATUS_DWORD] |= STATUS_HOMING_BIT;
 	}
-
 
 }
 
-void save_recieved_state(uint32_t* state_in , symple_state_t ss){
-	uint32_t state_id;
-	  state_id = state_in[STATE_ID_DWORD];
-	  if (state_id == STATE_ID_HW_INFO) {
+int is_writeable_state_dword(uint32_t state_dword_id){
+	if(
+		state_dword_id == COMMAND_DWORD ||
+		state_dword_id == SET_POSITION_DWORD ||
+		state_dword_id == MAX_POSITION_DWORD ||
+		state_dword_id == STEP_TIME_MICROSEC ||
+		state_dword_id == STEPPER_DRIVER_CONF
+	){
+		return 1;
+	} else {
+		return 0;
+	}
+}
 
-	  } else {
-		  for (int i = 1; i < STATE_LENGTH_DWORDS; i++){
-		  			  int is_writable_dword = sym_state_writeable_dwords[state_id] & (1 << i);
+void save_recieved_state(uint32_t usb_data[SYM_EP_SIZE_DWORDS], symple_state_t ss){
+	for (int i = 0; i < SYM_EP_SIZE_DWORDS; i+= 2) {
+		uint32_t state_id = usb_data[i] & 0x7FFFFFFF;
+		uint32_t is_write_req = usb_data[i] & WRITE_BIT;
+		if (usb_data[i] != INVALID_DWORD && is_write_req && is_writeable_state_dword(state_id)){
+			ss[state_id] = usb_data[i+1];
+		}
+	}
 
-		  			  if (i == SET_POSITION_DWORD){
-		  				  is_writable_dword = state_in[COMMAND_DWORD] & COMMAND_UPDATE_SET_POS_BIT;
-		  			  }
-
-		  			  if (is_writable_dword){
-		  				  uint32_t data = state_in[i];
-		  				  ss[state_id][i] = data;
-		  			  }
-		  		  }
-	  }
 }

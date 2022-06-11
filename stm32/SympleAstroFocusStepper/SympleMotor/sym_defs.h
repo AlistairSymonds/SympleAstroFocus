@@ -2,17 +2,11 @@
 #define SYM_DEFS_H
 #include <stdint.h>
 
-#define NUM_STATE_INFOS 1
-#define STATE_LENGTH_DWORDS 0x10 //16 dwords per 64bytes
-#define SYM_EP_SIZE (STATE_LENGTH_DWORDS * 4) //64bytes
+#define SYM_EP_SIZE 64 //64bytes
+#define SYM_EP_SIZE_DWORDS 16
+#define NUM_STATE_DWORDS 16
 
-#define SYMPLE_STATE_FLASH_BASE_ADDR
-#define SYMPLE_STATE_FLASH_SIZE (STATE_LENGTH_DWORDS-1) * NUM_STATE_INFOS
-
-#define STATE_ID_DWORD 0
-#define STATE_ID_0 0x0000
-#define STATE_ID_HW_INFO 0xFFFFFFFF
-
+#define SYMPLE_STATE_FLASH_SIZE NUM_STATE_DWORDS
 
 
 //definitions for fields in state ID 0
@@ -24,6 +18,9 @@
 #define STEP_TIME_MICROSEC 6
 #define STEPPER_DRIVER_CONF 7
 #define STEPPER_DRIVER_STATUS 8
+
+#define INVALID_DWORD 0xFFFFFFFF
+#define WRITE_BIT 0x80000000
 
 
 #define COMMAND_TOGGLE_REVERSE_BIT  ( 1 << 0)
@@ -59,15 +56,15 @@
 #define DRIVER_STATUS_CS_ACTUAL_MASK 			( 0x1F0000)
 #define DRIVER_STATUS_CS_ACTUAL_SHIFT			16
 
-typedef volatile uint32_t symple_state_t[NUM_STATE_INFOS][STATE_LENGTH_DWORDS-1];
+typedef volatile uint32_t symple_state_t[NUM_STATE_DWORDS];
 
 symple_state_t symple_state;
-static const uint16_t sym_state_writeable_dwords[NUM_STATE_INFOS]={
+static const uint16_t sym_state_writeable_dwords[NUM_STATE_DWORDS]={
 		0x0E2
 };
 
 void process_command_bits(symple_state_t ss);
 
-void save_recieved_state(uint32_t* state_in , symple_state_t ss);
+void save_recieved_state(uint32_t usb_data[SYM_EP_SIZE_DWORDS], symple_state_t ss);
 
 #endif
