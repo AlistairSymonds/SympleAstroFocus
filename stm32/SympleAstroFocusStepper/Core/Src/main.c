@@ -20,7 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "usb_device.h"
-
+#include "usbd_customhid.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -60,10 +60,12 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
+void load_symple_state_into_tmc_config();
 static void STEPPER_Init(void);
 static void FLASH_init(void);
 static void set_stepper_period_us(int us);
 static void read_stepper_state(void);
+void SympleState_Init();
 static void load_state_from_flash(symple_state_t ss);
 static void write_state_to_flash(symple_state_t ss);
 /* USER CODE END PFP */
@@ -547,7 +549,7 @@ void load_state_from_flash(symple_state_t ss){
 	}
 	//if we think its from 0 chunk and the zero hasn't be written - either its first boot or
 	// the power got removed after an erase but before a write
-	if ((chunk_to_read == 0) && (*state_loc & 0x0000FFFF == 0x0000FFFF)){
+	if ((chunk_to_read == 0) && ((*state_loc & 0x0000FFFF) == 0x0000FFFF)){
 
 		symple_state[COMMAND_DWORD] = 0;
 		symple_state[STATUS_DWORD] = 0;
@@ -766,7 +768,7 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-void load_symple_state_into_tmc_config(void){
+void load_symple_state_into_tmc_config(){
 
 	//mask then shift on the symnple state to get the value out of symple state, then shift/mask to set the
 	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] &= (~TMC2209_IRUN_MASK);
