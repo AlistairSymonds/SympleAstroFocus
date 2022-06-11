@@ -42,7 +42,7 @@ using ASCOM.Utilities;
 using ASCOM.DeviceInterface;
 using System.Globalization;
 using System.Collections;
-using System.Collections.Specialized;
+using System.Collections.Concurrent;
 
 using HidSharp;
 using System.Linq;
@@ -69,6 +69,13 @@ namespace ASCOM.SympleAstroFocus
     [ClassInterface(ClassInterfaceType.None)]
     public class Focuser : IFocuserV3
     {
+        private struct symple_state_request_t
+        {
+            public bool isWrite;
+            public UInt32 stateDwordId;
+            public UInt32 requestedValue;
+        }
+
         /// <summary>
         /// ASCOM DeviceID (COM ProgID) for this driver.
         /// The DeviceID is used by ASCOM applications to load the driver at runtime.
@@ -108,6 +115,7 @@ namespace ASCOM.SympleAstroFocus
         HidDevice device;
         HidStream stream;
 
+        ConcurrentQueue<symple_state_request_t> usbRequestQueue;
         BackgroundWorker usbBgWorker;
 
         private Mutex usbMut;
@@ -115,21 +123,14 @@ namespace ASCOM.SympleAstroFocus
         #region IFocuser variables
         //TODO: figure out out the most "C#" way of maintaining these variables
         //small class, tuple, array per var?
-        private bool deviceNeedsUpdating;
-        private bool overwriteMaxPos; //hack for homing
-        private uint appCurrentPos = 0; 
         private uint deviceCurrentPos = 0;
-        private uint appSetPos = 0;
         private uint deviceSetPos = 0;
-        private uint appMaxPos = 0;
         private uint deviceMaxPos = 0;
         private Constants.Status_Dword_Bits status_flags;
-        private Constants.Command_Dword_Bits commands;
+        private Constants.Command_Dword_Bits pending_commands;
         private uint driverStatus = 0;
         private uint deviceDriverConfig = 0;
-        private uint appDriverConfig = 0;
 
-        private uint appStepPeriodUs= 0;
         private uint devStepPeriodUs = 0;
 
 
@@ -152,7 +153,7 @@ namespace ASCOM.SympleAstroFocus
             utilities = new Util(); //Initialise util object
             astroUtilities = new AstroUtils(); // Initialise astro-utilities object
 
-
+            usbRequestQueue = new ConcurrentQueue<symple_state_request_t>();
 
 
             devices = new FilteredDeviceList();
@@ -190,8 +191,6 @@ namespace ASCOM.SympleAstroFocus
                     connectedState = true;
                     //
                     updateStateFromDevice();
-                    syncAppFromDeviceState();
-                    deviceNeedsUpdating = false;
                     usbMut = new Mutex();
                     usbBgWorker = new BackgroundWorker();
                     usbBgWorker.DoWork += new DoWorkEventHandler(bgThread);
@@ -255,22 +254,15 @@ namespace ASCOM.SympleAstroFocus
                     bytes_read = stream.Read(bytes);
                     Console.WriteLine(bytes);
 
-                    for (int i = 1; i < bytes_read-4; i=i+4) //starting at 1 is weird - might be HidSharp or uC code's fault
+                    for (int i = 1; i <= bytes_read-4; i=i+4) //starting at 1 is weird - might be HidSharp or uC code's fault
                     {
                         int dword = BitConverter.ToInt32(bytes, i);
                         //dword = IPAddress.HostToNetworkOrder(dword);
                         dwords_from_dev[i / 4] = unchecked((uint)dword);
                     }
 
-                    switch (dwords_from_dev[Constants.STATE_ID_DWORD])
-                    {
-                        case Constants.STATE_ID_0:
-                            decodeStateId0(dwords_from_dev);
-                            break;
-                        default:
-                            Console.WriteLine("Unrecognised state word type");
-                            break;
-                    }
+                    decodeStateDwords(dwords_from_dev);
+                    
                 }
                 catch (TimeoutException)
                 {
@@ -283,21 +275,50 @@ namespace ASCOM.SympleAstroFocus
             return bytes_read;
         }
 
-        private void decodeStateId0(uint[] state_words)
+        private void decodeStateDwords(uint[] state_words)
         {
-            deviceCurrentPos   = state_words[Constants.CURRENT_POSITION_DWORD];
-            deviceMaxPos       = state_words[Constants.MAX_POSITION_DWORD];
-            deviceSetPos       = state_words[Constants.SET_POSITION_DWORD];
-            devStepPeriodUs    = state_words[Constants.STEP_TIME_US_DWORD];
+            for (int i = 0; i < state_words.Length; i+= 2)
+            {
+                switch (state_words[i])
+                {
+                    case Constants.CURRENT_POSITION_DWORD:
+                        deviceCurrentPos = state_words[i + 1];
+                        break;
 
-            status_flags = (Constants.Status_Dword_Bits)state_words[Constants.STATUS_DWORD];
-            driverStatus = state_words[Constants.DRIVER_STATUS_DWORD];
-            deviceDriverConfig = state_words[Constants.DRIVER_CONFIG_DWORD];
+                    case Constants.MAX_POSITION_DWORD:
+                        deviceMaxPos = state_words[i + 1];
+                        break;
+
+                    case Constants.SET_POSITION_DWORD:
+                        deviceSetPos = state_words[i + 1];
+                        break;
+
+                    case Constants.STATUS_DWORD:
+                        status_flags = (Constants.Status_Dword_Bits)state_words[i + 1];
+                        break;
+
+                    case Constants.DRIVER_STATUS_DWORD:
+                        driverStatus = state_words[i + 1];
+                        break;
+
+                    case Constants.DRIVER_CONFIG_DWORD:
+                        deviceDriverConfig = state_words[i + 1];
+                        break;
+
+                    case Constants.STEP_TIME_US_DWORD:
+                        devStepPeriodUs = state_words[i + 1];
+                        break;
+
+                    default:
+                        Console.WriteLine("Unrecognised state word type");
+                        break;
+                }
+            }
         }
 
         private void updateDeviceFromHost()
         {
-            if (deviceNeedsUpdating)
+            if (!usbRequestQueue.IsEmpty)
             {
                 if (!device.TryOpen(out stream))
                 {
@@ -314,19 +335,24 @@ namespace ASCOM.SympleAstroFocus
                     uint[] dwords_to_dev;
                     dwords_to_dev = new uint[16];
 
-                    dwords_to_dev[Constants.STATE_ID_DWORD] = Constants.STATE_ID_0;
-                    dwords_to_dev[Constants.SET_POSITION_DWORD] = appSetPos;
-                    //bit of a hack to get around autohoming max pos being overwritten
-                    if (appMaxPos != deviceMaxPos && overwriteMaxPos == false)
+                    for (int i = 0; i < dwords_to_dev.Length; i++)
                     {
-                        appMaxPos = deviceMaxPos;
-                    } 
-                    overwriteMaxPos = false;
-                    
-                    dwords_to_dev[Constants.MAX_POSITION_DWORD] = appMaxPos;
-                    dwords_to_dev[Constants.COMMAND_DWORD] = (uint)commands;
-                    dwords_to_dev[Constants.DRIVER_CONFIG_DWORD] = appDriverConfig;
-                    dwords_to_dev[Constants.STEP_TIME_US_DWORD] = appStepPeriodUs;
+                        dwords_to_dev[i] = 0xFFFFFFFF;
+                    }
+                    int current_loading_packet = 0;
+                    while (current_loading_packet < (dwords_to_dev.Length/2) && !usbRequestQueue.IsEmpty)
+                    {
+                        symple_state_request_t req;
+                        usbRequestQueue.TryDequeue(out req);
+                        dwords_to_dev[current_loading_packet*2] = req.stateDwordId;
+                        dwords_to_dev[(current_loading_packet * 2)+1] = req.requestedValue;
+                        if (req.isWrite)
+                        {
+                            dwords_to_dev[(current_loading_packet * 2)] |= 0x80000000;
+                        }
+                        current_loading_packet++;
+                    }
+
                     for (int i = 0; i < dwords_to_dev.Length; i++)
                     {
                         byte[] dword_as_bytes;
@@ -339,22 +365,13 @@ namespace ASCOM.SympleAstroFocus
                     bytes[0] = 1;
                     stream.Write(bytes);
 
-                    commands = 0;
+                    pending_commands = 0;
 
                 }
-                deviceNeedsUpdating = false;
             }
             
         }
 
-        private void syncAppFromDeviceState()
-        {
-            appMaxPos = deviceMaxPos;
-            appSetPos = deviceSetPos;
-            appCurrentPos = deviceCurrentPos;
-            appDriverConfig = deviceDriverConfig;
-            appStepPeriodUs= devStepPeriodUs;
-        }
         //
         // PUBLIC COM INTERFACE IFocuserV3 IMPLEMENTATION
         //
@@ -522,8 +539,12 @@ namespace ASCOM.SympleAstroFocus
 
         public void Halt()
         {
-            commands |= Constants.Command_Dword_Bits.HALT_MOTOR_BIT;
-            deviceNeedsUpdating = true;
+            symple_state_request_t cmd_req;
+            cmd_req.requestedValue = (UInt32)(pending_commands | Constants.Command_Dword_Bits.HALT_MOTOR_BIT);
+            cmd_req.stateDwordId = Constants.COMMAND_DWORD;
+            cmd_req.isWrite = true;
+
+            usbRequestQueue.Enqueue(cmd_req);
         }
 
         public bool IsMoving
@@ -558,9 +579,12 @@ namespace ASCOM.SympleAstroFocus
 
             set
             {
-                appMaxPos = Convert.ToUInt32(value); // Set the focuser position
-                overwriteMaxPos = true;
-                deviceNeedsUpdating = true;
+                symple_state_request_t req;
+                req.requestedValue = Convert.ToUInt32(value);
+                req.stateDwordId = Constants.MAX_POSITION_DWORD;
+                req.isWrite = true;
+
+                usbRequestQueue.Enqueue(req);
             }
         }
 
@@ -587,10 +611,21 @@ namespace ASCOM.SympleAstroFocus
                 Position = Convert.ToInt32(deviceMaxPos);
             }
 
-            appSetPos = Convert.ToUInt32(Position); // Set the focuser position
-            commands |= Constants.Command_Dword_Bits.UPDATE_SET_POS;
-            deviceNeedsUpdating = true;
-            //usbMut.ReleaseMutex();
+            pending_commands |= Constants.Command_Dword_Bits.UPDATE_SET_POS;
+            symple_state_request_t cmd_req;
+            cmd_req.requestedValue = (UInt32) pending_commands;
+            cmd_req.stateDwordId = Constants.COMMAND_DWORD;
+            cmd_req.isWrite = true;
+
+            symple_state_request_t req;
+            req.requestedValue = Convert.ToUInt32(Position);
+            req.stateDwordId = Constants.SET_POSITION_DWORD;
+            req.isWrite = true;
+
+            //FIXME: not actually thread safe
+            usbRequestQueue.Enqueue(req);
+            usbRequestQueue.Enqueue(cmd_req);
+
         }
 
         public int Position
@@ -656,11 +691,13 @@ namespace ASCOM.SympleAstroFocus
 
         public void ToggleReverse()
         {
+            pending_commands |= Constants.Command_Dword_Bits.TOGGLE_REVERSE_BIT;
+            symple_state_request_t cmd_req;
+            cmd_req.requestedValue = (UInt32)pending_commands;
+            cmd_req.stateDwordId = Constants.COMMAND_DWORD;
+            cmd_req.isWrite = true;
 
-            //usbMut.WaitOne();
-            commands |= Constants.Command_Dword_Bits.TOGGLE_REVERSE_BIT;
-            deviceNeedsUpdating = true;
-            //usbMut.ReleaseMutex();
+            usbRequestQueue.Enqueue(cmd_req);
         }
 
         public bool ReversedMotor
@@ -673,12 +710,13 @@ namespace ASCOM.SympleAstroFocus
 
         public void SetZero()
         {
-            //usbMut.WaitOne();
-            commands |= Constants.Command_Dword_Bits.SET_ZERO_BIT;
-            appSetPos = 0;
-            deviceNeedsUpdating = true;
-            //usbMut.ReleaseMutex();
+            pending_commands |= Constants.Command_Dword_Bits.SET_ZERO_BIT;
+            symple_state_request_t cmd_req;
+            cmd_req.requestedValue = (UInt32)pending_commands;
+            cmd_req.stateDwordId = Constants.COMMAND_DWORD;
+            cmd_req.isWrite = true;
 
+            usbRequestQueue.Enqueue(cmd_req);
         }
 
         public int SG_RESULT
@@ -701,9 +739,15 @@ namespace ASCOM.SympleAstroFocus
         {
             set
             {
-                appDriverConfig &= ~Constants.DRIVER_CONFIG_IRUN_MASK;
-                appDriverConfig |= value << Constants.DRIVER_CONFIG_IRUN_SHIFT;
-                deviceNeedsUpdating = true;
+                deviceDriverConfig &= ~Constants.DRIVER_CONFIG_IRUN_MASK;
+                deviceDriverConfig |= value << Constants.DRIVER_CONFIG_IRUN_SHIFT;
+
+                symple_state_request_t req;
+                req.requestedValue = deviceDriverConfig;
+                req.stateDwordId = Constants.DRIVER_CONFIG_DWORD;
+                req.isWrite = true;
+
+                usbRequestQueue.Enqueue(req);
 
             }
             get
@@ -717,10 +761,15 @@ namespace ASCOM.SympleAstroFocus
 
             set
             {
-                appDriverConfig &= ~Constants.DRIVER_CONFIG_IHOLD_MASK;
-                appDriverConfig |= value << Constants.DRIVER_CONFIG_IHOLD_SHIFT;
-                deviceNeedsUpdating = true;
+                deviceDriverConfig &= ~Constants.DRIVER_CONFIG_IHOLD_MASK;
+                deviceDriverConfig |= value << Constants.DRIVER_CONFIG_IHOLD_SHIFT;
 
+                symple_state_request_t req;
+                req.requestedValue = deviceDriverConfig;
+                req.stateDwordId = Constants.DRIVER_CONFIG_DWORD;
+                req.isWrite = true;
+
+                usbRequestQueue.Enqueue(req);
             }
             get
             {
@@ -733,10 +782,15 @@ namespace ASCOM.SympleAstroFocus
 
             set
             {
-                appDriverConfig &= ~Constants.DRIVER_CONFIG_SGTHRS_MASK;
-                appDriverConfig |= value << Constants.DRIVER_CONFIG_SGTHRS_SHIFT;
-                deviceNeedsUpdating = true;
+                deviceDriverConfig &= ~Constants.DRIVER_CONFIG_SGTHRS_MASK;
+                deviceDriverConfig |= value << Constants.DRIVER_CONFIG_SGTHRS_SHIFT;
 
+                symple_state_request_t req;
+                req.requestedValue = deviceDriverConfig;
+                req.stateDwordId = Constants.DRIVER_CONFIG_DWORD;
+                req.isWrite = true;
+
+                usbRequestQueue.Enqueue(req);
             }
             get
             {
@@ -749,8 +803,12 @@ namespace ASCOM.SympleAstroFocus
 
             set
             {
-                appStepPeriodUs = value;
-                deviceNeedsUpdating = true;
+                symple_state_request_t req;
+                req.requestedValue = value;
+                req.stateDwordId = Constants.STEP_TIME_US_DWORD;
+                req.isWrite = true;
+
+                usbRequestQueue.Enqueue(req);
 
             }
             get
@@ -766,8 +824,13 @@ namespace ASCOM.SympleAstroFocus
             {
                 if (Convert.ToBoolean(status_flags & Constants.Status_Dword_Bits.STATUS_HOMING_TOWARDS_ZERO_ENABLED) != value)
                 {
-                    commands |= Constants.Command_Dword_Bits.TOGGLE_HOME_TOWARDS_ZERO;
-                    deviceNeedsUpdating = true;
+                    pending_commands |= Constants.Command_Dword_Bits.TOGGLE_HOME_TOWARDS_ZERO;
+                    symple_state_request_t cmd_req;
+                    cmd_req.requestedValue = (UInt32)pending_commands ;
+                    cmd_req.stateDwordId = Constants.COMMAND_DWORD;
+                    cmd_req.isWrite = true;
+
+                    usbRequestQueue.Enqueue(cmd_req);
                 }
             }
 
@@ -784,8 +847,14 @@ namespace ASCOM.SympleAstroFocus
             {
                 if (Convert.ToBoolean(status_flags & Constants.Status_Dword_Bits.STATUS_HOMING_TOWARDS_MAX_ENABLED) != value)
                 {
-                    commands |= Constants.Command_Dword_Bits.TOGGLE_HOME_TOWARDS_MAX;
-                    deviceNeedsUpdating = true;
+                    pending_commands |= Constants.Command_Dword_Bits.TOGGLE_HOME_TOWARDS_MAX;
+
+                    symple_state_request_t cmd_req;
+                    cmd_req.requestedValue = (UInt32)pending_commands;
+                    cmd_req.stateDwordId = Constants.COMMAND_DWORD;
+                    cmd_req.isWrite = true;
+
+                    usbRequestQueue.Enqueue(cmd_req);
                 }
             }
 
@@ -830,8 +899,14 @@ namespace ASCOM.SympleAstroFocus
 
         public void TriggerHoming()
         {
-            commands |= Constants.Command_Dword_Bits.TRIGGER_HOMING;
-            deviceNeedsUpdating = true;
+            pending_commands |= Constants.Command_Dword_Bits.TRIGGER_HOMING;
+
+            symple_state_request_t cmd_req;
+            cmd_req.requestedValue = (UInt32)(pending_commands);
+            cmd_req.stateDwordId = Constants.COMMAND_DWORD;
+            cmd_req.isWrite = true;
+
+            usbRequestQueue.Enqueue(cmd_req);
         }
 
         #endregion

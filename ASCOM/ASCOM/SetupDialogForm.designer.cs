@@ -135,7 +135,7 @@ namespace ASCOM.SympleAstroFocus
             // 
             // vidVal
             // 
-            this.vidVal.Location = new System.Drawing.Point(259, 3);
+            this.vidVal.Location = new System.Drawing.Point(260, 3);
             this.vidVal.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.vidVal.Name = "vidVal";
             this.vidVal.ReadOnly = true;
@@ -156,7 +156,7 @@ namespace ASCOM.SympleAstroFocus
             // 
             // pidVal
             // 
-            this.pidVal.Location = new System.Drawing.Point(259, 30);
+            this.pidVal.Location = new System.Drawing.Point(260, 30);
             this.pidVal.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pidVal.Name = "pidVal";
             this.pidVal.ReadOnly = true;
@@ -188,7 +188,7 @@ namespace ASCOM.SympleAstroFocus
             // serialNumberVal
             // 
             this.serialNumberVal.AutoSize = true;
-            this.serialNumberVal.Location = new System.Drawing.Point(259, 55);
+            this.serialNumberVal.Location = new System.Drawing.Point(260, 55);
             this.serialNumberVal.Name = "serialNumberVal";
             this.serialNumberVal.Size = new System.Drawing.Size(98, 17);
             this.serialNumberVal.TabIndex = 13;
@@ -335,7 +335,7 @@ namespace ASCOM.SympleAstroFocus
             // motorLoadVal
             // 
             this.motorLoadVal.AutoSize = true;
-            this.motorLoadVal.Location = new System.Drawing.Point(259, 73);
+            this.motorLoadVal.Location = new System.Drawing.Point(260, 73);
             this.motorLoadVal.Name = "motorLoadVal";
             this.motorLoadVal.Size = new System.Drawing.Size(27, 17);
             this.motorLoadVal.TabIndex = 30;
@@ -362,7 +362,7 @@ namespace ASCOM.SympleAstroFocus
             this.controlPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.controlPanel.Location = new System.Drawing.Point(3, 3);
             this.controlPanel.Name = "controlPanel";
-            this.controlPanel.Size = new System.Drawing.Size(1026, 198);
+            this.controlPanel.Size = new System.Drawing.Size(1028, 198);
             this.controlPanel.TabIndex = 31;
             // 
             // triggerHomingButton
@@ -384,7 +384,7 @@ namespace ASCOM.SympleAstroFocus
             this.configPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.configPanel.Location = new System.Drawing.Point(3, 246);
             this.configPanel.Name = "configPanel";
-            this.configPanel.Size = new System.Drawing.Size(1026, 232);
+            this.configPanel.Size = new System.Drawing.Size(1028, 232);
             this.configPanel.TabIndex = 32;
             // 
             // configTableLayout
@@ -396,7 +396,7 @@ namespace ASCOM.SympleAstroFocus
             this.configTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.configTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.configTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 287F));
-            this.configTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 154F));
+            this.configTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 156F));
             this.configTableLayout.Controls.Add(this.updateStallThresh, 3, 5);
             this.configTableLayout.Controls.Add(this.iholdSetVal, 2, 2);
             this.configTableLayout.Controls.Add(this.updateIrunButton, 3, 1);
@@ -429,7 +429,7 @@ namespace ASCOM.SympleAstroFocus
             this.configTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.configTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.configTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.configTableLayout.Size = new System.Drawing.Size(1024, 230);
+            this.configTableLayout.Size = new System.Drawing.Size(1026, 230);
             this.configTableLayout.TabIndex = 0;
             // 
             // updateStallThresh
@@ -441,7 +441,7 @@ namespace ASCOM.SympleAstroFocus
             this.updateStallThresh.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.updateStallThresh.Location = new System.Drawing.Point(872, 175);
             this.updateStallThresh.Name = "updateStallThresh";
-            this.updateStallThresh.Size = new System.Drawing.Size(148, 51);
+            this.updateStallThresh.Size = new System.Drawing.Size(150, 51);
             this.updateStallThresh.TabIndex = 37;
             this.updateStallThresh.Text = "Update";
             this.updateStallThresh.UseVisualStyleBackColor = true;
@@ -468,7 +468,7 @@ namespace ASCOM.SympleAstroFocus
             this.updateIrunButton.Dock = System.Windows.Forms.DockStyle.Fill;
             this.updateIrunButton.Location = new System.Drawing.Point(872, 22);
             this.updateIrunButton.Name = "updateIrunButton";
-            this.updateIrunButton.Size = new System.Drawing.Size(148, 27);
+            this.updateIrunButton.Size = new System.Drawing.Size(150, 27);
             this.updateIrunButton.TabIndex = 37;
             this.updateIrunButton.Text = "Update";
             this.updateIrunButton.UseVisualStyleBackColor = true;
@@ -535,7 +535,7 @@ namespace ASCOM.SympleAstroFocus
             this.updateIholdButton.Dock = System.Windows.Forms.DockStyle.Fill;
             this.updateIholdButton.Location = new System.Drawing.Point(872, 56);
             this.updateIholdButton.Name = "updateIholdButton";
-            this.updateIholdButton.Size = new System.Drawing.Size(148, 27);
+            this.updateIholdButton.Size = new System.Drawing.Size(150, 27);
             this.updateIholdButton.TabIndex = 40;
             this.updateIholdButton.Text = "Update";
             this.updateIholdButton.UseVisualStyleBackColor = true;
@@ -548,7 +548,7 @@ namespace ASCOM.SympleAstroFocus
             this.updateStepSpeedButton.Dock = System.Windows.Forms.DockStyle.Fill;
             this.updateStepSpeedButton.Location = new System.Drawing.Point(872, 90);
             this.updateStepSpeedButton.Name = "updateStepSpeedButton";
-            this.updateStepSpeedButton.Size = new System.Drawing.Size(148, 27);
+            this.updateStepSpeedButton.Size = new System.Drawing.Size(150, 27);
             this.updateStepSpeedButton.TabIndex = 41;
             this.updateStepSpeedButton.Text = "Update";
             this.updateStepSpeedButton.UseVisualStyleBackColor = true;
@@ -596,7 +596,7 @@ namespace ASCOM.SympleAstroFocus
             this.updateHomingDirs.Dock = System.Windows.Forms.DockStyle.Fill;
             this.updateHomingDirs.Location = new System.Drawing.Point(872, 124);
             this.updateHomingDirs.Name = "updateHomingDirs";
-            this.updateHomingDirs.Size = new System.Drawing.Size(148, 44);
+            this.updateHomingDirs.Size = new System.Drawing.Size(150, 44);
             this.updateHomingDirs.TabIndex = 46;
             this.updateHomingDirs.Text = "Update";
             this.updateHomingDirs.UseVisualStyleBackColor = true;
@@ -683,7 +683,7 @@ namespace ASCOM.SympleAstroFocus
             this.debugPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.debugPanel.Location = new System.Drawing.Point(3, 484);
             this.debugPanel.Name = "debugPanel";
-            this.debugPanel.Size = new System.Drawing.Size(1026, 165);
+            this.debugPanel.Size = new System.Drawing.Size(1028, 165);
             this.debugPanel.TabIndex = 33;
             this.debugPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.debugPanel_Paint);
             // 
@@ -728,13 +728,13 @@ namespace ASCOM.SympleAstroFocus
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1024, 163);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1026, 163);
             this.tableLayoutPanel1.TabIndex = 33;
             // 
             // csActualVal
             // 
             this.csActualVal.AutoSize = true;
-            this.csActualVal.Location = new System.Drawing.Point(259, 91);
+            this.csActualVal.Location = new System.Drawing.Point(260, 91);
             this.csActualVal.Name = "csActualVal";
             this.csActualVal.Size = new System.Drawing.Size(27, 17);
             this.csActualVal.TabIndex = 32;
@@ -761,7 +761,7 @@ namespace ASCOM.SympleAstroFocus
             // stepperDriverErrorVal
             // 
             this.stepperDriverErrorVal.AutoSize = true;
-            this.stepperDriverErrorVal.Location = new System.Drawing.Point(259, 109);
+            this.stepperDriverErrorVal.Location = new System.Drawing.Point(260, 109);
             this.stepperDriverErrorVal.Name = "stepperDriverErrorVal";
             this.stepperDriverErrorVal.Size = new System.Drawing.Size(27, 17);
             this.stepperDriverErrorVal.TabIndex = 34;
@@ -780,7 +780,7 @@ namespace ASCOM.SympleAstroFocus
             // stepperDriverCommsErrrorVal
             // 
             this.stepperDriverCommsErrrorVal.AutoSize = true;
-            this.stepperDriverCommsErrrorVal.Location = new System.Drawing.Point(259, 127);
+            this.stepperDriverCommsErrrorVal.Location = new System.Drawing.Point(260, 127);
             this.stepperDriverCommsErrrorVal.Name = "stepperDriverCommsErrrorVal";
             this.stepperDriverCommsErrrorVal.Size = new System.Drawing.Size(27, 17);
             this.stepperDriverCommsErrrorVal.TabIndex = 36;
@@ -798,7 +798,7 @@ namespace ASCOM.SympleAstroFocus
             // stepperDriverEnabledVal
             // 
             this.stepperDriverEnabledVal.AutoSize = true;
-            this.stepperDriverEnabledVal.Location = new System.Drawing.Point(259, 145);
+            this.stepperDriverEnabledVal.Location = new System.Drawing.Point(260, 145);
             this.stepperDriverEnabledVal.Name = "stepperDriverEnabledVal";
             this.stepperDriverEnabledVal.Size = new System.Drawing.Size(27, 17);
             this.stepperDriverEnabledVal.TabIndex = 38;
@@ -807,7 +807,7 @@ namespace ASCOM.SympleAstroFocus
             // homingLabel
             // 
             this.homingLabel.AutoSize = true;
-            this.homingLabel.Location = new System.Drawing.Point(514, 1);
+            this.homingLabel.Location = new System.Drawing.Point(516, 1);
             this.homingLabel.Name = "homingLabel";
             this.homingLabel.Size = new System.Drawing.Size(60, 17);
             this.homingLabel.TabIndex = 39;
@@ -816,7 +816,7 @@ namespace ASCOM.SympleAstroFocus
             // homingVal
             // 
             this.homingVal.AutoSize = true;
-            this.homingVal.Location = new System.Drawing.Point(769, 1);
+            this.homingVal.Location = new System.Drawing.Point(772, 1);
             this.homingVal.Name = "homingVal";
             this.homingVal.Size = new System.Drawing.Size(27, 17);
             this.homingVal.TabIndex = 40;
@@ -839,7 +839,7 @@ namespace ASCOM.SympleAstroFocus
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel.Size = new System.Drawing.Size(1032, 652);
+            this.tableLayoutPanel.Size = new System.Drawing.Size(1034, 652);
             this.tableLayoutPanel.TabIndex = 36;
             // 
             // visibilityButtonsTable
@@ -855,7 +855,7 @@ namespace ASCOM.SympleAstroFocus
             this.visibilityButtonsTable.Name = "visibilityButtonsTable";
             this.visibilityButtonsTable.RowCount = 1;
             this.visibilityButtonsTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.visibilityButtonsTable.Size = new System.Drawing.Size(1026, 33);
+            this.visibilityButtonsTable.Size = new System.Drawing.Size(1028, 33);
             this.visibilityButtonsTable.TabIndex = 38;
             this.visibilityButtonsTable.Paint += new System.Windows.Forms.PaintEventHandler(this.visibilityButtonsTable_Paint);
             // 
@@ -864,9 +864,9 @@ namespace ASCOM.SympleAstroFocus
             this.toggleDebugVisibilitybutton.AutoSize = true;
             this.toggleDebugVisibilitybutton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.toggleDebugVisibilitybutton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.toggleDebugVisibilitybutton.Location = new System.Drawing.Point(516, 3);
+            this.toggleDebugVisibilitybutton.Location = new System.Drawing.Point(517, 3);
             this.toggleDebugVisibilitybutton.Name = "toggleDebugVisibilitybutton";
-            this.toggleDebugVisibilitybutton.Size = new System.Drawing.Size(507, 27);
+            this.toggleDebugVisibilitybutton.Size = new System.Drawing.Size(508, 27);
             this.toggleDebugVisibilitybutton.TabIndex = 36;
             this.toggleDebugVisibilitybutton.Text = "Debug Info";
             this.toggleDebugVisibilitybutton.UseVisualStyleBackColor = true;
@@ -879,7 +879,7 @@ namespace ASCOM.SympleAstroFocus
             this.toggleConfigVisibilitybutton.Dock = System.Windows.Forms.DockStyle.Fill;
             this.toggleConfigVisibilitybutton.Location = new System.Drawing.Point(3, 3);
             this.toggleConfigVisibilitybutton.Name = "toggleConfigVisibilitybutton";
-            this.toggleConfigVisibilitybutton.Size = new System.Drawing.Size(507, 27);
+            this.toggleConfigVisibilitybutton.Size = new System.Drawing.Size(508, 27);
             this.toggleConfigVisibilitybutton.TabIndex = 35;
             this.toggleConfigVisibilitybutton.Text = "Show Configuration";
             this.toggleConfigVisibilitybutton.UseVisualStyleBackColor = true;

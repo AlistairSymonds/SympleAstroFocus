@@ -1,13 +1,6 @@
 ﻿using System;
 public class Constants
 {
-
-    public const uint STATE_ID_DWORD = 0;
-    public const uint STATE_ID_0 = 0;
-    public const uint STATE_ID_HW_DEFS = 0xFFFFFFFF;
-
-
-
     public const uint COMMAND_DWORD = 1;
     public const uint STATUS_DWORD = 2;
     public const uint CURRENT_POSITION_DWORD = 3;
