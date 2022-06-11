@@ -113,7 +113,7 @@ uint32_t last_tmc_management_ms = 0;
 uint32_t last_tmc_read_attempt_ms = 0;
 uint32_t last_stall_handler_ms = 0;
 uint32_t last_timer_set_period_us = 0;
-
+uint32_t last_loaded_tmc_state = 0;
 
 
 typedef enum
@@ -304,6 +304,11 @@ int main(void)
 
 		  }
 		  last_flash_ms = HAL_GetTick();
+	  }
+
+	  if (symple_state[STEPPER_DRIVER_CONF] != last_loaded_tmc_state){
+		  load_symple_state_into_tmc_config();
+		  tmc2209_restore(&TMC2209);
 	  }
 
 	  if (HAL_GetTick() - last_tmc_management_ms > 100){
@@ -606,8 +611,9 @@ void SympleState_Init(){
 static void set_stepper_period_us(int us){
 
 	int period = us;
-	if (period < 10){
-		period = 10;
+	//Consistently locks up if lower...
+	if (period < 15){
+		period = 15;
 	}
 	TIM_ClockConfigTypeDef sClockSourceConfig = {0};
 	TIM_MasterConfigTypeDef sMasterConfig = {0};
@@ -754,6 +760,8 @@ void load_symple_state_into_tmc_config(void){
 
 	uint32_t stall_threshold  = (symple_state[STEPPER_DRIVER_CONF]   &  DRIVER_CONFIG_SGTHRS_MASK   ) >> DRIVER_CONFIG_SGTHRS_SHIFT;
 	TMC2209_config.shadowRegister[TMC2209_SGTHRS] = stall_threshold/2;
+
+	last_loaded_tmc_state = symple_state[STEPPER_DRIVER_CONF];
 }
 
 void STEPPER_Init(void)
