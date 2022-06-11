@@ -10,6 +10,14 @@ public class Constants
     public const uint DRIVER_CONFIG_DWORD = 7;
     public const uint DRIVER_STATUS_DWORD = 8;
 
+    public const uint GUID_2_DWORD = 0x3FFFFFFF;
+    public const uint GUID_1_DWORD = 0x3FFFFFFE;
+    public const uint GUID_0_DWORD = 0x3FFFFFFD;
+    public const uint FW_DWORD = 0x3FFFFFFC;
+    public const uint MCU_DWORD = 0x3FFFFFFB;
+    public const uint STEPPER_DRIVER_TYPE_DWORD = 0x3FFFFFFA;
+    public const uint FW_COMMIT_DWORD = 0x3FFFFFF9;
+
     [Flags]
     public enum Command_Dword_Bits : uint
     {

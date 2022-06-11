@@ -133,9 +133,14 @@ namespace ASCOM.SympleAstroFocus
 
         private uint devStepPeriodUs = 0;
 
+        private uint devGuid0 = 0;
+        private uint devGuid1 = 0;
+        private uint devGuid2 = 0;
+        private uint devFwType = 0;
+        private uint devMcuType = 0;
+        private uint devStepperDriverType = 0;
+        private uint devFwCommit = 0;
 
-        private uint timeSinceLastUSBRx = 0;
-        private uint timeSinceLastUSBTx = 0;
         #endregion
 
         /// <summary>
@@ -279,38 +284,71 @@ namespace ASCOM.SympleAstroFocus
         {
             for (int i = 0; i < state_words.Length; i+= 2)
             {
-                switch (state_words[i])
-                {
+                UInt32 state_value = state_words[i + 1];
+                switch (state_words[i]) { 
+
+                    case Constants.COMMAND_DWORD:
+                        //nothing to do?
+                        break;
+
                     case Constants.CURRENT_POSITION_DWORD:
-                        deviceCurrentPos = state_words[i + 1];
+                        deviceCurrentPos = state_value;
                         break;
 
                     case Constants.MAX_POSITION_DWORD:
-                        deviceMaxPos = state_words[i + 1];
+                        deviceMaxPos = state_value;
                         break;
 
                     case Constants.SET_POSITION_DWORD:
-                        deviceSetPos = state_words[i + 1];
+                        deviceSetPos = state_value;
                         break;
 
                     case Constants.STATUS_DWORD:
-                        status_flags = (Constants.Status_Dword_Bits)state_words[i + 1];
+                        status_flags = (Constants.Status_Dword_Bits)state_value;
                         break;
 
                     case Constants.DRIVER_STATUS_DWORD:
-                        driverStatus = state_words[i + 1];
+                        driverStatus = state_value;
                         break;
 
                     case Constants.DRIVER_CONFIG_DWORD:
-                        deviceDriverConfig = state_words[i + 1];
+                        deviceDriverConfig = state_value;
                         break;
 
                     case Constants.STEP_TIME_US_DWORD:
-                        devStepPeriodUs = state_words[i + 1];
+                        devStepPeriodUs = state_value;
+                        break;
+
+                    case Constants.GUID_2_DWORD:
+                        devGuid2 = state_value;
+                        break;
+
+                    case Constants.GUID_1_DWORD:
+                        devGuid1 = state_value;
+                        break;
+
+                    case Constants.GUID_0_DWORD:
+                        devGuid0 = state_value;
+                        break;
+
+                    case Constants.FW_DWORD:
+                        devFwType = state_value;
+                        break;
+
+                    case Constants.MCU_DWORD:
+                        devMcuType = state_value;
+                        break;
+
+                    case Constants.STEPPER_DRIVER_TYPE_DWORD:
+                        devStepperDriverType = state_value;
+                        break;
+
+                    case Constants.FW_COMMIT_DWORD:
+                        devFwCommit = state_value;
                         break;
 
                     default:
-                        Console.WriteLine("Unrecognised state word type");
+                        Console.WriteLine("Unrecognised state word type, id: h{0:X}", state_words[i]);
                         break;
                 }
             }
