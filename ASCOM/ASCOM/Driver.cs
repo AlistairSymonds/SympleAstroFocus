@@ -257,7 +257,6 @@ namespace ASCOM.SympleAstroFocus
                 try
                 {
                     bytes_read = stream.Read(bytes);
-                    Console.WriteLine(bytes);
 
                     for (int i = 1; i <= bytes_read-4; i=i+4) //starting at 1 is weird - might be HidSharp or uC code's fault
                     {
