@@ -265,7 +265,18 @@ namespace ASCOM.SympleAstroFocus
 
         private void updateStepSpeedButton_Click(object sender, EventArgs e)
         {
-            f.stepperPeriodUs = Decimal.ToUInt32(motorSpeedSetVal.Value);
+            UInt32 base_stepper_micros = 60;
+            UInt32 stepper_micros = base_stepper_micros;
+            UInt32 multiplier;
+            if (motorSpeedSelector.SelectedItem != null)
+            {
+                string mul_string_numerals = (string) motorSpeedSelector.SelectedItem;
+                mul_string_numerals = mul_string_numerals.Substring(0, mul_string_numerals.Length - 1);
+                multiplier = Convert.ToUInt32(mul_string_numerals);
+                Console.WriteLine(multiplier);
+                stepper_micros = base_stepper_micros / multiplier;
+                f.stepperPeriodUs = stepper_micros;
+            }
         }
 
         private void label7_Click(object sender, EventArgs e)

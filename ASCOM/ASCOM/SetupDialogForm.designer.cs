@@ -74,7 +74,6 @@ namespace ASCOM.SympleAstroFocus
             this.irunSetVal = new System.Windows.Forms.NumericUpDown();
             this.motorSpeedVal = new System.Windows.Forms.Label();
             this.motorSpeedLabel = new System.Windows.Forms.Label();
-            this.motorSpeedSetVal = new System.Windows.Forms.NumericUpDown();
             this.stallThreshVal = new System.Windows.Forms.NumericUpDown();
             this.stallThreshCurrentVal = new System.Windows.Forms.Label();
             this.stallThreshLabel = new System.Windows.Forms.Label();
@@ -94,13 +93,13 @@ namespace ASCOM.SympleAstroFocus
             this.visibilityButtonsTable = new System.Windows.Forms.TableLayoutPanel();
             this.toggleDebugVisibilitybutton = new System.Windows.Forms.Button();
             this.toggleConfigVisibilitybutton = new System.Windows.Forms.Button();
+            this.motorSpeedSelector = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.picASCOM)).BeginInit();
             this.controlPanel.SuspendLayout();
             this.configPanel.SuspendLayout();
             this.configTableLayout.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.iholdSetVal)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.irunSetVal)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.motorSpeedSetVal)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.stallThreshVal)).BeginInit();
             this.debugPanel.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -397,6 +396,7 @@ namespace ASCOM.SympleAstroFocus
             this.configTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.configTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 287F));
             this.configTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 156F));
+            this.configTableLayout.Controls.Add(this.motorSpeedSelector, 2, 3);
             this.configTableLayout.Controls.Add(this.updateStallThresh, 3, 5);
             this.configTableLayout.Controls.Add(this.iholdSetVal, 2, 2);
             this.configTableLayout.Controls.Add(this.updateIrunButton, 3, 1);
@@ -415,7 +415,6 @@ namespace ASCOM.SympleAstroFocus
             this.configTableLayout.Controls.Add(this.irunSetVal, 2, 1);
             this.configTableLayout.Controls.Add(this.motorSpeedVal, 1, 3);
             this.configTableLayout.Controls.Add(this.motorSpeedLabel, 0, 3);
-            this.configTableLayout.Controls.Add(this.motorSpeedSetVal, 2, 3);
             this.configTableLayout.Controls.Add(this.stallThreshVal, 2, 5);
             this.configTableLayout.Controls.Add(this.stallThreshCurrentVal, 1, 5);
             this.configTableLayout.Controls.Add(this.stallThreshLabel, 0, 5);
@@ -633,15 +632,6 @@ namespace ASCOM.SympleAstroFocus
             this.motorSpeedLabel.Size = new System.Drawing.Size(89, 17);
             this.motorSpeedLabel.TabIndex = 2;
             this.motorSpeedLabel.Text = "Motor Speed";
-            // 
-            // motorSpeedSetVal
-            // 
-            this.motorSpeedSetVal.AutoSize = true;
-            this.motorSpeedSetVal.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.motorSpeedSetVal.Location = new System.Drawing.Point(584, 90);
-            this.motorSpeedSetVal.Name = "motorSpeedSetVal";
-            this.motorSpeedSetVal.Size = new System.Drawing.Size(281, 22);
-            this.motorSpeedSetVal.TabIndex = 48;
             // 
             // stallThreshVal
             // 
@@ -885,6 +875,20 @@ namespace ASCOM.SympleAstroFocus
             this.toggleConfigVisibilitybutton.UseVisualStyleBackColor = true;
             this.toggleConfigVisibilitybutton.Click += new System.EventHandler(this.toggleConfigVisibilitybutton_Click_1);
             // 
+            // motorSpeedSelector
+            // 
+            this.motorSpeedSelector.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.motorSpeedSelector.FormattingEnabled = true;
+            this.motorSpeedSelector.Items.AddRange(new object[] {
+            "1x",
+            "2x",
+            "3x",
+            "4x"});
+            this.motorSpeedSelector.Location = new System.Drawing.Point(584, 90);
+            this.motorSpeedSelector.Name = "motorSpeedSelector";
+            this.motorSpeedSelector.Size = new System.Drawing.Size(281, 24);
+            this.motorSpeedSelector.TabIndex = 38;
+            // 
             // SetupDialogForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
@@ -914,7 +918,6 @@ namespace ASCOM.SympleAstroFocus
             this.configTableLayout.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.iholdSetVal)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.irunSetVal)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.motorSpeedSetVal)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.stallThreshVal)).EndInit();
             this.debugPanel.ResumeLayout(false);
             this.debugPanel.PerformLayout();
@@ -982,7 +985,6 @@ namespace ASCOM.SympleAstroFocus
         private System.Windows.Forms.NumericUpDown irunSetVal;
         private System.Windows.Forms.NumericUpDown iholdSetVal;
         private System.Windows.Forms.Button triggerHomingButton;
-        private System.Windows.Forms.NumericUpDown motorSpeedSetVal;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Label stepperDriverErrorLabel;
         private System.Windows.Forms.Label stepperDriverErrorVal;
@@ -996,5 +998,6 @@ namespace ASCOM.SympleAstroFocus
         private System.Windows.Forms.Label stallThreshLabel;
         private System.Windows.Forms.Label homingLabel;
         private System.Windows.Forms.Label homingVal;
+        private System.Windows.Forms.ComboBox motorSpeedSelector;
     }
 }
