@@ -105,6 +105,7 @@ volatile static ConfigurationTypeDef TMC2209_config;
 volatile int flash_save_needed = 0;
 
 uint32_t last_usb_ms = 0;
+uint32_t last_hw_defs_usb_ms = 0;
 uint32_t last_flash_ms = 0;
 uint32_t last_motor_ms = 0;
 uint32_t last_tmc_management_ms = 0;
@@ -265,20 +266,39 @@ int main(void)
 		  HAL_TIM_Base_Start_IT(&htim3);
 	  }
 
+	  //ain't great, but okay for now
+	  if (HAL_GetTick() - last_hw_defs_usb_ms > 5000) {
+		  uint8_t usb_data[SYM_EP_SIZE];
+		  uint32_t usb_data_dwords[SYM_EP_SIZE_DWORDS];
+
+		  usb_data_dwords[0] = GUID_0_DWORD;
+		  usb_data_dwords[1] = HAL_GetUIDw0();
+		  usb_data_dwords[2] = GUID_1_DWORD;
+		  usb_data_dwords[3] = HAL_GetUIDw1();
+		  usb_data_dwords[4] = GUID_2_DWORD;
+		  usb_data_dwords[5] = HAL_GetUIDw2();
+
+		  usb_data_dwords[6] = FW_DWORD;
+		  usb_data_dwords[7] = HW_DEF_FW_STATE;
+
+		  usb_data_dwords[8] = MCU_DWORD;
+		  usb_data_dwords[9] = HW_DEF_MCU_TYPE;
+
+		  usb_data_dwords[10] = STEPPER_DRIVER_TYPE_DWORD;
+		  usb_data_dwords[11] = HW_DEF_STEPPER_DRIVER;
+
+		  usb_data_dwords[12] = FW_COMMIT_DWORD;
+		  usb_data_dwords[13] = HW_DEF_GIT_COMMIT_ID;
+
+		  usb_data_dwords[14] = INVALID_DWORD;
+		  usb_data_dwords[15] = INVALID_DWORD;
+		  memcpy(usb_data, usb_data_dwords, SYM_EP_SIZE);
+
+		  USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, (uint8_t*)usb_data, SYM_EP_SIZE);
+		  last_hw_defs_usb_ms = HAL_GetTick();
+	  }
+
 	  if (HAL_GetTick() - last_usb_ms > 16){
-		  /*
-		  if (is_requested_hw_defs()){
-			  uint8_t defs_usb_data[SYM_EP_SIZE];
-			  uint32_t hw_defs_state[4];
-			  hw_defs_state[0] = hw_defs.fw_git_commit;
-			  hw_defs_state[1] = hw_defs.mcu_type;
-			  hw_defs_state[2] = hw_defs.stepper_driver_type;
-			  hw_defs_state[3] = hw_defs.release_type;
-			  memcpy(defs_usb_data, symple_state, 40);
-
-			  USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, (uint8_t*)defs_usb_data, SYM_EP_SIZE);
-
-		  }*/
 
 		  uint8_t usb_data[SYM_EP_SIZE];
 		  uint32_t usb_data_dwords[SYM_EP_SIZE_DWORDS];
