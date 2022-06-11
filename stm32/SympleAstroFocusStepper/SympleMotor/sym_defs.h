@@ -4,12 +4,12 @@
 
 #define SYM_EP_SIZE 64 //64bytes
 #define SYM_EP_SIZE_DWORDS 16
-#define NUM_STATE_DWORDS 16
+#define NUM_MUTABLE_STATE_WORDS 16
 
-#define SYMPLE_STATE_FLASH_SIZE NUM_STATE_DWORDS
+#define SYMPLE_STATE_FLASH_SIZE NUM_MUTABLE_STATE_WORDS
 
 
-//definitions for fields in state ID 0
+//Definitions for stuff being saved/restored
 #define COMMAND_DWORD 1
 #define STATUS_DWORD  2
 #define CURRENT_POSITION_DWORD 3
@@ -18,6 +18,12 @@
 #define STEP_TIME_MICROSEC 6
 #define STEPPER_DRIVER_CONF 7
 #define STEPPER_DRIVER_STATUS 8
+
+//Hardcoded read only state
+#define GUID_2_DWORD 0x3FFFFFFF
+#define GUID_1_DWORD 0x3FFFFFFE
+#define GUID_0_DWORD 0x3FFFFFFD
+#define FW_DWORD     0x3FFFFFFC
 
 #define INVALID_DWORD 0xFFFFFFFF
 #define WRITE_BIT 0x80000000
@@ -56,12 +62,11 @@
 #define DRIVER_STATUS_CS_ACTUAL_MASK 			( 0x1F0000)
 #define DRIVER_STATUS_CS_ACTUAL_SHIFT			16
 
-typedef volatile uint32_t symple_state_t[NUM_STATE_DWORDS];
+typedef volatile uint32_t symple_state_t[NUM_MUTABLE_STATE_WORDS];
 
 symple_state_t symple_state;
-static const uint16_t sym_state_writeable_dwords[NUM_STATE_DWORDS]={
-		0x0E2
-};
+
+void read_state_word(uint32_t idx, symple_state_t ss);
 
 void process_command_bits(symple_state_t ss);
 

@@ -12,29 +12,19 @@
 #define STEPPER_DRIVER_TMC2209 1
 
 #define MCU_TYPE_UNDEFINED 0
-#define MCU_TYPE_STM32F103C8T6
-#define MCU_TYPE_STM32F103T8U6
+#define MCU_TYPE_STM32F103C8T6 1
+#define MCU_TYPE_STM32F103T8U6 0
 
 #define FW_STATE_DEV 0
 #define FW_STATE_RELEASE 10
 
-typedef struct hw_defs_t{
-	uint32_t fw_git_commit;
-	uint32_t mcu_type;
-	uint32_t stepper_driver_type;
-	uint32_t release_type;
-} hw_defs_t;
 
 
-
-static const hw_defs_t hw_defs = {
 #ifdef RELEASE
 #include "relese_hw_defs_vals.h"
 #else
-.fw_git_commit = 0,
-.mcu_type = MCU_TYPE_UNDEFINED,
-.stepper_driver_type = STEPPER_DRIVER_TMC2209,
-.release_type = FW_STATE_RELEASE
-#endif
-};
+#define HW_DEF_FW_STATE FW_STATE_DEV
+#define HW_DEF_MCU_TYPE MCU_TYPE_UNDEFINED
+#define HW_DEF_STEPPER_DRIVER STEPPER_DRIVER_UNDEFINED
+#define HW_DEF_GIT_COMMIT_ID 0
 #endif /* HW_DEFS_H_ */

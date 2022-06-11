@@ -28,7 +28,6 @@
 
 #include "sym_defs.h"
 #include "hw_defs.h"
-#include "hw_defs_manager.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -59,7 +58,6 @@ UART_HandleTypeDef huart2;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
-static void MX_TIM3_Init(void);
 static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 static void STEPPER_Init(void);
@@ -268,6 +266,7 @@ int main(void)
 	  }
 
 	  if (HAL_GetTick() - last_usb_ms > 16){
+		  /*
 		  if (is_requested_hw_defs()){
 			  uint8_t defs_usb_data[SYM_EP_SIZE];
 			  uint32_t hw_defs_state[4];
@@ -279,7 +278,7 @@ int main(void)
 
 			  USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, (uint8_t*)defs_usb_data, SYM_EP_SIZE);
 
-		  }
+		  }*/
 
 		  uint8_t usb_data[SYM_EP_SIZE];
 		  uint32_t usb_data_dwords[SYM_EP_SIZE_DWORDS];
@@ -521,9 +520,9 @@ void load_state_from_flash(symple_state_t ss){
 	uint32_t* state_loc;
 	state_loc = (uint32_t*)&__USER_FLASH_SECTION_START;
 	uint32_t chunk_to_read = get_last_saved_chunk();
-	for (int i = 0; i < NUM_STATE_DWORDS; i++){
+	for (int i = 0; i < NUM_MUTABLE_STATE_WORDS; i++){
 		int raddr_offset = i;
-		raddr_offset = raddr_offset + (chunk_to_read * NUM_STATE_DWORDS) + FLASH_JOURNAL_HEADER_SIZE_DWORDS;
+		raddr_offset = raddr_offset + (chunk_to_read * NUM_MUTABLE_STATE_WORDS) + FLASH_JOURNAL_HEADER_SIZE_DWORDS;
 		ss[i] = state_loc[raddr_offset];
 	}
 	//if we think its from 0 chunk and the zero hasn't be written - either its first boot or
@@ -582,9 +581,9 @@ void write_state_to_flash(symple_state_t ss){
 
 
 
-	for (int i = 0; i < NUM_STATE_DWORDS; i++){
+	for (int i = 0; i < NUM_MUTABLE_STATE_WORDS; i++){
 		uint32_t wdata = ss[i];
-		uint32_t wchunk_offset = (NUM_STATE_DWORDS * chunk_to_write) + FLASH_JOURNAL_HEADER_SIZE_DWORDS;
+		uint32_t wchunk_offset = (NUM_MUTABLE_STATE_WORDS * chunk_to_write) + FLASH_JOURNAL_HEADER_SIZE_DWORDS;
 		uint32_t waddar_offset_dwords = i;
 		HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, state_loc + wchunk_offset + waddar_offset_dwords, wdata);
 
