@@ -12,6 +12,12 @@ Still a work in progress - but core functionality is working and tested within N
 
 Also aiming to have prebuilt modules available for sale in future once supply chain shortages ease. 
 
+# 
+
+# Premade PCB module
+
+https://oshwlab.com/alistair.symonds/sympleaf_rev1_copy
+
 # Licensing
 By default the project is licensed under CC BY-NC 3.0, this does NOT allow for commercial use. If you would like to use the project in a commerical manner or 
 some way otherwise incompatible with this license please contact me via email to find another solution.
