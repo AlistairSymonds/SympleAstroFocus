@@ -119,11 +119,14 @@ uint32_t last_loaded_tmc_state = 0;
 
 typedef enum
 {
-  TOWARDS_ZERO,
-  TOWARDS_MAX
-} homing_dir_t;
+  IDLE,
+  MOVING_TOWARDS_ZERO,
+  STALLED_AT_ZERO,
+  MOVING_TOWARDS_MAX,
+  STALLED_AT_MAX
+} homing_state_t;
 
-homing_dir_t current_homing_dir = TOWARDS_ZERO;
+homing_state_t current_homing_dir = IDLE;
 
 
 void tmc2209_readWriteArray(uint8_t channel, uint8_t *data, size_t writeLength, size_t readLength)
@@ -176,36 +179,21 @@ uint8_t tmc2209_CRC8(uint8_t *data, size_t length)
 }
 
 void stall_handler() {
-	if (symple_state[STATUS_DWORD] & STATUS_HOMING_BIT){
+	if (current_homing_dir != IDLE)
+	{
 		symple_state[SET_POSITION_DWORD] = symple_state[CURRENT_POSITION_DWORD];
 
-		if (current_homing_dir == TOWARDS_ZERO && symple_state[STATUS_DWORD] & STATUS_HOME_TOWARDS_ZERO_ENABLED){
+		if (current_homing_dir == MOVING_TOWARDS_ZERO)
+		{
 			symple_state[SET_POSITION_DWORD] = 0;
 			symple_state[CURRENT_POSITION_DWORD] = 0;
-			current_homing_dir = TOWARDS_MAX;
-
-			if (!(symple_state[STATUS_DWORD] & STATUS_HOME_TOWARDS_MAX_ENABLED)){
-				symple_state[STATUS_DWORD] &= ~STATUS_HOMING_BIT;
-				current_homing_dir = TOWARDS_ZERO;
-			}
-			return;
-		}
-
-
-		if ((current_homing_dir == TOWARDS_MAX && (symple_state[STATUS_DWORD] & STATUS_HOME_TOWARDS_MAX_ENABLED)) ||
-				(
-				current_homing_dir == TOWARDS_ZERO && (symple_state[STATUS_DWORD] & STATUS_HOME_TOWARDS_MAX_ENABLED) &&
-				!(symple_state[STATUS_DWORD] & STATUS_HOME_TOWARDS_ZERO_ENABLED)
-				)
-		){
+			current_homing_dir = STALLED_AT_ZERO;
+		} else if (current_homing_dir == MOVING_TOWARDS_MAX)
+		{
 			symple_state[MAX_POSITION_DWORD] = symple_state[CURRENT_POSITION_DWORD];
-
-			current_homing_dir = TOWARDS_ZERO;
-			symple_state[STATUS_DWORD] &= ~STATUS_HOMING_BIT;
-			return;
+			current_homing_dir = STALLED_AT_MAX;
 		}
 	}
-
 }
 
 
@@ -363,9 +351,44 @@ int main(void)
 
 		  last_tmc_management_ms = HAL_GetTick();
 	  }
+	  
+	  if (current_homing_dir == IDLE)
+	  {
+		  symple_state[STATUS_DWORD] &= ~STATUS_HOMING_BIT;
 
-	  if (!(symple_state[STATUS_DWORD] & STATUS_HOMING_BIT)){
-		  current_homing_dir = TOWARDS_ZERO;
+		  if (symple_state[COMMAND_DWORD] & COMMAND_TRIGGER_HOMING_BIT)
+		  {
+			symple_state[COMMAND_DWORD] &= ~COMMAND_TRIGGER_HOMING_BIT;
+		  	if (symple_state[STATUS_DWORD] & (STATUS_HOME_TOWARDS_ZERO_ENABLED))
+			{
+				current_homing_dir = MOVING_TOWARDS_ZERO;
+			} else if (symple_state[STATUS_DWORD] & (STATUS_HOME_TOWARDS_MAX_ENABLED))
+			{
+				current_homing_dir = MOVING_TOWARDS_MAX;
+			}
+			
+			
+		  }
+	
+		  
+	  } else {
+		  symple_state[STATUS_DWORD] |= STATUS_HOMING_BIT;
+
+		  if (current_homing_dir == STALLED_AT_ZERO)
+		  {
+			if (symple_state[STATUS_DWORD] & (STATUS_HOME_TOWARDS_MAX_ENABLED))
+			{
+				current_homing_dir = MOVING_TOWARDS_MAX;
+			} else {
+				current_homing_dir = IDLE;
+			}
+			
+		  } else if (current_homing_dir == STALLED_AT_MAX)
+		  {
+			current_homing_dir = IDLE;
+		  }
+		  
+		  
 	  }
 
 	  tmc2209_periodicJob(&TMC2209, HAL_GetTick());
@@ -395,7 +418,9 @@ void do_step(){
 void update_motor_pos()
 {
   if (((symple_state[CURRENT_POSITION_DWORD] != symple_state[SET_POSITION_DWORD]) ||
-		  (symple_state[STATUS_DWORD] & STATUS_HOMING_BIT))
+		  current_homing_dir == MOVING_TOWARDS_ZERO ||
+		  current_homing_dir == MOVING_TOWARDS_MAX
+		  )
 		  &&
 		  symple_state[STATUS_DWORD] & STATUS_STEPPER_DRIVER_ENABLED_BIT) //do a step
   {
@@ -407,13 +432,12 @@ void update_motor_pos()
 
 
 	//overwrite direction if we're in homing mode as set/current pos are meaningless
-	if (symple_state[STATUS_DWORD] & STATUS_HOMING_BIT){
-		if (current_homing_dir == TOWARDS_ZERO){
-			shaft_dir = 0;
-		} else {
-			shaft_dir = 1;
-		}
+	if (current_homing_dir == MOVING_TOWARDS_ZERO){
+		shaft_dir = 0;
+	} else if (current_homing_dir == MOVING_TOWARDS_MAX){
+		shaft_dir = 1;
 	}
+	
 
 	int counting_dir = shaft_dir;
     if (symple_state[STATUS_DWORD] & STATUS_REVERSE_BIT){

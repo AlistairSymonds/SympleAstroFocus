@@ -33,14 +33,6 @@ void process_command_bits(symple_state_t ss){
 		ss[COMMAND_DWORD] &= ~COMMAND_TOGGLE_HOME_TOWARDS_MAX_BIT;
 	}
 
-	//only actually do homing if either are enabled
-	if (ss[COMMAND_DWORD] & COMMAND_TRIGGER_HOMING_BIT &&
-		ss[STATUS_DWORD] & (STATUS_HOME_TOWARDS_MAX_ENABLED | STATUS_HOME_TOWARDS_ZERO_ENABLED)
-	){
-		ss[STATUS_DWORD] |= STATUS_HOMING_BIT;
-		ss[COMMAND_DWORD] &= ~COMMAND_TRIGGER_HOMING_BIT;
-	}
-
 }
 
 int is_writeable_state_dword(uint32_t state_dword_id){
