@@ -108,16 +108,39 @@ namespace ASCOM.SympleAstroFocus
                 Invoke(new Action(() => { homingDirectionsCurrVals.SetItemChecked(1, f.HomingTowardsMaxEnabled); }));
 
 
-                Invoke(new Action(() => { irunCurrentVal.Text = f.IRUN.ToString(); }));
+                Invoke(new Action(() => { irunCurrentVal.Text = (1+f.IRUN).ToString(); }));
 
 
-                Invoke(new Action(() => { iholdCurrentVal.Text = f.IHOLD.ToString(); }));
+                Invoke(new Action(() => { iholdCurrentVal.Text = (1+f.IHOLD).ToString(); }));
                 Invoke(new Action(() => { stallThreshCurrentVal.Text = f.StallThresh.ToString(); }));
+                
+                //this seriously cannot stay this bad longterm
+                string stepper_speed = f.stepperPeriodUs.ToString() +" us";
+                switch (f.stepperPeriodUs)
+                {
 
+                    case 60:
+                        stepper_speed = "1x";
+                        break;
 
-                Invoke(new Action(() => { motorSpeedVal.Text = f.stepperPeriodUs.ToString(); }));
+                    case 30:
+                        stepper_speed = "2x";
+                        break;
 
+                    case 20:
+                        stepper_speed = "3x";
+                        break;
 
+                    case 15:
+                        stepper_speed = "4x";
+                        break;
+                        
+
+                    default:
+                        stepper_speed = f.stepperPeriodUs.ToString() + " us";
+                        break;
+                }
+                Invoke(new Action(() => { motorSpeedVal.Text = stepper_speed; }));
                 Invoke(new Action(() => { stepperDriverCommsErrrorVal.Text = f.StepperDriverCommsError.ToString(); }));
                 Invoke(new Action(() => { stepperDriverEnabledVal.Text = f.StepperDriverEnabled.ToString(); }));
                 Invoke(new Action(() => { stepperDriverErrorVal.Text = f.StepperDriverError.ToString(); }));
@@ -250,12 +273,12 @@ namespace ASCOM.SympleAstroFocus
 
         private void updateIrunButton_Click(object sender, EventArgs e)
         {
-            f.IRUN = Decimal.ToUInt32(irunSetVal.Value);
+            f.IRUN = Decimal.ToUInt32(irunSetVal.Value-1);
         }
 
         private void updateIholdButton_Click(object sender, EventArgs e)
         {
-            f.IHOLD = Decimal.ToUInt32(iholdSetVal.Value);
+            f.IHOLD = Decimal.ToUInt32(iholdSetVal.Value-1);
         }
 
         private void triggerHomingButton_Click(object sender, EventArgs e)
@@ -273,7 +296,6 @@ namespace ASCOM.SympleAstroFocus
                 string mul_string_numerals = (string) motorSpeedSelector.SelectedItem;
                 mul_string_numerals = mul_string_numerals.Substring(0, mul_string_numerals.Length - 1);
                 multiplier = Convert.ToUInt32(mul_string_numerals);
-                Console.WriteLine(multiplier);
                 stepper_micros = base_stepper_micros / multiplier;
                 f.stepperPeriodUs = stepper_micros;
             }
