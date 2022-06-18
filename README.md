@@ -8,14 +8,21 @@ The aims of the project is simple setup, DIY hardware creation and use. However 
 * Configurability if needed past sensible defaults.
 * Designed around common hardware, allowing for easy sourcing of parts for DIY construction using only bread-board-able components.
 
-Still a work in progress - but core functionality is working and tested within NINA using custom PCB on both a moonlite stepper on an RC8 and a generic Nema17 stepper belt driving a Rokinion 135 lens.
+Tested and developed around my custom Nema17 belt driven focuser for a rokinnon 135mm lens and a Moonlite stepper motor attached to a GSO RC8. 
 
-Also aiming to have prebuilt modules available for sale in future once supply chain shortages ease. 
+Short demo video on rokinnon lens: https://www.youtube.com/watch?v=gBrDgyxgXSc
 
-# 
+I'm also aiming to have prebuilt modules available for sale in future once I'm confident in the quality of the design. Don't want to be accepting any money before I'm 100% confident in the product.
+
+# Getting started with the project
+
+To actually make a SAF and get it properly setup, see the wiki for details - it list the ways you can make one and the extra HW needed for each
+
+https://github.com/AlistairSymonds/SympleAstroFocus/wiki
 
 # Premade PCB module
 
+All supported by JLCPCB's assembly service, schematic available here:
 https://oshwlab.com/alistair.symonds/sympleaf_rev1_copy
 
 # Licensing
