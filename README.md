@@ -22,6 +22,8 @@ https://github.com/AlistairSymonds/SympleAstroFocus/wiki
 
 # Premade PCB module
 
+![saf_pcb](https://user-images.githubusercontent.com/5210224/174461619-b2c8f1a6-9a44-44a0-a194-0b4afad55e60.jpg)
+
 All supported by JLCPCB's assembly service, schematic available here:
 https://oshwlab.com/alistair.symonds/sympleaf_rev1_copy
 
