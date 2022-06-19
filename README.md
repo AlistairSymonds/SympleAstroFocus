@@ -17,6 +17,7 @@ I'm also aiming to have prebuilt modules available for sale in future once I'm c
 # Getting started with the project
 
 To actually make a SAF and get it properly setup, see the wiki for details - it list the ways you can make one and the extra HW needed for each
+As of right now the only way to control it is through an ASCOM driver, however I aim to add an INDI driver in the future.
 
 https://github.com/AlistairSymonds/SympleAstroFocus/wiki
 
