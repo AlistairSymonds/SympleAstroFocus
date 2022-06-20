@@ -32,6 +32,8 @@ https://oshwlab.com/alistair.symonds/sympleaf_rev1_copy
 By default the project is licensed under CC BY-NC 3.0, this does NOT allow for commercial use. If you would like to use the project in a commerical manner or 
 some way otherwise incompatible with this license please contact me via email to find another solution.
 
-This does prevent you from buying some in bulk then splitting the price by selling at cost (no profit) eg buying 10 for your astro scoiety's inventory for members is allowed an encouraged. 
+This does not prevent you from buying some in bulk then splitting the price by selling at cost (no profit) eg buying 10 for your astro scoiety's inventory for members is allowed an encouraged.
+
+If you're not making a profit, you're allowed to do whatever! 
 
 Summary of terms here: https://creativecommons.org/licenses/by-nc/3.0/
