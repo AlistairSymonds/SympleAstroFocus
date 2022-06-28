@@ -402,6 +402,18 @@ int main(void)
 		  HAL_GPIO_WritePin(GPIOA, ENN_Pin, GPIO_PIN_SET);
 	  }
 
+	  if(
+		  (symple_state[STATUS_DWORD] & STATUS_IS_STEPPING_BIT) ||
+		  (
+			  ((symple_state[STEPPER_DRIVER_STATUS] & DRIVER_STATUS_CS_ACTUAL_MASK) >> DRIVER_STATUS_CS_ACTUAL_SHIFT) !=
+			  ((symple_state[STEPPER_DRIVER_CONF] & DRIVER_CONFIG_IHOLD_MASK) >>  DRIVER_CONFIG_IHOLD_SHIFT)
+		  )
+	  ){
+		  symple_state[STATUS_DWORD] |= STATUS_IS_MOVING_BIT;
+	  } else {
+		  symple_state[STATUS_DWORD] &= (~STATUS_IS_MOVING_BIT);
+	  }
+
   }
   /* USER CODE END WHILE */
 
@@ -459,14 +471,14 @@ void update_motor_pos()
     	}
     }
     //if we've moved set the bit, and signal a save will be needed
-    symple_state[STATUS_DWORD] |= STATUS_IS_MOVING_BIT;
+    symple_state[STATUS_DWORD] |= STATUS_IS_STEPPING_BIT;
     flash_save_needed = 1;
   } else {
 	  //we've just finished a move - make sure its saved!
-	  if (symple_state[STATUS_DWORD] & STATUS_IS_MOVING_BIT){
+	  if (symple_state[STATUS_DWORD] & STATUS_IS_STEPPING_BIT){
 		  flash_save_needed = 1;
 	  }
-	  symple_state[STATUS_DWORD] &=~ STATUS_IS_MOVING_BIT;
+	  symple_state[STATUS_DWORD] &=~ STATUS_IS_STEPPING_BIT;
   }
 }
 
@@ -819,7 +831,7 @@ void STEPPER_Init(void)
 
 	TMC2209_config.shadowRegister[TMC2209_GCONF] = 0x00000040;
 	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] = 0x00071703;
-	TMC2209_config.shadowRegister[TMC2209_TPOWERDOWN] = 0x00000014;
+	TMC2209_config.shadowRegister[TMC2209_TPOWERDOWN] = 0x00000008;
 	TMC2209_config.shadowRegister[TMC2209_CHOPCONF] = 0x10000053;
 	TMC2209_config.shadowRegister[TMC2209_PWMCONF] = 0xC10D0024;
 
@@ -836,12 +848,15 @@ void STEPPER_Init(void)
 
 	TMC2209_config.shadowRegister[TMC2209_CHOPCONF] &= (~TMC2209_MRES_MASK);
 	TMC2209_config.shadowRegister[TMC2209_CHOPCONF] |= (0 << TMC2209_MRES_SHIFT) &  TMC2209_MRES_MASK;
-	TMC2209_config.shadowRegister[TMC2209_CHOPCONF] |= (0xF << TMC2209_TOFF_SHIFT) &  TMC2209_TOFF_MASK;
+	TMC2209_config.shadowRegister[TMC2209_CHOPCONF] |= (0xA << TMC2209_TOFF_SHIFT) &  TMC2209_TOFF_MASK;
 	TMC2209_config.shadowRegister[TMC2209_CHOPCONF] |= TMC2209_DEDGE_MASK;
 
 
 	TMC2209_config.shadowRegister[TMC2209_COOLCONF] = 0;
 	TMC2209_config.shadowRegister[TMC2209_TCOOLTHRS] = 0xFFFFFFFF;
+
+	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] &= (~TMC2209_IHOLDDELAY_MASK);
+	TMC2209_config.shadowRegister[TMC2209_IHOLD_IRUN] |= (3 << TMC2209_IHOLDDELAY_SHIFT) &  TMC2209_IHOLDDELAY_MASK;
 
 
 
