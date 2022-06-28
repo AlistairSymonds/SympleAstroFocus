@@ -12,6 +12,8 @@ Tested and developed around my custom Nema17 belt driven focuser for a rokinnon 
 
 Short demo video on rokinnon lens: https://www.youtube.com/watch?v=gBrDgyxgXSc
 
+Homing and movement of Moonlite carrying full setup: https://www.youtube.com/watch?v=20G9TGgZjsw 
+
 I'm also aiming to have prebuilt modules available for sale in future once I'm confident in the quality of the design. Don't want to be accepting any money before I'm 100% confident in the product.
 
 # Getting started with the project
