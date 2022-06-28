@@ -256,6 +256,13 @@ int main(void)
 		  HAL_TIM_Base_Start_IT(&htim3);
 	  }
 
+      if (symple_state[COMMAND_DWORD] & COMMAND_HALT_BIT){
+    	  symple_state[SET_POSITION_DWORD] = symple_state[CURRENT_POSITION_DWORD];
+    	  symple_state[STATUS_DWORD]  &= ~STATUS_HOMING_BIT;
+    	  symple_state[COMMAND_DWORD] &= ~COMMAND_HALT_BIT;
+		  current_homing_dir = IDLE;
+      }
+
 	  //ain't great, but okay for now
 	  if (HAL_GetTick() - last_hw_defs_usb_ms > 5000) {
 		  uint8_t usb_data[SYM_EP_SIZE];
