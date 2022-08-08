@@ -1,5 +1,3 @@
-# THIS NEEDS REJIGGING - packing multiple state into one big word might be easy on the surface but hard to handle both host and device modifying same fields and keeping in sync who is right when changing other field instead
-
 # Device Descriptor
 VID: 56
 
