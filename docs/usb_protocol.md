@@ -1,9 +1,9 @@
 # THIS NEEDS REJIGGING - packing multiple state into one big word might be easy on the surface but hard to handle both host and device modifying same fields and keeping in sync who is right when changing other field instead
 
 # Device Descriptor
-VID: TBC
+VID: 56
 
-PID: TBC
+PID: 78
 
 iProduct must be: SympleAstroFocus
 
@@ -26,37 +26,57 @@ Type: HID
 
 # Data
 
+In both directions the data sent over USB is broken up into repeated chunks of packets which take the following form:
+
+|Bits  | 63 - 32 | 31 | 30 - 0 |
+| --- |--- |--- |--- |
+|Field | Value to be written or Read val  | R = 0, W = 1 | Dword ID   |
+
+An invalid packet that should be ignored take this form instead:
+|Bits  | 63 - 32 | 31 - 0 |
+| --- |--- |--- |
+|Field | Ignored   | 0xFFFF_FFFF   |
+
+
+Then these are laid out linearly across the whole endpoint in a transaction, multiple packets can be batched together with unused packets being marked as invalid.
+
+```
+
+63     56   55    48   47    40   39    32   31    24    23   16   15     8   7        byte 0                           
+v        v v        v v        v v        v v        v v        v v        v v        v
++--------+ +--------+ +--------+ +--------+ +--------+ +--------+ +--------+ +--------+
+|Packet  | |Packet  | |Packet  | |Packet  | |Packet  | |Packet  | |Packet  | |Packet  |
++--------+ +--------+ +--------+ +--------+ +--------+ +--------+ +--------+ +--------+
+```
+
+## Out of host
+The hose will create USB transfers made up of one or more of these packets, which the device will then respond to the command based on the dwords below, either updating the field if its a writeable dword and write command or returning data on a read. The device will ignore write commands to any read only dwords.
+
 ## In to Host
-All data types into the host are logically broken up into DWORD chunks - that is eight fields across 64bytes. The device is
-responsible for updating the host within a reasonable amount of time when something changes, and is encouraged to continually 
-update atleast once a second even in cases where nothing has changed to add robustness.
+Whilst there are separate read/write command the host can send to the device, the device is alloweed to send read data back to the host at any time regardless of whether it has been requested and the host must be able to handle it.
 
-This updates are sent as state words containing arbitrary data about the current state of the focusser 
 
-Nominally enocded as:
-```
-byte 63                                                                     byte 4  byte 3 byte 0
-v                                                                                v  v      v
-+---------------------------------------------------------------------------------++--------+
-|                                                                                 ||State ID|
-+---------------------------------------------------------------------------------++--------+
-```
-## State IDs
-Currently only the following statewords are defined, if other stepper drivers are supported they will likely have their own state id
-+ GENERAL_STATE (32'h00)
 
-## State ID 0 fields
+## State dwords 
 | DWORD | Name | Encoding| Read/Write or Read Only |
 | ---   |---   |---      |---                      |
-|0      | state ID          | Constant, 32'h00| N/A |
 |1      | Command Bits      | See below       |RW |
 |2      | Status Flags      | See below       | RO |
 |3      | Current Position  | Constant, 32'h00| RO |
-|4      | Set Position      | Constant, 32'h00| R, Write when enable cmd bit set |
+|4      | Set Position      | Constant, 32'h00| RW |
 |5      | Max Position      | Constant, 32'h00| RW |
 |6      | Step Time  microsec       |                 |  RW  | 
 |7      | Driver Config         |                 | RW |
-|8      | Driver Status         |                 | R |
+|8      | Driver Status         |                 | RO |
+|0x3FFFFFF9      | Commit ID of FW      | See below       | RO |
+|0x3FFFFFFA      | Stepper Driver Type  | Constant, 32'h00| RO |
+|0x3FFFFFFB      | MCU Type      | | RO |
+|0x3FFFFFFC      | Firmware state      | | RO |
+|0x3FFFFFFD      | GUID[31:0]       |                 |  RO  | 
+|0x3FFFFFFE      | GUID[63:32]         |                 | RO |
+|0x3FFFFFFF      | GUID[95:64]         |                 | RO |
+
+
 
 ### Command Bits
 These are cleared once the sepcified operation is complete
@@ -127,15 +147,10 @@ These are cleared once the sepcified operation is complete
 | --- |--- |--- |--- |--- |--- |--- |--- |--- |
 |Name|---|---|---|---|---|---| --> |   SG_RESULT LSB |
 
-## Out of host
-This is how the host controls the device, a very similar scheme is taken to the In direction, where the Host gives back a stateword, and the device will update any of its writeable DWORD fields
-with the corresponding values from the host, read only fields are not changed in anyway.
-
 
 
 ## Example
 If the host wanted to move the focusser to position 12000, it would send the following command:
-DWORD 0: State ID, set to 0
-DWORD 3: Set position, set to 12000
+DWORD 3: Set position, write, set to 12000
 
-Then it should wait until current position = set position = 12000 and the moving bit in the status flags to be low before reporting to the application that the move is complete.
+Then it should wait until the moving bit read out of the status flags is low before declaring the move complete.
