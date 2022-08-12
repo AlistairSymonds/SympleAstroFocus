@@ -426,10 +426,6 @@ namespace ASCOM.SympleAstroFocus
             using (SetupDialogForm F = new SetupDialogForm(this, tl))
             {
                 var result = F.ShowDialog();
-                if (result == System.Windows.Forms.DialogResult.OK)
-                {
-                    WriteProfile(); // Persist device configuration values to the ASCOM Profile store
-                }
             }
         }
 

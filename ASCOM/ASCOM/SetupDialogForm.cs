@@ -28,18 +28,6 @@ namespace ASCOM.SympleAstroFocus
             InitUI();
         }
 
-        private void cmdOK_Click(object sender, EventArgs e) // OK button event handler
-        {
-            // Place any validation constraint checks here
-            // Update the state variables with results from the dialogue
-
-        }
-
-        private void cmdCancel_Click(object sender, EventArgs e) // Cancel button event handler
-        {
-            Close();
-        }
-
         private void BrowseToAscom(object sender, EventArgs e) // Click on ASCOM logo event handler
         {
             try
@@ -60,12 +48,17 @@ namespace ASCOM.SympleAstroFocus
         private void InitUI()
         {
 
-
+            this.FormClosing += OnFormClosing;
 
             updateDisplayedValues();
             debugPanel.Visible = false;
             configPanel.Visible = false;
 
+        }
+
+        protected virtual void OnFormClosing(object sender, EventArgs e)
+        {
+            f.UpdateRecievdFromDevice -= f_DataFromDevice;
         }
 
         //There has to be a better way of doing this besides maintaining two function?
@@ -85,67 +78,73 @@ namespace ASCOM.SympleAstroFocus
         private void InvokeUpdateDisplayedValues()
         {
 
-            if (f.Connected == true)
+            if (f.Connected == true && !(this.IsDisposed || this.Disposing))
             {
-
-                Invoke(new Action(() => { connectedState.Text = "CONNECTED"; }));
-                Invoke(new Action(() => { serialNumberVal.Text = f.SerialNumber; }));
-
-
-                Invoke(new Action(() => { CurrentPositionValue.Text = f.Position.ToString(); }));
-
-                Invoke(new Action(() => { MaxPositionValue.Text = f.MaxStep.ToString(); }));
-
-                Invoke(new Action(() => { reversedValLabel.Text = f.ReversedMotor.ToString(); }));
-
-                Invoke(new Action(() => { motorLoadVal.Text = f.SG_RESULT.ToString(); }));
-
-                Invoke(new Action(() => { csActualVal.Text = f.CS_ACTUAL.ToString(); }));
-
-
-                Invoke(new Action(() => { homingDirectionsCurrVals.SetItemChecked(0, f.HomingTowardsZeroEnabled); }));
-
-                Invoke(new Action(() => { homingDirectionsCurrVals.SetItemChecked(1, f.HomingTowardsMaxEnabled); }));
-
-
-                Invoke(new Action(() => { irunCurrentVal.Text = (1+f.IRUN).ToString(); }));
-
-
-                Invoke(new Action(() => { iholdCurrentVal.Text = (1+f.IHOLD).ToString(); }));
-                Invoke(new Action(() => { stallThreshCurrentVal.Text = f.StallThresh.ToString(); }));
-                
-                //this seriously cannot stay this bad longterm
-                string stepper_speed = f.stepperPeriodUs.ToString() +" us";
-                switch (f.stepperPeriodUs)
+                try
                 {
+                    Invoke(new Action(() => { connectedState.Text = "CONNECTED"; }));
+                    Invoke(new Action(() => { serialNumberVal.Text = f.SerialNumber; }));
 
-                    case 60:
-                        stepper_speed = "1x";
-                        break;
 
-                    case 30:
-                        stepper_speed = "2x";
-                        break;
+                    Invoke(new Action(() => { CurrentPositionValue.Text = f.Position.ToString(); }));
 
-                    case 20:
-                        stepper_speed = "3x";
-                        break;
+                    Invoke(new Action(() => { MaxPositionValue.Text = f.MaxStep.ToString(); }));
 
-                    case 15:
-                        stepper_speed = "4x";
-                        break;
-                        
+                    Invoke(new Action(() => { reversedValLabel.Text = f.ReversedMotor.ToString(); }));
 
-                    default:
-                        stepper_speed = f.stepperPeriodUs.ToString() + " us";
-                        break;
+                    Invoke(new Action(() => { motorLoadVal.Text = f.SG_RESULT.ToString(); }));
+
+                    Invoke(new Action(() => { csActualVal.Text = f.CS_ACTUAL.ToString(); }));
+
+
+                    Invoke(new Action(() => { homingDirectionsCurrVals.SetItemChecked(0, f.HomingTowardsZeroEnabled); }));
+
+                    Invoke(new Action(() => { homingDirectionsCurrVals.SetItemChecked(1, f.HomingTowardsMaxEnabled); }));
+
+
+                    Invoke(new Action(() => { irunCurrentVal.Text = (1 + f.IRUN).ToString(); }));
+
+
+                    Invoke(new Action(() => { iholdCurrentVal.Text = (1 + f.IHOLD).ToString(); }));
+                    Invoke(new Action(() => { stallThreshCurrentVal.Text = f.StallThresh.ToString(); }));
+
+                    //this seriously cannot stay this bad longterm
+                    string stepper_speed = f.stepperPeriodUs.ToString() + " us";
+                    switch (f.stepperPeriodUs)
+                    {
+
+                        case 60:
+                            stepper_speed = "1x";
+                            break;
+
+                        case 30:
+                            stepper_speed = "2x";
+                            break;
+
+                        case 20:
+                            stepper_speed = "3x";
+                            break;
+
+                        case 15:
+                            stepper_speed = "4x";
+                            break;
+
+
+                        default:
+                            stepper_speed = f.stepperPeriodUs.ToString() + " us";
+                            break;
+                    }
+                    Invoke(new Action(() => { motorSpeedVal.Text = stepper_speed; }));
+                    Invoke(new Action(() => { stepperDriverCommsErrrorVal.Text = f.StepperDriverCommsError.ToString(); }));
+                    Invoke(new Action(() => { stepperDriverEnabledVal.Text = f.StepperDriverEnabled.ToString(); }));
+                    Invoke(new Action(() => { stepperDriverErrorVal.Text = f.StepperDriverError.ToString(); }));
+
+                    Invoke(new Action(() => { homingVal.Text = f.Homing.ToString(); }));
+
+                } catch
+                {
+                    //There must be a better way....
                 }
-                Invoke(new Action(() => { motorSpeedVal.Text = stepper_speed; }));
-                Invoke(new Action(() => { stepperDriverCommsErrrorVal.Text = f.StepperDriverCommsError.ToString(); }));
-                Invoke(new Action(() => { stepperDriverEnabledVal.Text = f.StepperDriverEnabled.ToString(); }));
-                Invoke(new Action(() => { stepperDriverErrorVal.Text = f.StepperDriverError.ToString(); }));
-
-                Invoke(new Action(() => { homingVal.Text = f.Homing.ToString(); }));
             }
         }
 
