@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.22)
 project(saf_driver)
 
 
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+set(CMAKE_INSTALL_RPATH .)
+
 add_subdirectory(core)
 
 add_executable(saf_cli cli/saf_cli.cpp)
