@@ -1,4 +1,3 @@
-#include <hidapi/hidapi.h>
 
 class saf_core
 {

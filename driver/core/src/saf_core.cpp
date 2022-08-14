@@ -1,5 +1,5 @@
 #include <iostream>
-#include <hidapi/hidapi.h>
+#include "hidapi.h"
 #include "saf_core.h"
 
 saf_core::saf_core(/* args */)
@@ -23,7 +23,7 @@ int saf_core::connect()
 	{
 		std::cout << "Couldn't open device" << std::endl;
 	}
-	
+	/*
 	// Read the Manufacturer String
 	res = hid_get_manufacturer_string(handle, wstr, MAX_STR);
 	std::wstring mstr = std::wstring(wstr); 
@@ -51,7 +51,7 @@ int saf_core::connect()
 	// Print out the returned buffer.
 	for (int i = 0; i < 65; i++)
 		std::wcout << (L"buf[%d]: %d\n", i, buf[i]) << std::endl;
-
+*/
 	// Close the device
 	hid_close(handle);
 
