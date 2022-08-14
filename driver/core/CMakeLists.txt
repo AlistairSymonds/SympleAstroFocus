@@ -27,4 +27,3 @@ target_link_libraries(saf_core PRIVATE hidapi::hidapi)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/inc ${CMAKE_BINARY_DIR}/exports)
 #include_directories(${CMAKE_CURRENT_SOURCE_DIR}/inc ${CMAKE_BINARY_DIR}/exports)
-#nstall(RUNTIME)
