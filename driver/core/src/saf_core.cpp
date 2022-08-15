@@ -2,11 +2,29 @@
 #include "hidapi.h"
 #include "saf_core.h"
 
-saf_core::saf_core(/* args */)
+
+
+
+class saf_core_impl : public saf_core
+{
+private:
+    /* data */
+public:
+    saf_core_impl(/* args */);
+    int connect();
+    ~saf_core_impl();
+};
+
+std::unique_ptr<saf_core> saf_core_factory::create(){
+	return std::make_unique<saf_core_impl>(saf_core_impl());
+}
+
+
+saf_core_impl::saf_core_impl(/* args */)
 {
 }
 
-int saf_core::connect()
+int saf_core_impl::connect()
 {
 
     #define MAX_STR 255   
@@ -62,6 +80,6 @@ int saf_core::connect()
 }
 
 
-saf_core::~saf_core()
+saf_core_impl::~saf_core_impl()
 {
 }
