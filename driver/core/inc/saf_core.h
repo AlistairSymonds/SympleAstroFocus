@@ -5,7 +5,8 @@ private:
     /* data */
 public:
     saf_core(/* args */){};
-    virtual int connect() = 0;
+    virtual int Connect() = 0;
+    virtual int DumpUsb() = 0;
     virtual ~saf_core(){};
 };
 

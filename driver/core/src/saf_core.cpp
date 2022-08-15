@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 #include "hidapi.h"
 #include "saf_core.h"
 
@@ -8,78 +9,65 @@
 class saf_core_impl : public saf_core
 {
 private:
-    /* data */
+    //std::thread usb_thread;
+	hid_device *handle;
 public:
-    saf_core_impl(/* args */);
-    int connect();
+    saf_core_impl();
+    int Connect();
+	int DumpUsb();
     ~saf_core_impl();
 };
 
 std::unique_ptr<saf_core> saf_core_factory::create(){
+	
+	std::cout << "bout to ccreate" << std::endl;
 	return std::make_unique<saf_core_impl>(saf_core_impl());
 }
 
 
 saf_core_impl::saf_core_impl(/* args */)
 {
+	std::cout << "Constructing" << std::endl;
 }
 
-int saf_core_impl::connect()
+int saf_core_impl::Connect()
 {
 
+	
     #define MAX_STR 255   
-	int res;
-	unsigned char buf[65];
+
 	wchar_t wstr[MAX_STR];
-	hid_device *handle;
-
-	// Initialize the hidapi library
-	res = hid_init();
-
+	
+	
+	hid_init();
 	handle = hid_open(56, 78, NULL);
 	if (handle == NULL)
 	{
 		std::cout << "Couldn't open device" << std::endl;
+	} else {
+		std::cout << "Connected" << std::endl;
+
 	}
-	/*
-	// Read the Manufacturer String
-	res = hid_get_manufacturer_string(handle, wstr, MAX_STR);
-	std::wstring mstr = std::wstring(wstr); 
-	std::wcout << L"Manufacturer String " << mstr << std::endl;
-
-
-	// Read the Product String
-	res = hid_get_product_string(handle, wstr, MAX_STR);
-	mstr = std::wstring(wstr); 
-	std::wcout << L"Product String " << mstr << std::endl;
-
-	// Read the Serial Number String
-	res = hid_get_serial_number_string(handle, wstr, MAX_STR);
-	mstr = std::wstring(wstr); 
-	std::wcout << L"Serial String " << mstr << std::endl;
-
-	// Read Indexed String 1
-	res = hid_get_indexed_string(handle, 1, wstr, MAX_STR);
-	mstr = std::wstring(wstr); 
-	std::wcout << L"Indexed String 1 " << mstr << std::endl;
-
-	// Read requested state
-	res = hid_read(handle, buf, 65);
-
-	// Print out the returned buffer.
-	for (int i = 0; i < 65; i++)
-		std::wcout << (L"buf[%d]: %d\n", i, buf[i]) << std::endl;
-*/
-	// Close the device
-	hid_close(handle);
-
-	// Finalize the hidapi library
-	res = hid_exit();
-
 	return 0;
 }
 
+int saf_core_impl::DumpUsb(){
+	int res;
+	unsigned char buf[65];
+	
+	res = hid_read(handle, buf, 65);
+	for (int i = 0; i < 65; i++)
+		std::cout << (L"buf[%d]: %d\n", i, buf[i]) << std::endl;
+	
+	return res;
 
+}
 saf_core_impl::~saf_core_impl()
 {
+	if (handle != NULL)
+	{
+		hid_close(handle);
+	}
+	hid_exit();
+	
 }
