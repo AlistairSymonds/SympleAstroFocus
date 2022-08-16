@@ -1,5 +1,6 @@
 #include <iostream>
 #include <thread>
+#include <chrono>
 #include "hidapi.h"
 #include "saf_core.h"
 
@@ -26,7 +27,8 @@ std::unique_ptr<saf_core> saf_core_factory::create(){
 
 
 saf_core_impl::saf_core_impl(/* args */)
-{
+{	
+	handle = NULL;
 	std::cout << "Constructing" << std::endl;
 }
 
@@ -54,10 +56,10 @@ int saf_core_impl::Connect()
 int saf_core_impl::DumpUsb(){
 	int res;
 	unsigned char buf[65];
-	
+	std::this_thread::sleep_for(std::chrono::seconds(1));
 	res = hid_read(handle, buf, 65);
 	for (int i = 0; i < 65; i++)
-		std::cout << (L"buf[%d]: %d\n", i, buf[i]) << std::endl;
+		std::cout << "buf[" << i << "]: "  << std::hex << +buf[i] << std::endl;
 	
 	return res;
 

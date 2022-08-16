@@ -6,5 +6,6 @@ int main(){
     
     std::cout << "created" << std::endl;
     saf->Connect();
+    saf->DumpUsb();
     std::cout << "goodbyyyye" << std::endl;
 }
