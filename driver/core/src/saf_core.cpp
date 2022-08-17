@@ -7,7 +7,7 @@
 
 
 
-class saf_core_impl : public saf_core
+class saf_core_impl : public SympleAFCore
 {
 private:
     //std::thread usb_thread;
@@ -19,7 +19,7 @@ public:
     ~saf_core_impl();
 };
 
-std::unique_ptr<saf_core> saf_core_factory::create(){
+std::unique_ptr<SympleAFCore> saf_core_factory::create(){
 	
 	std::cout << "bout to ccreate" << std::endl;
 	return std::make_unique<saf_core_impl>(saf_core_impl());

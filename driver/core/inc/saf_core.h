@@ -1,17 +1,17 @@
 #pragma once
-class saf_core
+class SympleAFCore
 {
 private:
     /* data */
 public:
-    saf_core(/* args */){};
+    SympleAFCore(/* args */){};
     virtual int Connect() = 0;
     virtual int DumpUsb() = 0;
-    virtual ~saf_core(){};
+    virtual ~SympleAFCore(){};
 };
 
 class saf_core_factory
 {
 public:
-    static std::unique_ptr<saf_core> create();
+    static std::unique_ptr<SympleAFCore> create();
 };
