@@ -1,4 +1,6 @@
+#include <thread>
 #include <iostream>
+#include <chrono>
 #include "saf_core.h"
 int main(){
     std::cout << "hellooooo" << std::endl;
@@ -6,6 +8,6 @@ int main(){
     
     std::cout << "created" << std::endl;
     saf->Connect();
-    saf->DumpUsb();
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     std::cout << "goodbyyyye" << std::endl;
 }

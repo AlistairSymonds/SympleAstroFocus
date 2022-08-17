@@ -7,7 +7,6 @@ public:
     SympleAFCore(/* args */){};
     virtual int Connect() = 0;
     virtual int Disconnect() = 0;
-    virtual int DumpUsb() = 0;
     /*
     virtual uint32_t getCurrentPosition() = 0;
     virtual uint32_t getSetPosition() = 0;
