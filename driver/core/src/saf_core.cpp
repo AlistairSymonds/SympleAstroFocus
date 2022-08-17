@@ -15,6 +15,7 @@ private:
 public:
     saf_core_impl();
     int Connect();
+	int Disconnect();
 	int DumpUsb();
     ~saf_core_impl();
 };
@@ -49,6 +50,15 @@ int saf_core_impl::Connect()
 	} else {
 		std::cout << "Connected" << std::endl;
 
+	}
+	return 0;
+}
+
+int saf_core_impl::Disconnect()
+{
+	if (handle != NULL)
+	{
+		hid_close(handle);
 	}
 	return 0;
 }
