@@ -47,10 +47,10 @@ v        v v        v v        v v        v v        v v        v v        v v  
 +--------+ +--------+ +--------+ +--------+ +--------+ +--------+ +--------+ +--------+
 ```
 
-## From Host to Device
+## From Host to Device (USB Out)
 The hose will create transfers by concatenating one or more of these packets and writing these to the Host to Device endpoint. The device will then respond to the commands by writing responses to the Device to Host endpoint. If a write is issued to the device, the relevant field will be updated whilst a read will initiate the return of the field present value. The device will ignore write commands to any read only Field IDs.
 
-## From Device to Host
+## From Device to Host (USB In)
 The device is allowed to send data back to the host at any time regardless of incoming commands and this must be handled by the host. The device will not issue write commands to the host.
 
 
@@ -119,8 +119,11 @@ Note: All values are little endian.
 | Bit  | Name |
 | --- |--- |
 | 31 | Motor Stopped |
-| 30-21 | *Unused* |
-| 20-16 | Motor Actual Current |
+| 30-23 | *Unused* |
+
+| 22 | OLB: Open load detected, Phase B   |
+| 21 | OLA: Open load detected, Phase A |
+| 20-16 | Current Scale Actual |
 | 15 | S2VSB: Low side short, Phase B   |
 | 14 | S2VSA: Low side short, Phase A |
 | 13 | S2GB: Short to Ground, Phase B |
