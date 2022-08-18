@@ -877,14 +877,56 @@ void read_stepper_state(void) {
 
 	uint32_t drvstatus = tmc2209_readInt(&TMC2209, TMC2209_DRVSTATUS);
 	uint32_t sg_result = tmc2209_readInt(&TMC2209, TMC2209_SG_RESULT);
+	uint32_t val;
 
 	symple_state[STEPPER_DRIVER_STATUS] &= (~DRIVER_STATUS_SG_RESULT_MASK);
 	symple_state[STEPPER_DRIVER_STATUS] |= sg_result;
 
 	symple_state[STEPPER_DRIVER_STATUS] &= (~DRIVER_STATUS_CS_ACTUAL_MASK);
-	uint32_t cs_actual = (drvstatus & TMC2209_CS_ACTUAL_MASK) >> TMC2209_CS_ACTUAL_SHIFT;
-	symple_state[STEPPER_DRIVER_STATUS] |= (cs_actual) << DRIVER_STATUS_CS_ACTUAL_SHIFT;
+	val = (drvstatus & TMC2209_CS_ACTUAL_MASK) >> TMC2209_CS_ACTUAL_SHIFT;
+	symple_state[STEPPER_DRIVER_STATUS] |= (val) << DRIVER_STATUS_CS_ACTUAL_SHIFT;
 
+	//overtemp warn
+	symple_state[STEPPER_DRIVER_STATUS] &= (~DRIVER_STATUS_OT_WARN_MASK);
+	val = (drvstatus & TMC2209_OTPW_MASK) >> TMC2209_OTPW_SHIFT;
+	symple_state[STEPPER_DRIVER_STATUS] |= (val) << DRIVER_STATUS_OT_WARN_SHIFT;
+
+	//overtemp error
+	symple_state[STEPPER_DRIVER_STATUS] &= (~DRIVER_STATUS_OT_ERROR_MASK);
+	val = (drvstatus & TMC2209_OT_MASK) >> TMC2209_OT_SHIFT;
+	symple_state[STEPPER_DRIVER_STATUS] |= (val) << DRIVER_STATUS_OT_ERROR_SHIFT;
+
+	//s2ga
+	symple_state[STEPPER_DRIVER_STATUS] &= (~DRIVER_STATUS_S2GA_MASK);
+	val = (drvstatus & TMC2209_S2GA_MASK) >> TMC2209_S2GA_SHIFT;
+	symple_state[STEPPER_DRIVER_STATUS] |= (val) << DRIVER_STATUS_S2GA_SHIFT;
+
+	//s2gb
+	symple_state[STEPPER_DRIVER_STATUS] &= (~DRIVER_STATUS_S2GB_MASK);
+	val = (drvstatus & TMC2209_S2GB_MASK) >> TMC2209_S2GB_SHIFT;
+	symple_state[STEPPER_DRIVER_STATUS] |= (val) << DRIVER_STATUS_S2GB_SHIFT;
+
+	//s2vsa
+	symple_state[STEPPER_DRIVER_STATUS] &= (~DRIVER_STATUS_S2VSA_MASK);
+	val = (drvstatus & TMC2209_S2VSA_MASK) >> TMC2209_S2VSA_SHIFT;
+	symple_state[STEPPER_DRIVER_STATUS] |= (val) << DRIVER_STATUS_S2VSA_SHIFT;
+
+	//s2vsb
+	symple_state[STEPPER_DRIVER_STATUS] &= (~DRIVER_STATUS_S2VSB_MASK);
+	val = (drvstatus & TMC2209_S2VSB_MASK) >> TMC2209_S2VSB_SHIFT;
+	symple_state[STEPPER_DRIVER_STATUS] |= (val) << DRIVER_STATUS_S2VSB_SHIFT;
+
+
+	//ola
+	symple_state[STEPPER_DRIVER_STATUS] &= (~DRIVER_STATUS_OLA_MASK);
+	val = (drvstatus & TMC2209_OLA_MASK) >> TMC2209_OLA_SHIFT;
+	symple_state[STEPPER_DRIVER_STATUS] |= (val) << DRIVER_STATUS_OLA_SHIFT;
+
+
+	//olb
+	symple_state[STEPPER_DRIVER_STATUS] &= (~DRIVER_STATUS_OLB_MASK);
+	val = (drvstatus & TMC2209_OLB_MASK) >> TMC2209_OLB_SHIFT;
+	symple_state[STEPPER_DRIVER_STATUS] |= (val) << DRIVER_STATUS_OLB_SHIFT;
 }
 /**
   * @brief  This function is executed in case of error occurrence.
