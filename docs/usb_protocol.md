@@ -120,7 +120,6 @@ Note: All values are little endian.
 | --- |--- |
 | 31 | Motor Stopped |
 | 30-23 | *Unused* |
-
 | 22 | OLB: Open load detected, Phase B   |
 | 21 | OLA: Open load detected, Phase A |
 | 20-16 | Current Scale Actual |
