@@ -9,20 +9,20 @@ public:
     virtual int Disconnect() = 0;
     virtual std::string toString() = 0;
 
-    /*
+    
     virtual uint32_t getCurrentPosition() = 0;
     virtual uint32_t getSetPosition() = 0;
-    virtual uint32_t setSetPosition() = 0;
+    //virtual uint32_t setSetPosition() = 0;
     virtual uint32_t getMaxPosition() = 0;
-    virtual uint32_t setMaxPosition() = 0;
+    //virtual uint32_t setMaxPosition() = 0;
     virtual bool     getReversed() = 0;
-    virtual uint32_t setZero() = 0;
+    //virtual uint32_t setZero() = 0;
     virtual uint32_t getStepPeriodUs() = 0;
-    virtual uint32_t setStepPeriodUs() = 0;
+    //virtual uint32_t setStepPeriodUs() = 0;
     virtual bool     getMoving() = 0;
 
     
-
+    /*
     //TMC specialised methods
 
     virtual bool     getStepperEnabled() = 0;

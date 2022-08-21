@@ -47,6 +47,18 @@ public:
 	int Disconnect();
 	std::string toString();
     ~saf_core_impl();
+
+
+	virtual uint32_t getCurrentPosition();
+	virtual uint32_t getSetPosition();
+	//virtual uint32_t setSetPosition() = 0;
+	virtual uint32_t getMaxPosition();
+	//virtual uint32_t setMaxPosition() = 0;
+	virtual bool     getReversed();
+	//virtual uint32_t setZero() = 0;
+	virtual uint32_t getStepPeriodUs();
+	//virtual uint32_t setStepPeriodUs() = 0;
+	virtual bool     getMoving();
 };
 
 std::unique_ptr<SympleAFCore> saf_core_factory::create(){
@@ -108,7 +120,7 @@ void saf_core_impl::processDataFromDevice(uint32_t data[16]) {
 				break;
 
 			case MAX_POSITION_DWORD:
-				dev_cur_pos = s.requestedValue;
+				dev_max_pos = s.requestedValue;
 				break;
 
 			case STEP_TIME_MICROSEC:
@@ -144,7 +156,15 @@ saf_core_impl::saf_core_impl(const saf_core_impl &obj)
 }
 
 std::string saf_core_impl::toString() {
-	return std::format("Test {}", "a");
+	return std::format(
+		"USB Handle ptr: {}\n"
+		"Current Position: {}\n"
+		"Set Position: {}\n"
+		"Max Position: {}\n"
+		"is Reversed: {}\n"
+		"Step Period us: {}\n"
+		"is Moving: {}\n",
+		(uint64_t) handle, getCurrentPosition(), getSetPosition(), getMaxPosition(), getReversed(), getStepPeriodUs(), getMoving());
 }
 
 int saf_core_impl::Connect()
@@ -180,3 +200,35 @@ saf_core_impl::~saf_core_impl()
 	hid_exit();
 	
 }
+
+uint32_t saf_core_impl::getCurrentPosition()
+{
+	return dev_cur_pos;
+}
+
+uint32_t saf_core_impl::getSetPosition()
+{
+	return dev_set_pos;
+}
+
+uint32_t saf_core_impl::getMaxPosition()
+{
+	return dev_max_pos;
+}
+
+bool saf_core_impl::getReversed()
+{
+	return dev_status & STATUS_REVERSE_BIT;
+}
+
+uint32_t saf_core_impl::getStepPeriodUs()
+{
+	return dev_step_time_us;
+}
+
+bool saf_core_impl::getMoving()
+{
+	return dev_status & STATUS_IS_MOVING_BIT;
+}
+
+//Standard boring getter and setter methods
