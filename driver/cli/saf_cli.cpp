@@ -22,5 +22,6 @@ int main(){
     std::cout << saf->toString() << std::endl;
 
     std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::cout << saf->toString() << std::endl;
     std::cout << "goodbyyyye" << std::endl;
 }

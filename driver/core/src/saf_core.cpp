@@ -22,6 +22,7 @@ private:
 	void readDataFromDevice();
 	void processDataFromDevice(uint32_t data[16]);
 	hid_device *handle;
+	hid_device_info usb_info;
 	typedef struct
 	{
 		bool isWrite;
@@ -89,7 +90,33 @@ void saf_core_impl::writeDataPendingDataToDevice()
 	commandQueueMutex.lock();
 	while (!commandQueue.empty())
 	{
+		uint32_t dwords_to_device[16];
+		for (int i = 0; i < sizeof(dwords_to_device)/sizeof(uint32_t); i++)
+		{
+			dwords_to_device[i] = 0xFFFFFFFF;
+		}
+		for (size_t i = 0; i < sizeof(dwords_to_device) / sizeof(uint32_t)/2; i++)
+		{
+			if (!commandQueue.empty())
+			{
+				symple_state_request_t s;
+				s = commandQueue.front();
+				commandQueue.pop();
+				dwords_to_device[(i * 2)] = ((((uint32_t) s.isWrite )<< 31) | s.stateDwordId);
+				dwords_to_device[(i * 2)+1] = s.requestedValue;
+			}
 
+		}
+		uint8_t byte_to_dev[65];
+		byte_to_dev[0] = 1;
+		for (size_t i = 0; i < sizeof(dwords_to_device) / sizeof(uint32_t); i++)
+		{
+			byte_to_dev[(i*4) + 1] = dwords_to_device[i];
+			byte_to_dev[(i*4) + 2] = dwords_to_device[i] >> 8;
+			byte_to_dev[(i*4) + 3] = dwords_to_device[i] >> 16;
+			byte_to_dev[(i*4) + 4] = dwords_to_device[i] >> 24;
+		}
+		hid_write(handle, byte_to_dev, 65);
 	}
 	commandQueueMutex.unlock();
 }
@@ -114,7 +141,7 @@ void saf_core_impl::readDataFromDevice()
 
 	for (size_t i = 0; i < bytesRead / 4; i++)
 	{
-		printf("%08x ", readDataDwords[i]);
+		//printf("%08x ", readDataDwords[i]);
 	}
 	processDataFromDevice(readDataDwords);
 }
@@ -199,6 +226,8 @@ int saf_core_impl::Connect()
 		return 1;
 	} else {
 		std::cout << "Connected" << std::endl;
+		
+		auto usb_info_pr = hid_get_device_info(handle);
 		usbThread = std::thread(&saf_core_impl::runUsbThread, this);
 
 		return 0;
