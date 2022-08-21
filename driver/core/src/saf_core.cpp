@@ -2,6 +2,7 @@
 #include <thread>
 #include <mutex>
 #include <chrono>
+#include <format>
 #include "hidapi.h"
 #include "saf_core.h"
 #include "sym_defs.h"
@@ -25,11 +26,26 @@ private:
 		uint32_t requestedValue;
 	} symple_state_request_t;
 
+	uint32_t dev_status;
+	uint32_t dev_cur_pos;
+	uint32_t dev_set_pos;
+	uint32_t dev_max_pos;
+	uint32_t dev_step_time_us;
+	uint32_t dev_driver_conf;
+	uint32_t dev_driver_status;
+
+	uint32_t dev_guid[3];
+	uint32_t dev_mcu_type;
+	uint32_t dev_stepper_driver_type;
+	uint32_t dev_fw_state;
+	uint32_t dev_fw_commit;
+
 public:
     saf_core_impl();
 	saf_core_impl(const saf_core_impl&);
     int Connect();
 	int Disconnect();
+	std::string toString();
     ~saf_core_impl();
 };
 
@@ -53,10 +69,10 @@ void saf_core_impl::runUsbThread()
 		{
 			int b = i + 1;
 			readDataDwords[i] = 0;
-			readDataDwords[i] |= readData[(i*4)+3] << 24;
+			readDataDwords[i] |= readData[(i * 4) +3] << 24;
 			readDataDwords[i] |= readData[(i * 4) +2] << 16;
 			readDataDwords[i] |= readData[(i * 4) +1] << 8;
-			readDataDwords[i] |= readData[(i * 4) +0] ;
+			readDataDwords[i] |= readData[(i * 4) +0];
 		}
 
 		for (size_t i = 0; i < bytesRead/4; i++)
@@ -77,7 +93,36 @@ void saf_core_impl::processDataFromDevice(uint32_t data[16]) {
 		s.stateDwordId = data[i * 2] & (~0x8000000);
 		s.requestedValue = data[(i * 2) + 1];
 
+		switch (s.stateDwordId)
+		{
+			case STATUS_DWORD:
+				dev_status = s.requestedValue;
+				break;
 
+			case CURRENT_POSITION_DWORD:
+				dev_cur_pos = s.requestedValue;
+				break;
+
+			case SET_POSITION_DWORD:
+				dev_set_pos = s.requestedValue;
+				break;
+
+			case MAX_POSITION_DWORD:
+				dev_cur_pos = s.requestedValue;
+				break;
+
+			case STEP_TIME_MICROSEC:
+				dev_step_time_us = s.requestedValue;
+				break;
+
+			case STEPPER_DRIVER_CONF:
+				dev_driver_conf = s.requestedValue;
+				break;		
+			
+			case STEPPER_DRIVER_STATUS:
+				dev_driver_status = s.requestedValue;
+				break;
+		}
 	}
 }
 
@@ -96,6 +141,10 @@ saf_core_impl::saf_core_impl(const saf_core_impl &obj)
 	stopUsbThread = obj.stopUsbThread.load();
 	hid_init();
 	std::cout << "Copy constructing" << std::endl;
+}
+
+std::string saf_core_impl::toString() {
+	return std::format("Test {}", "a");
 }
 
 int saf_core_impl::Connect()
