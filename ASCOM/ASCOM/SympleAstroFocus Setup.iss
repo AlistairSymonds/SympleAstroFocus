@@ -5,8 +5,8 @@
 [Setup]
 AppID={{d1b57fc2-7af3-42a6-a9fe-3c6b41e6bf70}
 AppName=ASCOM SympleAstroFocus Focuser Driver
-AppVerName=ASCOM SympleAstroFocus Focuser Driver 0.0.1
-AppVersion=0.0.1
+AppVerName=ASCOM SympleAstroFocus Focuser Driver 1.1.1
+AppVersion=1.1.1
 AppPublisher=Alistair Symonds <alistair.symonds@gmail.com>
 AppPublisherURL=mailto:alistair.symonds@gmail.com
 AppSupportURL=https://ascomtalk.groups.io/g/Help
@@ -34,11 +34,12 @@ Name: "{cf}\ASCOM\Uninstall\Focuser\SympleAstroFocus"
 ; TODO: Add subfolders below {app} as needed (e.g. Name: "{app}\MyFolder")
 
 [Files]
-Source: "C:\Users\alist\source\repos\SympleAstroFocus\ASCOM\ASCOM\bin\x64\Release\ASCOM.SympleAstroFocus.Focuser.dll"; DestDir: "{app}"
+Source: "C:\Users\alist\Documents\GitHub\SympleAstroFocus\ASCOM\ASCOM\bin\x64\Debug\ASCOM.SympleAstroFocus.Focuser.dll"; DestDir: "{app}"
+
 ; Require a read-me HTML to appear after installation, maybe driver's Help doc
-Source: "C:\Users\alist\source\repos\SympleAstroFocus\ASCOM\ASCOM\SymplerAFReadMe.htm"; DestDir: "{app}"; Flags: isreadme
+Source: "C:\Users\alist\Documents\GitHub\SympleAstroFocus\ASCOM\ASCOM\SymplerAFReadMe.htm"; DestDir: "{app}"; Flags: isreadme
 ; TODO: Add other files needed by your driver here (add subfolders above)
-Source: "C:\Users\alist\source\repos\SympleAstroFocus\ASCOM\ASCOM\bin\x64\Release\HidSharp.dll"; DestDir: "{app}" ;
+Source: "C:\Users\alist\Documents\GitHub\SympleAstroFocus\ASCOM\ASCOM\bin\x64\Debug\HidSharp.dll"; DestDir: "{app}" ;
 
 ; Only if driver is .NET
 [Run]
