@@ -3,6 +3,7 @@
 #include <mutex>
 #include <chrono>
 #include <format>
+#include <queue>
 #include "hidapi.h"
 #include "saf_core.h"
 #include "sym_defs.h"
@@ -17,6 +18,8 @@ private:
 	std::mutex commandQueueMutex;
 	std::thread usbThread;
 	void runUsbThread();
+	void writeDataPendingDataToDevice();
+	void readDataFromDevice();
 	void processDataFromDevice(uint32_t data[16]);
 	hid_device *handle;
 	typedef struct
@@ -25,6 +28,9 @@ private:
 		uint32_t stateDwordId;
 		uint32_t requestedValue;
 	} symple_state_request_t;
+
+
+	std::queue < symple_state_request_t> commandQueue;
 
 	uint32_t dev_status;
 	uint32_t dev_cur_pos;
@@ -53,7 +59,7 @@ public:
 	virtual uint32_t getSetPosition();
 	//virtual uint32_t setSetPosition() = 0;
 	virtual uint32_t getMaxPosition();
-	//virtual uint32_t setMaxPosition() = 0;
+	virtual void setMaxPosition(uint32_t pos);
 	virtual bool     getReversed();
 	//virtual uint32_t setZero() = 0;
 	virtual uint32_t getStepPeriodUs();
@@ -72,29 +78,45 @@ void saf_core_impl::runUsbThread()
 {
 	while (!stopUsbThread)
 	{
-		std::cout << "usb thread still vibing" << std::endl;
-		int bytesRead;
-		uint8_t readData[64];
-		uint32_t readDataDwords[16];
-		bytesRead = hid_read(handle, readData, 64);
-		for (size_t i = 0; i < (64/4); i++)
-		{
-			int b = i + 1;
-			readDataDwords[i] = 0;
-			readDataDwords[i] |= readData[(i * 4) +3] << 24;
-			readDataDwords[i] |= readData[(i * 4) +2] << 16;
-			readDataDwords[i] |= readData[(i * 4) +1] << 8;
-			readDataDwords[i] |= readData[(i * 4) +0];
-		}
-
-		for (size_t i = 0; i < bytesRead/4; i++)
-		{
-			printf("%08x ", readDataDwords[i]);
-		}
-		processDataFromDevice(readDataDwords);
-		std::cout << std::endl;
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		writeDataPendingDataToDevice();
+		readDataFromDevice();
+		std::this_thread::sleep_for(std::chrono::milliseconds(150));
 	}
+}
+
+void saf_core_impl::writeDataPendingDataToDevice()
+{
+	commandQueueMutex.lock();
+	while (!commandQueue.empty())
+	{
+
+	}
+	commandQueueMutex.unlock();
+}
+
+void saf_core_impl::readDataFromDevice()
+{
+	std::cout << "usb thread still vibing" << std::endl;
+	int bytesRead;
+	uint8_t readData[64];
+	uint32_t readDataDwords[16];
+	memset(readDataDwords, 0xFFFFFFFF, 16);
+	bytesRead = hid_read(handle, readData, 64);
+	for (size_t i = 0; i < (bytesRead / 4); i++)
+	{
+		int b = i + 1;
+		readDataDwords[i] = 0;
+		readDataDwords[i] |= readData[(i * 4) + 3] << 24;
+		readDataDwords[i] |= readData[(i * 4) + 2] << 16;
+		readDataDwords[i] |= readData[(i * 4) + 1] << 8;
+		readDataDwords[i] |= readData[(i * 4) + 0];
+	}
+
+	for (size_t i = 0; i < bytesRead / 4; i++)
+	{
+		printf("%08x ", readDataDwords[i]);
+	}
+	processDataFromDevice(readDataDwords);
 }
 
 void saf_core_impl::processDataFromDevice(uint32_t data[16]) {
@@ -169,18 +191,18 @@ std::string saf_core_impl::toString() {
 
 int saf_core_impl::Connect()
 {
-    #define MAX_STR 255   
-
-	wchar_t wstr[MAX_STR];
 	handle = hid_open(56, 78, NULL);
 	if (handle == NULL)
 	{
 		std::cout << "Couldn't open device" << std::endl;
+
+		return 1;
 	} else {
 		std::cout << "Connected" << std::endl;
 		usbThread = std::thread(&saf_core_impl::runUsbThread, this);
+
+		return 0;
 	}
-	return 0;
 }
 
 int saf_core_impl::Disconnect()
@@ -214,6 +236,17 @@ uint32_t saf_core_impl::getSetPosition()
 uint32_t saf_core_impl::getMaxPosition()
 {
 	return dev_max_pos;
+}
+
+void saf_core_impl::setMaxPosition(uint32_t pos)
+{	
+	symple_state_request_t s;
+	s.isWrite = true;
+	s.requestedValue = pos;
+	s.stateDwordId = MAX_POSITION_DWORD;
+	commandQueueMutex.lock();
+	commandQueue.push(s);
+	commandQueueMutex.unlock();
 }
 
 bool saf_core_impl::getReversed()

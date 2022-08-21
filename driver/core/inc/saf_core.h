@@ -14,7 +14,7 @@ public:
     virtual uint32_t getSetPosition() = 0;
     //virtual uint32_t setSetPosition() = 0;
     virtual uint32_t getMaxPosition() = 0;
-    //virtual uint32_t setMaxPosition() = 0;
+    virtual void setMaxPosition(uint32_t pos) = 0;
     virtual bool     getReversed() = 0;
     //virtual uint32_t setZero() = 0;
     virtual uint32_t getStepPeriodUs() = 0;
