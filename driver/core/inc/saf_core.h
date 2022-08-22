@@ -33,6 +33,15 @@ public:
 
     virtual uint32_t getSgResult() = 0;
     virtual uint32_t getCsActual() = 0;
+    virtual bool     getOverTempErr() = 0;
+    virtual bool     getOverTempWarn() = 0;
+    virtual bool     getS2GA() = 0;
+    virtual bool     getS2GB() = 0;
+    virtual bool     getS2VSA() = 0;
+    virtual bool     getS2VSB() = 0;
+    virtual bool     getOLA() = 0;
+    virtual bool     getOLB() = 0;
+
 
     virtual uint32_t getIRun() = 0;
     virtual uint32_t setIRun(uint8_t irun) = 0;
