@@ -32,6 +32,7 @@ private:
 
 
 	std::queue < symple_state_request_t> commandQueue;
+	uint32_t pending_commands;
 
 	uint32_t dev_status;
 	uint32_t dev_cur_pos;
@@ -58,14 +59,17 @@ public:
 
 	virtual uint32_t getCurrentPosition();
 	virtual uint32_t getSetPosition();
-	//virtual uint32_t setSetPosition() = 0;
+	virtual void     setSetPosition(uint32_t pos);
 	virtual uint32_t getMaxPosition();
-	virtual void setMaxPosition(uint32_t pos);
-	virtual bool     getReversed();
-	//virtual uint32_t setZero() = 0;
+	virtual void     setMaxPosition(uint32_t pos);
+	virtual void     setZero();
 	virtual uint32_t getStepPeriodUs();
-	//virtual uint32_t setStepPeriodUs() = 0;
+	virtual void     setStepPeriodUs(uint32_t us);
 	virtual bool     getMoving();
+	
+	virtual bool     getReversed();
+	virtual void     toggleReversed();
+
 };
 
 std::unique_ptr<SympleAFCore> saf_core_factory::create(){
@@ -118,6 +122,7 @@ void saf_core_impl::writeDataPendingDataToDevice()
 		}
 		hid_write(handle, byte_to_dev, 65);
 	}
+	pending_commands = 0;
 	commandQueueMutex.unlock();
 }
 
@@ -190,6 +195,7 @@ void saf_core_impl::processDataFromDevice(uint32_t data[16]) {
 
 saf_core_impl::saf_core_impl(/* args */)
 {	
+	pending_commands = 0;
 	handle = NULL;
 	stopUsbThread = false;
 	hid_init();
@@ -262,6 +268,17 @@ uint32_t saf_core_impl::getSetPosition()
 	return dev_set_pos;
 }
 
+void saf_core_impl::setSetPosition(uint32_t pos)
+{
+	symple_state_request_t s;
+	s.isWrite = true;
+	s.requestedValue = pos;
+	s.stateDwordId = SET_POSITION_DWORD;
+	commandQueueMutex.lock();
+	commandQueue.push(s);
+	commandQueueMutex.unlock();
+}
+
 uint32_t saf_core_impl::getMaxPosition()
 {
 	return dev_max_pos;
@@ -283,9 +300,45 @@ bool saf_core_impl::getReversed()
 	return dev_status & STATUS_REVERSE_BIT;
 }
 
+void saf_core_impl::toggleReversed()
+{
+	commandQueueMutex.lock();
+	pending_commands |= COMMAND_TOGGLE_REVERSE_BIT;
+	symple_state_request_t s;
+	s.isWrite = true;
+	s.requestedValue = pending_commands;
+	s.stateDwordId = COMMAND_DWORD;
+	commandQueue.push(s);
+	commandQueueMutex.unlock();
+}
+
+void saf_core_impl::setZero()
+{
+
+	commandQueueMutex.lock();
+	pending_commands |= COMMAND_SET_ZERO_BIT;
+	symple_state_request_t s;
+	s.isWrite = true;
+	s.requestedValue = pending_commands;
+	s.stateDwordId = COMMAND_DWORD;
+	commandQueue.push(s);
+	commandQueueMutex.unlock();
+}
+
 uint32_t saf_core_impl::getStepPeriodUs()
 {
 	return dev_step_time_us;
+}
+
+void saf_core_impl::setStepPeriodUs(uint32_t us)
+{
+	symple_state_request_t s;
+	s.isWrite = true;
+	s.requestedValue = us;
+	s.stateDwordId = STEP_TIME_MICROSEC;
+	commandQueueMutex.lock();
+	commandQueue.push(s);
+	commandQueueMutex.unlock();
 }
 
 bool saf_core_impl::getMoving()

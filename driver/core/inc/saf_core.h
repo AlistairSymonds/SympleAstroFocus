@@ -12,15 +12,17 @@ public:
     
     virtual uint32_t getCurrentPosition() = 0;
     virtual uint32_t getSetPosition() = 0;
-    //virtual uint32_t setSetPosition() = 0;
+    virtual void     setSetPosition(uint32_t pos) = 0;
     virtual uint32_t getMaxPosition() = 0;
-    virtual void setMaxPosition(uint32_t pos) = 0;
-    virtual bool     getReversed() = 0;
-    //virtual uint32_t setZero() = 0;
+    virtual void     setMaxPosition(uint32_t pos) = 0;
+    virtual void     setZero() = 0;
     virtual uint32_t getStepPeriodUs() = 0;
-    //virtual uint32_t setStepPeriodUs() = 0;
+    virtual void     setStepPeriodUs(uint32_t pos) = 0;
     virtual bool     getMoving() = 0;
 
+    //Slightly more specialised methods
+    virtual bool     getReversed() = 0; 
+    virtual void     toggleReversed() = 0;
     
     /*
     //TMC specialised methods
