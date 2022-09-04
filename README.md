@@ -28,7 +28,9 @@ https://github.com/AlistairSymonds/SympleAstroFocus/wiki
 ![saf_pcb](https://user-images.githubusercontent.com/5210224/174461619-b2c8f1a6-9a44-44a0-a194-0b4afad55e60.jpg)
 
 All supported by JLCPCB's assembly service, schematic available here:
+These two projects are functionally identical - just using a different package of the same microcontroller to alleviate supply chain issues.
 https://oshwlab.com/alistair.symonds/sympleaf_rev1_copy
+https://oshwlab.com/alistair.symonds/sympleaf_rev1
 
 # Licensing
 By default the project is licensed under CC BY-NC 3.0, this does NOT allow for commercial use. If you would like to use the project in a commerical manner or 
