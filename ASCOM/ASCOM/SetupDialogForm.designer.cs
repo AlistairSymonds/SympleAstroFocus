@@ -94,6 +94,22 @@ namespace ASCOM.SympleAstroFocus
             this.visibilityButtonsTable = new System.Windows.Forms.TableLayoutPanel();
             this.toggleDebugVisibilitybutton = new System.Windows.Forms.Button();
             this.toggleConfigVisibilitybutton = new System.Windows.Forms.Button();
+            this.otwarn_label = new System.Windows.Forms.Label();
+            this.oterr_label = new System.Windows.Forms.Label();
+            this.otwarnVal = new System.Windows.Forms.Label();
+            this.oterrVal = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.s2gaVal = new System.Windows.Forms.Label();
+            this.s2gbVal = new System.Windows.Forms.Label();
+            this.s2vsaVal = new System.Windows.Forms.Label();
+            this.s2vsbVal = new System.Windows.Forms.Label();
+            this.olaVal = new System.Windows.Forms.Label();
+            this.olbVal = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.picASCOM)).BeginInit();
             this.controlPanel.SuspendLayout();
             this.configPanel.SuspendLayout();
@@ -361,7 +377,7 @@ namespace ASCOM.SympleAstroFocus
             this.controlPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.controlPanel.Location = new System.Drawing.Point(3, 3);
             this.controlPanel.Name = "controlPanel";
-            this.controlPanel.Size = new System.Drawing.Size(1032, 198);
+            this.controlPanel.Size = new System.Drawing.Size(1033, 198);
             this.controlPanel.TabIndex = 31;
             // 
             // triggerHomingButton
@@ -383,7 +399,7 @@ namespace ASCOM.SympleAstroFocus
             this.configPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.configPanel.Location = new System.Drawing.Point(3, 246);
             this.configPanel.Name = "configPanel";
-            this.configPanel.Size = new System.Drawing.Size(1032, 232);
+            this.configPanel.Size = new System.Drawing.Size(1033, 232);
             this.configPanel.TabIndex = 32;
             // 
             // configTableLayout
@@ -395,7 +411,7 @@ namespace ASCOM.SympleAstroFocus
             this.configTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.configTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.configTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 287F));
-            this.configTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 160F));
+            this.configTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 161F));
             this.configTableLayout.Controls.Add(this.motorSpeedSelector, 2, 3);
             this.configTableLayout.Controls.Add(this.updateStallThresh, 3, 5);
             this.configTableLayout.Controls.Add(this.iholdSetVal, 2, 2);
@@ -428,7 +444,7 @@ namespace ASCOM.SympleAstroFocus
             this.configTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.configTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.configTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.configTableLayout.Size = new System.Drawing.Size(1030, 230);
+            this.configTableLayout.Size = new System.Drawing.Size(1031, 230);
             this.configTableLayout.TabIndex = 0;
             // 
             // motorSpeedSelector
@@ -454,7 +470,7 @@ namespace ASCOM.SympleAstroFocus
             this.updateStallThresh.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.updateStallThresh.Location = new System.Drawing.Point(872, 175);
             this.updateStallThresh.Name = "updateStallThresh";
-            this.updateStallThresh.Size = new System.Drawing.Size(154, 51);
+            this.updateStallThresh.Size = new System.Drawing.Size(155, 51);
             this.updateStallThresh.TabIndex = 37;
             this.updateStallThresh.Text = "Update";
             this.updateStallThresh.UseVisualStyleBackColor = true;
@@ -481,7 +497,7 @@ namespace ASCOM.SympleAstroFocus
             this.updateIrunButton.Dock = System.Windows.Forms.DockStyle.Fill;
             this.updateIrunButton.Location = new System.Drawing.Point(872, 22);
             this.updateIrunButton.Name = "updateIrunButton";
-            this.updateIrunButton.Size = new System.Drawing.Size(154, 27);
+            this.updateIrunButton.Size = new System.Drawing.Size(155, 27);
             this.updateIrunButton.TabIndex = 37;
             this.updateIrunButton.Text = "Update";
             this.updateIrunButton.UseVisualStyleBackColor = true;
@@ -548,7 +564,7 @@ namespace ASCOM.SympleAstroFocus
             this.updateIholdButton.Dock = System.Windows.Forms.DockStyle.Fill;
             this.updateIholdButton.Location = new System.Drawing.Point(872, 56);
             this.updateIholdButton.Name = "updateIholdButton";
-            this.updateIholdButton.Size = new System.Drawing.Size(154, 27);
+            this.updateIholdButton.Size = new System.Drawing.Size(155, 27);
             this.updateIholdButton.TabIndex = 40;
             this.updateIholdButton.Text = "Update";
             this.updateIholdButton.UseVisualStyleBackColor = true;
@@ -561,7 +577,7 @@ namespace ASCOM.SympleAstroFocus
             this.updateStepSpeedButton.Dock = System.Windows.Forms.DockStyle.Fill;
             this.updateStepSpeedButton.Location = new System.Drawing.Point(872, 90);
             this.updateStepSpeedButton.Name = "updateStepSpeedButton";
-            this.updateStepSpeedButton.Size = new System.Drawing.Size(154, 27);
+            this.updateStepSpeedButton.Size = new System.Drawing.Size(155, 27);
             this.updateStepSpeedButton.TabIndex = 41;
             this.updateStepSpeedButton.Text = "Update";
             this.updateStepSpeedButton.UseVisualStyleBackColor = true;
@@ -609,7 +625,7 @@ namespace ASCOM.SympleAstroFocus
             this.updateHomingDirs.Dock = System.Windows.Forms.DockStyle.Fill;
             this.updateHomingDirs.Location = new System.Drawing.Point(872, 124);
             this.updateHomingDirs.Name = "updateHomingDirs";
-            this.updateHomingDirs.Size = new System.Drawing.Size(154, 44);
+            this.updateHomingDirs.Size = new System.Drawing.Size(155, 44);
             this.updateHomingDirs.TabIndex = 46;
             this.updateHomingDirs.Text = "Update";
             this.updateHomingDirs.UseVisualStyleBackColor = true;
@@ -687,7 +703,7 @@ namespace ASCOM.SympleAstroFocus
             this.debugPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.debugPanel.Location = new System.Drawing.Point(3, 484);
             this.debugPanel.Name = "debugPanel";
-            this.debugPanel.Size = new System.Drawing.Size(1032, 165);
+            this.debugPanel.Size = new System.Drawing.Size(1033, 249);
             this.debugPanel.TabIndex = 33;
             this.debugPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.debugPanel_Paint);
             // 
@@ -719,11 +735,27 @@ namespace ASCOM.SympleAstroFocus
             this.tableLayoutPanel1.Controls.Add(this.stepperDriverEnabledVal, 1, 7);
             this.tableLayoutPanel1.Controls.Add(this.homingLabel, 2, 0);
             this.tableLayoutPanel1.Controls.Add(this.homingVal, 3, 0);
+            this.tableLayoutPanel1.Controls.Add(this.otwarn_label, 2, 2);
+            this.tableLayoutPanel1.Controls.Add(this.oterr_label, 2, 3);
+            this.tableLayoutPanel1.Controls.Add(this.otwarnVal, 3, 2);
+            this.tableLayoutPanel1.Controls.Add(this.oterrVal, 3, 3);
+            this.tableLayoutPanel1.Controls.Add(this.label6, 2, 4);
+            this.tableLayoutPanel1.Controls.Add(this.label7, 2, 5);
+            this.tableLayoutPanel1.Controls.Add(this.label8, 2, 6);
+            this.tableLayoutPanel1.Controls.Add(this.label9, 2, 7);
+            this.tableLayoutPanel1.Controls.Add(this.label10, 2, 8);
+            this.tableLayoutPanel1.Controls.Add(this.label11, 2, 9);
+            this.tableLayoutPanel1.Controls.Add(this.s2gaVal, 3, 4);
+            this.tableLayoutPanel1.Controls.Add(this.s2gbVal, 3, 5);
+            this.tableLayoutPanel1.Controls.Add(this.s2vsaVal, 3, 6);
+            this.tableLayoutPanel1.Controls.Add(this.s2vsbVal, 3, 7);
+            this.tableLayoutPanel1.Controls.Add(this.olaVal, 3, 8);
+            this.tableLayoutPanel1.Controls.Add(this.olbVal, 3, 9);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 8;
+            this.tableLayoutPanel1.RowCount = 12;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -732,7 +764,11 @@ namespace ASCOM.SympleAstroFocus
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1030, 163);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1031, 247);
             this.tableLayoutPanel1.TabIndex = 33;
             // 
             // csActualVal
@@ -843,7 +879,7 @@ namespace ASCOM.SympleAstroFocus
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel.Size = new System.Drawing.Size(1038, 652);
+            this.tableLayoutPanel.Size = new System.Drawing.Size(1039, 736);
             this.tableLayoutPanel.TabIndex = 36;
             // 
             // visibilityButtonsTable
@@ -859,7 +895,7 @@ namespace ASCOM.SympleAstroFocus
             this.visibilityButtonsTable.Name = "visibilityButtonsTable";
             this.visibilityButtonsTable.RowCount = 1;
             this.visibilityButtonsTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.visibilityButtonsTable.Size = new System.Drawing.Size(1032, 33);
+            this.visibilityButtonsTable.Size = new System.Drawing.Size(1033, 33);
             this.visibilityButtonsTable.TabIndex = 38;
             this.visibilityButtonsTable.Paint += new System.Windows.Forms.PaintEventHandler(this.visibilityButtonsTable_Paint);
             // 
@@ -870,7 +906,7 @@ namespace ASCOM.SympleAstroFocus
             this.toggleDebugVisibilitybutton.Dock = System.Windows.Forms.DockStyle.Fill;
             this.toggleDebugVisibilitybutton.Location = new System.Drawing.Point(519, 3);
             this.toggleDebugVisibilitybutton.Name = "toggleDebugVisibilitybutton";
-            this.toggleDebugVisibilitybutton.Size = new System.Drawing.Size(510, 27);
+            this.toggleDebugVisibilitybutton.Size = new System.Drawing.Size(511, 27);
             this.toggleDebugVisibilitybutton.TabIndex = 36;
             this.toggleDebugVisibilitybutton.Text = "Debug Info";
             this.toggleDebugVisibilitybutton.UseVisualStyleBackColor = true;
@@ -888,6 +924,150 @@ namespace ASCOM.SympleAstroFocus
             this.toggleConfigVisibilitybutton.Text = "Show Configuration";
             this.toggleConfigVisibilitybutton.UseVisualStyleBackColor = true;
             this.toggleConfigVisibilitybutton.Click += new System.EventHandler(this.toggleConfigVisibilitybutton_Click_1);
+            // 
+            // otwarn_label
+            // 
+            this.otwarn_label.AutoSize = true;
+            this.otwarn_label.Location = new System.Drawing.Point(518, 55);
+            this.otwarn_label.Name = "otwarn_label";
+            this.otwarn_label.Size = new System.Drawing.Size(173, 17);
+            this.otwarn_label.TabIndex = 41;
+            this.otwarn_label.Text = "Overtemperature warning:";
+            // 
+            // oterr_label
+            // 
+            this.oterr_label.AutoSize = true;
+            this.oterr_label.Location = new System.Drawing.Point(518, 73);
+            this.oterr_label.Name = "oterr_label";
+            this.oterr_label.Size = new System.Drawing.Size(156, 17);
+            this.oterr_label.TabIndex = 42;
+            this.oterr_label.Text = "Overtemperature Error:";
+            // 
+            // otwarnVal
+            // 
+            this.otwarnVal.AutoSize = true;
+            this.otwarnVal.Location = new System.Drawing.Point(775, 55);
+            this.otwarnVal.Name = "otwarnVal";
+            this.otwarnVal.Size = new System.Drawing.Size(31, 17);
+            this.otwarnVal.TabIndex = 43;
+            this.otwarnVal.Text = "N/A";
+            // 
+            // oterrVal
+            // 
+            this.oterrVal.AutoSize = true;
+            this.oterrVal.Location = new System.Drawing.Point(775, 73);
+            this.oterrVal.Name = "oterrVal";
+            this.oterrVal.Size = new System.Drawing.Size(31, 17);
+            this.oterrVal.TabIndex = 44;
+            this.oterrVal.Text = "N/A";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(518, 91);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(153, 17);
+            this.label6.TabIndex = 45;
+            this.label6.Text = "Short to ground, A coil:";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(518, 109);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(153, 17);
+            this.label7.TabIndex = 46;
+            this.label7.Text = "Short to ground, B coil:";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(518, 127);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(160, 17);
+            this.label8.TabIndex = 47;
+            this.label8.Text = "Short to Vsource, A coil:";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(518, 145);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(160, 17);
+            this.label9.TabIndex = 48;
+            this.label9.Text = "Short to Vsource, B coil:";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(518, 163);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(130, 17);
+            this.label10.TabIndex = 49;
+            this.label10.Text = "Open circuit, A coil:";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(518, 184);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(130, 17);
+            this.label11.TabIndex = 50;
+            this.label11.Text = "Open circuit, B coil:";
+            // 
+            // s2gaVal
+            // 
+            this.s2gaVal.AutoSize = true;
+            this.s2gaVal.Location = new System.Drawing.Point(775, 91);
+            this.s2gaVal.Name = "s2gaVal";
+            this.s2gaVal.Size = new System.Drawing.Size(54, 17);
+            this.s2gaVal.TabIndex = 51;
+            this.s2gaVal.Text = "label12";
+            // 
+            // s2gbVal
+            // 
+            this.s2gbVal.AutoSize = true;
+            this.s2gbVal.Location = new System.Drawing.Point(775, 109);
+            this.s2gbVal.Name = "s2gbVal";
+            this.s2gbVal.Size = new System.Drawing.Size(54, 17);
+            this.s2gbVal.TabIndex = 52;
+            this.s2gbVal.Text = "label13";
+            // 
+            // s2vsaVal
+            // 
+            this.s2vsaVal.AutoSize = true;
+            this.s2vsaVal.Location = new System.Drawing.Point(775, 127);
+            this.s2vsaVal.Name = "s2vsaVal";
+            this.s2vsaVal.Size = new System.Drawing.Size(54, 17);
+            this.s2vsaVal.TabIndex = 53;
+            this.s2vsaVal.Text = "label14";
+            // 
+            // s2vsbVal
+            // 
+            this.s2vsbVal.AutoSize = true;
+            this.s2vsbVal.Location = new System.Drawing.Point(775, 145);
+            this.s2vsbVal.Name = "s2vsbVal";
+            this.s2vsbVal.Size = new System.Drawing.Size(54, 17);
+            this.s2vsbVal.TabIndex = 54;
+            this.s2vsbVal.Text = "label15";
+            // 
+            // olaVal
+            // 
+            this.olaVal.AutoSize = true;
+            this.olaVal.Location = new System.Drawing.Point(775, 163);
+            this.olaVal.Name = "olaVal";
+            this.olaVal.Size = new System.Drawing.Size(54, 17);
+            this.olaVal.TabIndex = 55;
+            this.olaVal.Text = "label16";
+            // 
+            // olbVal
+            // 
+            this.olbVal.AutoSize = true;
+            this.olbVal.Location = new System.Drawing.Point(775, 184);
+            this.olbVal.Name = "olbVal";
+            this.olbVal.Size = new System.Drawing.Size(54, 17);
+            this.olbVal.TabIndex = 56;
+            this.olbVal.Text = "label17";
             // 
             // SetupDialogForm
             // 
@@ -999,5 +1179,21 @@ namespace ASCOM.SympleAstroFocus
         private System.Windows.Forms.Label homingLabel;
         private System.Windows.Forms.Label homingVal;
         private System.Windows.Forms.ComboBox motorSpeedSelector;
+        private System.Windows.Forms.Label otwarn_label;
+        private System.Windows.Forms.Label oterr_label;
+        private System.Windows.Forms.Label otwarnVal;
+        private System.Windows.Forms.Label oterrVal;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label s2gaVal;
+        private System.Windows.Forms.Label s2gbVal;
+        private System.Windows.Forms.Label s2vsaVal;
+        private System.Windows.Forms.Label s2vsbVal;
+        private System.Windows.Forms.Label olaVal;
+        private System.Windows.Forms.Label olbVal;
     }
 }

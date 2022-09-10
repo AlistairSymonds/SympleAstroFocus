@@ -96,6 +96,19 @@ namespace ASCOM.SympleAstroFocus
 
                     Invoke(new Action(() => { csActualVal.Text = f.CS_ACTUAL.ToString(); }));
 
+                    Invoke(new Action(() => { oterrVal.Text = f.OT_ERROR.ToString(); }));
+                    Invoke(new Action(() => { otwarnVal.Text = f.OT_WARN.ToString(); }));
+
+                    Invoke(new Action(() => { s2gaVal.Text = f.S2GA.ToString(); }));
+                    Invoke(new Action(() => { s2gbVal.Text = f.S2GB.ToString(); }));
+
+                    Invoke(new Action(() => { s2vsaVal.Text = f.S2VSA.ToString(); }));
+                    Invoke(new Action(() => { s2vsbVal.Text = f.S2VSB.ToString(); }));
+
+                    Invoke(new Action(() => { olaVal.Text = f.OLA.ToString(); }));
+                    Invoke(new Action(() => { olbVal.Text = f.OLB.ToString(); }));
+
+
 
                     Invoke(new Action(() => { homingDirectionsCurrVals.SetItemChecked(0, f.HomingTowardsZeroEnabled); }));
 

@@ -768,6 +768,70 @@ namespace ASCOM.SympleAstroFocus
             }
         }
 
+        public bool OT_WARN
+        {
+            get
+            {
+                return Convert.ToBoolean((driverStatus & Constants.DRIVER_STATUS_OT_WARN_MASK) >> Constants.DRIVER_STATUS_OT_WARN_SHIFT);
+            }
+        }
+
+        public bool OT_ERROR
+        {
+            get
+            {
+                return Convert.ToBoolean((driverStatus & Constants.DRIVER_STATUS_OT_ERROR_MASK) >> Constants.DRIVER_STATUS_OT_ERROR_SHIFT);
+            }
+        }
+
+        public bool S2GA
+        {
+            get
+            {
+                return Convert.ToBoolean((driverStatus & Constants.DRIVER_STATUS_S2GA_MASK) >> Constants.DRIVER_STATUS_S2GA_SHIFT);
+            }
+        }
+
+        public bool S2GB
+        {
+            get
+            {
+                return Convert.ToBoolean((driverStatus & Constants.DRIVER_STATUS_S2GB_MASK) >> Constants.DRIVER_STATUS_S2GB_SHIFT);
+            }
+        }
+
+        public bool S2VSA
+        {
+            get
+            {
+                return Convert.ToBoolean((driverStatus & Constants.DRIVER_STATUS_S2VSA_MASK) >> Constants.DRIVER_STATUS_S2VSA_SHIFT);
+            }
+        }
+
+        public bool S2VSB
+        {
+            get
+            {
+                return Convert.ToBoolean((driverStatus & Constants.DRIVER_STATUS_S2VSB_MASK) >> Constants.DRIVER_STATUS_S2VSB_SHIFT);
+            }
+        }
+
+        public bool OLA
+        {
+            get
+            {
+                return Convert.ToBoolean((driverStatus & Constants.DRIVER_STATUS_OLA_MASK) >> Constants.DRIVER_STATUS_OLA_SHIFT);
+            }
+        }
+
+        public bool OLB
+        {
+            get
+            {
+                return Convert.ToBoolean((driverStatus & Constants.DRIVER_STATUS_OLB_MASK) >> Constants.DRIVER_STATUS_OLB_SHIFT);
+            }
+        }
+
         public uint IRUN
         {
             set

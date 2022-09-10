@@ -58,8 +58,29 @@ public class Constants
     public const uint DRIVER_STATUS_SG_RESULT_MASK = 0x3FF;
     public const int DRIVER_STATUS_SG_RESULT_SHIFT = 0;
 
+    public const uint DRIVER_STATUS_OT_WARN_MASK = (0x400);
+    public const int DRIVER_STATUS_OT_WARN_SHIFT = 10;
+    public const uint DRIVER_STATUS_OT_ERROR_MASK = (0x800);
+    public const int DRIVER_STATUS_OT_ERROR_SHIFT = 11;
+
+    public const uint DRIVER_STATUS_S2GA_MASK = (0x1000);
+    public const int DRIVER_STATUS_S2GA_SHIFT = 12;
+    public const uint DRIVER_STATUS_S2GB_MASK = (0x2000);
+    public const int DRIVER_STATUS_S2GB_SHIFT = 13;
+
+    public const uint DRIVER_STATUS_S2VSA_MASK = (0x4000);
+    public const int DRIVER_STATUS_S2VSA_SHIFT = 14;
+    public const uint DRIVER_STATUS_S2VSB_MASK = (0x8000);
+    public const int DRIVER_STATUS_S2VSB_SHIFT = 15;
+
     public const uint DRIVER_STATUS_CS_ACTUAL_MASK = 0x1F0000;
     public const int DRIVER_STATUS_CS_ACTUAL_SHIFT = 16;
+
+    public const uint DRIVER_STATUS_OLA_MASK = (0x20000);
+    public const int DRIVER_STATUS_OLA_SHIFT = 21;
+    public const uint DRIVER_STATUS_OLB_MASK = (0x40000);
+    public const int DRIVER_STATUS_OLB_SHIFT = 22;
+
 
     public enum mcu_t : uint
     {
